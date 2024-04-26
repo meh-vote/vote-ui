@@ -10,6 +10,7 @@ export default function Page() {
           <div id="menu"><FontAwesomeIcon icon={['fas', 'bars']} size="2xl" /></div>
         </div>
         <h1>Meh voting</h1>
+        <h1 className="text-3xl font-bold underline">TailwindCSS test</h1>
       </div>
     );
   }
