@@ -16,9 +16,12 @@ export default function Page() {
 }
 
 // Connect Wallet
+// Add Base to Wallet
 // Set Chain to Base
 // Add Token to Wallet
 // Indicate connection status
+
+// Buy/Trade Meh
 
 function Product() {
     return (
