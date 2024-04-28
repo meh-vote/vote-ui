@@ -1,4 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import ProductCard from '../components/product'
 
 export default function Page() {
     return (
@@ -35,13 +36,13 @@ function Product() {
 
 function Products() {
     return (
-        <div className='flex flex-wrap w-screen'>
+        <div className='flex flex-wrap w-screen card_container'>
             <Product />
             <Product />
             <Product />
             <Product />
             <Product />
-            <Product />
+            <ProductCard />
         </div>
     )
 };
