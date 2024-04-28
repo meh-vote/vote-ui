@@ -22,10 +22,6 @@ body {
     grid-template-columns: 1fr 1fr;
 }
 
-#header+#main {
-    margin-top: 100px;
-}
-
 #header #logo {
     display: inline-block;
     align-content: center;
@@ -43,6 +39,14 @@ body {
     height: 40px;
 }
 
+#main {
+    height: calc(100vh - 60px);
+    background-image: url('/images/vote_bg_1.png');
+    background-size: cover;
+    background-color: rgb(255 255 255 / 0.7);
+    background-blend-mode: overlay;
+}
+
 .card-container {
     perspective: 1000px;
 }
@@ -52,7 +56,7 @@ body {
     height: 100%;
     position: relative;
     transform-style: preserve-3d;
-    transition: transform 0.7s ease-in-out;
+    transition: transform 0.5s ease-in-out;
 }
 
 .card-front,

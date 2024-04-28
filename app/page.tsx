@@ -10,7 +10,7 @@ export default function Page() {
                 </div>
                 <div id="menu"><FontAwesomeIcon icon={['fas', 'bars']} size="2xl" /></div>
             </div>
-            <Products />
+            <div id="main"><Products /></div>
             <div id="footer"></div>
         </div>
     );
@@ -36,12 +36,12 @@ function Product() {
 
 function Products() {
     return (
-        <div className='flex flex-wrap w-screen card_container'>
+        <div className='flex flex-wrap w-screen'>
             <Product />
             <Product />
             <Product />
             <Product />
-            <Product />
+            <ProductCard />
             <ProductCard />
         </div>
     )
