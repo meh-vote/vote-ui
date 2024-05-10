@@ -1,4 +1,7 @@
-import printMe from './print.js';
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import { library, dom } from '@fortawesome/fontawesome-svg-core';
+import { faCirclePlus } from '@fortawesome/free-solid-svg-icons';
+import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
 
 import { init as walletInit, calcGas } from './wallet.js';
 import {
@@ -11,6 +14,9 @@ import {
 } from './addr.js';
 import { product } from './product.js';
 import { cleanBigInt, getAccounts, showErrors, showSuccess, sharedData } from './common.js';
+
+library.add(faCirclePlus,faTrashCan);
+dom.watch();
 
 // ****************************
 // Todo list
