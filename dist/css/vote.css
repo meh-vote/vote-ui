@@ -1,0 +1,397 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+:root {
+    --alert_color: rgb(234 35 254);
+    --success_color: rgb(2 228 43);
+    --header_height: 94px;
+}
+
+*, body {
+    font-family: "Roboto", sans-serif;
+}
+
+body {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto;
+    grid-template-areas:
+      "header clock wallet"
+      "main main main"
+      "footer footer footer";
+}
+
+@media screen and (max-width: 1024px) {
+    body {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto;
+        grid-template-areas: 
+        "header wallet"
+        "main main"
+        "clock clock";
+    }
+    #main {
+        height: calc(100vh - (var(--header_height) * 2));
+        overflow-y: scroll;
+    }
+    #game_clock {
+        position: sticky;
+        bottom: 0;
+        width: 100vw;
+        height: var(--header_height);
+        z-index: 1;
+    }
+}
+
+.hidden {
+    display: none;
+}
+
+#overlay {
+    display: none;
+    position: fixed;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    text-align: center;
+    z-index: 1000;
+    background-color: rgb(188 188 188 / 0.8);
+    align-content: center;
+}
+
+body.overlay_on {
+    overflow: hidden;
+}
+
+body.overlay_on #overlay {
+    display: block;
+}
+
+#header {
+    grid-area: header;
+    position: unset;
+    width:initial !important;
+    background-color: unset;
+    padding:0;
+    height:var(--header_height);
+}
+
+#header #logo {
+    background-image: url('/images/meh.png');
+    background-color: white;
+    background-blend-mode: exclusion;
+    background-size: auto 48px;
+    background-repeat: no-repeat;
+    background-position: 1rem center;
+    text-align: right;
+}
+
+#header #logo *{
+    padding-right:0.25rem;
+}
+
+#header #links {
+    margin-right: 20px;
+    display: grid;
+    justify-content: end;
+    grid-auto-flow: column;
+    grid-template-columns: 48px 48px 48px 48px;
+    align-items: center;
+    height:100%; 
+    text-align: center;   
+}
+
+#links .basescan {
+    height: 28px;
+    width: 28px;
+    background-image: url('/images/basescan.png');
+    background-size: contain;
+    background-color: rgb(188 188 188);
+    background-blend-mode: screen;
+    background-repeat: no-repeat;
+    border-radius: 50%;
+    margin: auto;    
+}
+
+#header,
+#wallet {
+    border-bottom: 1px solid black;
+}
+
+#wallet {
+    grid-area: wallet;
+    position: relative;
+    text-align: center;
+    align-self: center;
+    padding-right: 0.5rem;
+    align-self: stretch;
+    align-content: center;
+    top:unset;
+    right:unset;
+}
+
+#wallet_status {
+    font-size: 56px;
+    color: white;
+}
+
+.connected #wallet {
+    background-color: var(--success_color);
+}
+
+.disconnected #wallet {
+    background-color: var(--alert_color);
+    cursor: pointer;
+}
+
+#wallet #approve {
+    position:absolute;
+    bottom: 0;
+    border:1px solid yellow;
+}
+
+#token_status {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+}
+
+#token_status,
+#token_status * {
+    font-family: "Roboto Condensed", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    color:white;
+    font-size: 16px;
+}
+
+#token_status .meh_approval {
+    cursor: pointer;
+}
+
+#token_status .meh_approval.low_approval {
+    color:var(--alert_color);
+}
+
+#del_approval,
+#del_approval * {
+    color: var(--alert_color);
+    cursor: pointer;
+
+}
+
+#game_clock {
+    display: grid;
+    grid-area: clock;
+    text-align: center;
+    color: white;
+    align-self: center;
+    font-weight: bold;
+    font-size: 56px;
+    background-color: black;
+    align-self: stretch;
+    align-content: center;
+    position: relative;
+}
+
+#timer {
+    text-align: center;
+    color: white;
+    align-self: center;
+    font-weight: bold;
+    font-size: 56px;
+}
+
+#timer_status {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+}
+
+#timer_status,
+#timer_status * {
+    font-family: "Roboto Condensed", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    color:white;
+    font-size: 16px;
+    text-transform: uppercase;
+}
+
+#game_clock.limited_time {
+    background-color: var(--alert_color);
+}
+
+#header+#main {
+    margin: 0;
+}
+
+#main {
+    grid-area: main;
+/*    height: calc(100vh - (60px + 1rem));*/
+    width: 100vw;
+    margin: 0;
+    max-width: unset;
+}
+
+#content {
+    padding: 2rem 0;
+    margin: auto;
+    max-width: 1280px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.product {
+    margin: 1rem;
+    background-color: white;
+    color: white;
+    border: 10px solid black;
+    height: 370px;
+    width: 370px;
+    background-size: cover;
+    background-position: center;
+    font-size: 24px;
+    position: relative;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.product .remaining {
+    color: white;
+    padding: 0 0.25rem 0 0;
+    font-size: 24px;
+    position:absolute;
+    bottom:0;
+    right:0;
+    text-shadow: 0 0 3px black;
+    font-family: "Roboto Condensed", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 100;
+    font-style: normal;
+}
+
+.product .desc {
+    flex-flow: wrap;
+    font-size: 24px;
+    display: none;
+    position: relative;
+    padding: 0;
+    height:100%
+}
+
+.product .title {
+    position:absolute;
+    top:0;
+    width:100%;
+    padding: 0.5rem;
+}
+
+.product .title div:first-of-type {
+    font-size:36px;
+    font-weight: bold;
+}
+
+.product .action div:last-of-type {
+    font-size:24px;
+    font-family: "Roboto Condensed", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 100;
+    font-style: normal;
+    letter-spacing: 0.10rem;
+}
+
+.product .message {
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.product .message .success {
+    width: 100%;
+    padding: 0 10px;
+    margin: 0 -10px;
+    text-align: center;
+    background-color: var(--success_color);
+    height: 80px;
+    font-size: 64px;
+    font-weight: bold;
+    align-content: center;
+    opacity: 0.95;
+}
+
+.message .success.small_text {
+    font-family: "Roboto Condensed", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    color: white;
+    font-size: 24px;
+}
+
+.product .alert {
+    height: 100%;
+    align-items: center;
+    position: absolute;
+    top: calc(50% - 40px);
+    width: 100%;
+    padding: 0 10px;
+    margin: 0 -10px;
+    text-align: center;
+    background-color: var(--alert_color);
+    height: 80px;
+    font-size: 64px;
+    font-weight: bold;
+    align-content: center;
+    opacity: 0.9;
+}
+
+.product .action {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: 0 0.5rem;
+}
+
+.product .action div:first-of-type {
+    font-size:32px;
+    font-weight: bold;
+}
+
+.product .title div:last-of-type {
+    font-size:12px;
+    font-family: "Roboto Condensed", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 100;
+    font-style: normal;
+    letter-spacing: 0.10rem;
+    font-style: italic;
+    line-height: 1rem;
+}
+
+.product:active,
+.product:hover {
+    background-color: rgb(0 0 0 / 0.6);
+    background-blend-mode: overlay;
+}
+
+.product:active .remaining,
+.product:hover .remaining,
+.product:hover .message,
+.product:active .message {
+    display:none;
+}
+
+.product:active .desc,
+.product:hover .desc {
+    display: block;
+}
+
+.product .contract_count {
+    background: var(--success_color);
+    position: absolute;
+    top: -1rem;
+    right: -1rem;
+}
