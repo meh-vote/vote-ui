@@ -1,3 +1,4 @@
+import Web3 from 'web3';
 import { switchNetwork } from './wallet.js';
 import { abiVote, abiMeh, abiRoyalty } from './abi.js';
 
