@@ -127,6 +127,7 @@ body.overlay_on #overlay {
     align-content: center;
     top:unset;
     right:unset;
+    display: grid;
 }
 
 #wallet_status {
@@ -153,6 +154,7 @@ body.overlay_on #overlay {
     position: absolute;
     width: 100%;
     text-align: center;
+    bottom:0;
 }
 
 #token_status,
@@ -345,6 +347,7 @@ body.overlay_on #overlay {
     font-size: 64px;
     font-weight: bold;
     align-content: center;
+    display: grid;
     opacity: 0.9;
 }
 
@@ -394,4 +397,5 @@ body.overlay_on #overlay {
     position: absolute;
     top: -1rem;
     right: -1rem;
+    z-index: 2;
 }
