@@ -324,15 +324,6 @@ body.overlay_on #overlay {
     opacity: 0.95;
 }
 
-.message .success.small_text {
-    font-family: "Roboto Condensed", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 400;
-    font-style: normal;
-    color: white;
-    font-size: 24px;
-}
-
 .product .alert {
     height: 100%;
     align-items: center;
@@ -349,6 +340,16 @@ body.overlay_on #overlay {
     align-content: center;
     display: grid;
     opacity: 0.9;
+}
+
+.message .success.small_text,
+.product .alert.small_text {
+    font-family: "Roboto Condensed", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    color: white;
+    font-size: 24px;
 }
 
 .product .action {

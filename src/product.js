@@ -61,7 +61,7 @@ export class product {
             this.html.insertAdjacentHTML('beforeend', `<div class="message"><div class="success small_text">Opens<br />${new Date(this.begin).toLocaleString()}</div></div>`);
         } else if (this.activeStatus == 2) {
             this.html.insertAdjacentHTML('beforeend', `<div class="alert small_text">Voting Closed</div>`);
-        } else if (this.activeStatus == 1 && params.gameStatus == 1 && this.soldOut == false) {
+        } else if (this.activeStatus == 1 && this.soldOut == false) {
             this.html.addEventListener('click', () => vote(this.id))
         }
 
@@ -69,7 +69,8 @@ export class product {
             if (this.soldOut) {
                 this.html.insertAdjacentHTML('afterbegin', `<span id="contract_count_${this.id}" class="contract_count fa-layers-counter fa-4x">CLAIM ${this.contractsOwned}</span>`);
                 this.html.getElementsByClassName(`contract_count`)[0].addEventListener('click', () => {
-                    claim(this.id)
+                    claim(this.id);
+                    evt.stopImmediatePropagation();
                     console.log(`Claiming ${this.contractsOwned} contracts...`)
                 })
             } else {
@@ -87,9 +88,7 @@ export class product {
             };
         })
         .catch((err) => {console.info(err)});
-
-        await this.checkForOwnedContracts();
-
+//        await this.checkForOwnedContracts();
         this.genHtml();
     }
 

@@ -1,22 +1,14 @@
-import '@fortawesome/fontawesome-free/css/all.min.css';
-import { library, dom } from '@fortawesome/fontawesome-svg-core';
-import { faCirclePlus } from '@fortawesome/free-solid-svg-icons';
-import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
-
+import {params, sharedData} from './main.js';
 import { init as walletInit, calcGas } from './wallet.js';
 import {
     MEH_VOTE,
     MEH_TOKEN,
     web3,
     MEHToken,
-    MEHVote,
-    etherscan
+    MEHVote
 } from './addr.js';
 import { product } from './product.js';
-import { cleanBigInt, getAccounts, showErrors, showSuccess, sharedData } from './common.js';
-
-library.add(faCirclePlus,faTrashCan);
-dom.watch();
+import { cleanBigInt, getAccounts, showErrors, showSuccess } from './common.js';
 
 // ****************************
 // Todo list
@@ -40,25 +32,9 @@ dom.watch();
 // [ ] clean up all the code, no really, it's rough
 // [ ] prize Meh indicator / leaderboard
 
-export const params = {
-//    preferredNetwork: '0x14a34', // Sepolia
-    preferredNetwork: '0x2105', // Base
-    gameId: 1,
-    timerDiv: document.getElementById("timer"),
-    gameClockDiv: document.getElementById("game_clock"),
-    timerStatusDiv: document.getElementById("timer_status"),
-    contentDiv: document.getElementById("content"),
-    tokenScale: 1000000000000000000,
-    assumedContracts: 1,
-    gameStatus: 2, // 0 = not started, 1 = started, 2 = ended
-    transactionQueue : [],
-    updatesOnChain : false
-};
-
-sharedData.view = 'vote';
-
 let products = [];
 
+/*
 try {
     if (window.ethereum) {
         console.log(`Found provider at 'window.ethereum'`);
@@ -67,69 +43,72 @@ try {
     showErrors("This d/app requires a web3 provider, like MetaMask", true);
     throw new Error(error);
 }
+*/
 
-await walletInit(params.preferredNetwork);
-await loadGameData();
-await setGameStatus();
-if (params.gameStatus < 2) {
-    showTimer();
-    await loadProductData();
-    updateTransactionQueue();
+export async function loadGameData() {
+    //    let gameDetails = await MEHVote.methods.games(params.gameId).call();
+    fetch(new Request("/data/game_1.json"))
+        .then((response) => response.json())
+        .then((data) => {
+            params.gameStart = Number(data.begin) * 1000;
+            params.gameEnd = Number(data.end) * 1000;
+        })
+        .catch(console.error);
+
+    //  console.log(params)
 }
 
-// ****************************
-// all the VOTE specific things
-// ****************************
-
-async function loadGameData() {
-    let gameDetails = await MEHVote.methods.games(params.gameId).call();
-    params.gameStart = Number(gameDetails.begin) * 1000;
-    params.gameEnd = Number(gameDetails.end) * 1000;
-//    console.log(`game start: ${new Date(params.gameStart).toLocaleString()}, game end: ${new Date(params.gameEnd).toLocaleString()}`);
-}
-
-async function loadProductData() {
-    let gameProducts = await MEHVote.methods.getProductsByGameId(params.gameId).call();
+export async function loadProductData() {
+    // When switching to static date, to allow showing w/o provider, will need to assume that contractsDeposited is unkown
+    //    let gameProducts = await MEHVote.methods.getProductsByGameId(params.gameId).call();
 
     products = [];
-    for (let i = 0; i < gameProducts.length; i++) {
-        products.push(new product({
-            id: Number(gameProducts[i].id),
-            name: gameProducts[i].name,
-            contractsDeposited: Number(gameProducts[i].mehContractsDeposited), // meh contracts deposited
-            mehContracts: Number(gameProducts[i].mehContracts),
-            contractPrice: cleanBigInt(gameProducts[i].mehContractPrice, params.tokenScale),
-            prizeMeh: cleanBigInt(gameProducts[i].prizeMeh, params.tokenScale),
-            mehStore: gameProducts[i].mehStore,
-            begin: Number(gameProducts[i].begin),
-            end: Number(gameProducts[i].end),
-            limitedRun: gameProducts[i].limitedRun,
-            totalContracts: Number(gameProducts[i].totalContracts)
-        }));
-        await products[i].asyncInit();
-    };
 
-    // sort by product begin
-    products = products.sort(function (a, b) { return a.begin - b.begin });
+    await fetch(new Request("/data/products_1.json"))
+        .then((response) => response.json())
+        .then((data) => {
+            for (const _product of data) {
+                products.push(new product({
+                    id: Number(_product.id),
+                    name: _product.name,
+                    contractsDeposited: Number(_product.mehContractsDeposited), // meh contracts deposited
+                    mehContracts: Number(_product.mehContracts),
+                    contractPrice: cleanBigInt(_product.mehContractPrice, params.tokenScale),
+                    prizeMeh: cleanBigInt(_product.prizeMeh, params.tokenScale),
+                    mehStore: _product.mehStore,
+                    begin: Number(_product.begin),
+                    end: Number(_product.end),
+                    limitedRun: _product.limitedRun,
+                    totalContracts: Number(_product.totalContracts)
+                }));
+            }
+            // sort by product begin
+            products = products.sort(function (a, b) { return a.begin - b.begin });
 
-    let lastProductend =products.reduce((maxEnd, currProduct) => {return (currProduct.end > maxEnd.end) ? currProduct : maxEnd});
-    if (params.gameEnd < lastProductend.end) {
-        params.gameEnd = lastProductend.end;
-        checkGameStatus();
+            let lastProductend = products.reduce((maxEnd, currProduct) => { return (currProduct.end > maxEnd.end) ? currProduct : maxEnd });
+            if (params.gameEnd < lastProductend.end) {
+                params.gameEnd = lastProductend.end;
+                checkGameStatus();
+            }
+        })
+        .catch(console.error);
+
+    for (const _product of products) {
+        await _product.asyncInit();
     }
 
     params.contentDiv.innerHTML = '';
-    for (let i = 0; i < products.length; i++) {
-        params.contentDiv.insertAdjacentElement('beforeend', products[i].html);
+    for (const _product of products) {
+        params.contentDiv.insertAdjacentElement('beforeend', _product.html);
     };
 }
 
-async function setGameStatus() {
+export async function setGameStatus() {
     await checkGameStatus();
     var x = setInterval(function () { checkGameStatus(); }, 60000); // Update the game status every minute
 }
 
-async function checkGameStatus() {
+export async function checkGameStatus() {
     var now = new Date().getTime();
     if (params.gameEnd < now) { // game has ended
         params.gameStatus = 2;
@@ -145,13 +124,13 @@ async function checkGameStatus() {
     }
 }
 
-function updateTransactionQueue() {
+export function updateTransactionQueue() {
     var x = setInterval(function () { checkTransactionQueue(); }, 120000); // Check for completion of pending txs every 2 minutes
 }
 
 async function checkTransactionQueue() {
     if (params.transactionQueue && params.transactionQueue.length > 0) {
-        for (let i =  params.transactionQueue.length - 1 ; i >= 0 ; i--) {
+        for (let i = params.transactionQueue.length - 1; i >= 0; i--) {
             ethereum.request({
                 "method": "eth_getTransactionReceipt",
                 "params": [params.transactionQueue[i]]
@@ -173,7 +152,7 @@ async function checkTransactionQueue() {
     }
 }
 
-function showTimer() {
+export function initTimer() {
     params.timerId = setInterval(function () {
         var now = new Date().getTime();
         var distance = params.countDownDate - now;
@@ -225,7 +204,7 @@ export async function vote(_productId) {
         showErrors(`${e.message}`);
         return;
     };
-//     console.log(gas);
+    //     console.log(gas);
 
     const tx = {
         'from': accounts[0],

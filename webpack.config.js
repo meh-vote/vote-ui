@@ -4,7 +4,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
     mode: 'none',
-    entry: './src/vote.js',
+    entry: './src/main.js',
     plugins: [
         new HtmlWebpackPlugin({
             template: "src/index.html",
@@ -12,6 +12,7 @@ module.exports = {
         new CopyPlugin({
             patterns: [
                 { from: 'src/css', to: 'css' },
+                { from: 'src/data', to: 'data' },
                 { from: 'src/images', to: 'images' },
                 { from: 'src/favicon.ico', to: 'favicon.ico' },
             ]

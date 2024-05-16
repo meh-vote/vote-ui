@@ -1,8 +1,6 @@
-import { params } from "./vote.js";
+import { params } from "./main.js";
 import { MEHToken, MEH_VOTE, MEH_TOKEN, etherscan, web3 } from "./addr.js";
 import { calcGas } from "./wallet.js";
-
-export const sharedData = {};
 
 export function cleanBigInt(_bigInt, _divisor = 1) {
     return Math.round(Number(_bigInt) / _divisor);

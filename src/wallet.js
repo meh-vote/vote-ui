@@ -15,13 +15,13 @@ import {
     helpToken,
     helpApproval,
     removeApproval,
-    sharedData,
     checkRemainingApproval,
     cleanBigInt,
     shortenNumber,
     showErrors
 } from './common.js';
-import { params, approveMeh } from './vote.js';
+import { approveMeh } from './vote.js';
+import { params, sharedData } from './main.js';
 
 export const MEHScale = 1000000000000000000;
 export let currWallet = null;
@@ -34,9 +34,8 @@ const prepWallet = {
     correctChain: false,
     tokenAdded: false
 };
-export let userReady = false;
 
-// 1. wallet/'ethereum' available
+// 1. ethereum provider available
 // 2. have the right chain? add the chain?
 // 3. on the right chain? switch chain?
 // 4. have the token? add the token?
@@ -129,14 +128,14 @@ function handleAccountsChanged(accounts) {
 };
 
 // Access user's accounts (EIP-1102)
-async function connect() {
+export async function connect() {
     await ethereum
         .request({ method: 'eth_requestAccounts' })
         .then(handleAccountsChanged)
         .catch((err) => {
             if (err.code === 4001) {
                 // user rejected connection request (EIP-1193)
-                showErrors('User rejected connection request.', true);
+                showErrors('User rejected connection request.');
                 console.log('Please connect to MetaMask.');
             } else {
                 console.error(err);
