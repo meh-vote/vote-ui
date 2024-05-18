@@ -1,6 +1,7 @@
 import Web3 from 'web3';
-import { switchNetwork } from './wallet.js';
+//import { switchNetwork } from './wallet.js';
 import { abiVote, abiMeh, abiRoyalty } from './abi.js';
+import { params } from './main.js';
 
 export let MEH_FAUCET;
 export let MEH_VOTE;
@@ -11,21 +12,24 @@ export let etherscan;
 export let apiKey;
 export let alchemy;
 
-export const defaultChainId = '0x2105';
-// 0x2105 >>> BaseMainnet
-// 0x14a34 >>> BaseSepolia
-
 export let chainId;
+export let networkName;
 
 export let MEHToken;
 export let MEHVote;
 export let MEHRoyalty;
 
+export let chainInfo = [
+    {"chainName": "Base Sepolia", "chainId": "0x14a34", "supported": true},
+    {"chainName": "Base", "chainId": "0x2105", "supported": true},
+    {"chainName": "Ethereum", "chainId": "0x1", "supported": false}
+]
+
 //init();
 
 export async function init() {
-    chainId = await window.ethereum.request({ method: 'eth_chainId' });
-    web3 = new Web3(window.ethereum);
+    chainId = await params.provider.request({ method: 'eth_chainId' });
+    web3 = new Web3(params.provider);
 
     if (chainId == '0x14a34') {    //  ----- BaseSepolia -----
         MEH_TOKEN = "0xEf4C3545edf08563bbC112D5CEf0A10B396Ea12E";
@@ -35,6 +39,7 @@ export async function init() {
         apiKey = "GBfdhUAKP01Zmxr9l8JybRbAnEH7YRb9";
         alchemy = "https://base-sepolia.g.alchemy.com/v2/";
         etherscan = "sepolia.basescan.org";
+        networkName = "Base Sepolia";
     } else if (chainId == '0x2105') {    //  ----- Base -----
         MEH_TOKEN = "0xa999542c71FEbba77602fBc2F784bA9BA0C850F6";
         MEH_FAUCET = "0x97246294c9c373D5f3f5c0E0BA2D2029FF73877e";
@@ -43,10 +48,12 @@ export async function init() {
         apiKey = "DSDV-PHXPq4Znjpnwr4DkthBE6MLWc--";
         alchemy = "https://base-mainnet.g.alchemy.com/v2/"
         etherscan = "basescan.org";
+        networkName = "Base Mainnet";
     } else {
+        networkName = "Unsupported";
         console.error(`Error: Unsupported chain`);
 //        document.getElementById("loading").classList.add('move'); // force the loading screen;
-        await switchNetwork();
+//        await switchNetwork(); // should check whether window is active or not
     }
 
     MEHToken = new web3.eth.Contract(abiMeh, MEH_TOKEN);

@@ -3,8 +3,8 @@ import { library, dom } from '@fortawesome/fontawesome-svg-core';
 import { faCirclePlus } from '@fortawesome/free-solid-svg-icons';
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
 
-import { loadGameData,loadProductData, setGameStatus, initTimer,updateTransactionQueue } from './vote.js';
-import { connect } from './wallet.js';
+import { loadGameData,loadProductData, setGameStatus, updateTransactionQueue } from './vote.js';
+import { init as walletInit, connect } from './wallet.js';
 
 library.add(faCirclePlus, faTrashCan);
 dom.watch();
@@ -34,11 +34,13 @@ dom.watch();
 export const params = {
     //    preferredNetwork: '0x14a34', // Sepolia
     preferredNetwork: '0x2105', // Base
+    currNetwork: null,
     gameId: 1,
     timerDiv: document.getElementById("timer"),
     gameClockDiv: document.getElementById("game_clock"),
     timerStatusDiv: document.getElementById("timer_status"),
     contentDiv: document.getElementById("content"),
+    walletDiv: document.getElementById("wallet_status"),
     tokenScale: 1000000000000000000,
     assumedContracts: 1,
     gameStatus: 2, // 0 = not started, 1 = started, 2 = ended
@@ -52,28 +54,30 @@ export let sharedData = {
     view: 'vote'
 }
 
-
 // SHOW WHAT WE CAN WITHOUT A PROVIDER / WALLET
 await loadGameData();
 await loadProductData();
 await setGameStatus();
-initTimer();
-// ^^^ make showTimer() part of setGameStatus()
 prepConnectBtn();
-
-//updateTransactionQueue();
+await walletInit();
+if (params.wallet) {
+    showConencted();
+}
 
 // NEXT STEPS
-// 1. check for provider
-// 2. check for / connect wallet
-// 3. check for / add / switchchain
-// 4. listen for events; wallet change, chain change, etc
-// 5. monitor tx queue
+// * monitor tx queue
+   // updateTransactionQueue();
 
 function prepConnectBtn() {
-    const walletDiv = document.getElementById("wallet_status");
     document.body.classList.add("disconnected");
     document.body.classList.remove("connected");
-    walletDiv.innerText = 'Connect';
-    walletDiv.addEventListener("click",connect);
+    params.walletDiv.innerText = 'Connect';
+    params.walletDiv.addEventListener("click",connect);
+}
+
+function showConencted() {
+    document.body.classList.add("connected");
+    document.body.classList.remove("disconnected");
+    params.walletDiv.innerText = 'Connected';
+    params.walletDiv.removeEventListener("click",connect);
 }

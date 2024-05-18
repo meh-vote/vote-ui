@@ -15,7 +15,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _fortawesome_free_solid_svg_icons__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(21);
 /* harmony import */ var _fortawesome_free_regular_svg_icons__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(22);
 /* harmony import */ var _vote_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(23);
-/* harmony import */ var _wallet_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(24);
+/* harmony import */ var _wallet_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(298);
 var __webpack_async_dependencies__ = __webpack_handle_async_dependencies__([_vote_js__WEBPACK_IMPORTED_MODULE_2__, _wallet_js__WEBPACK_IMPORTED_MODULE_3__]);
 ([_vote_js__WEBPACK_IMPORTED_MODULE_2__, _wallet_js__WEBPACK_IMPORTED_MODULE_3__] = __webpack_async_dependencies__.then ? (await __webpack_async_dependencies__)() : __webpack_async_dependencies__);
 
@@ -54,11 +54,13 @@ _fortawesome_fontawesome_svg_core__WEBPACK_IMPORTED_MODULE_1__.dom.watch();
 const params = {
     //    preferredNetwork: '0x14a34', // Sepolia
     preferredNetwork: '0x2105', // Base
+    currNetwork: null,
     gameId: 1,
     timerDiv: document.getElementById("timer"),
     gameClockDiv: document.getElementById("game_clock"),
     timerStatusDiv: document.getElementById("timer_status"),
     contentDiv: document.getElementById("content"),
+    walletDiv: document.getElementById("wallet_status"),
     tokenScale: 1000000000000000000,
     assumedContracts: 1,
     gameStatus: 2, // 0 = not started, 1 = started, 2 = ended
@@ -72,30 +74,32 @@ let sharedData = {
     view: 'vote'
 }
 
-
 // SHOW WHAT WE CAN WITHOUT A PROVIDER / WALLET
 await (0,_vote_js__WEBPACK_IMPORTED_MODULE_2__.loadGameData)();
 await (0,_vote_js__WEBPACK_IMPORTED_MODULE_2__.loadProductData)();
 await (0,_vote_js__WEBPACK_IMPORTED_MODULE_2__.setGameStatus)();
-(0,_vote_js__WEBPACK_IMPORTED_MODULE_2__.initTimer)();
-// ^^^ make showTimer() part of setGameStatus()
 prepConnectBtn();
-
-//updateTransactionQueue();
+await (0,_wallet_js__WEBPACK_IMPORTED_MODULE_3__.init)();
+if (params.wallet) {
+    showConencted();
+}
 
 // NEXT STEPS
-// 1. check for provider
-// 2. check for / connect wallet
-// 3. check for / add / switchchain
-// 4. listen for events; wallet change, chain change, etc
-// 5. monitor tx queue
+// * monitor tx queue
+   // updateTransactionQueue();
 
 function prepConnectBtn() {
-    const walletDiv = document.getElementById("wallet_status");
     document.body.classList.add("disconnected");
     document.body.classList.remove("connected");
-    walletDiv.innerText = 'Connect';
-    walletDiv.addEventListener("click",_wallet_js__WEBPACK_IMPORTED_MODULE_3__.connect);
+    params.walletDiv.innerText = 'Connect';
+    params.walletDiv.addEventListener("click",_wallet_js__WEBPACK_IMPORTED_MODULE_3__.connect);
+}
+
+function showConencted() {
+    document.body.classList.add("connected");
+    document.body.classList.remove("disconnected");
+    params.walletDiv.innerText = 'Connected';
+    params.walletDiv.removeEventListener("click",_wallet_js__WEBPACK_IMPORTED_MODULE_3__.connect);
 }
 __webpack_async_result__();
 } catch(e) { __webpack_async_result__(e); } }, 1);
@@ -16652,12 +16656,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   vote: () => (/* binding */ vote)
 /* harmony export */ });
 /* harmony import */ var _main_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
-/* harmony import */ var _wallet_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(24);
-/* harmony import */ var _addr_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(26);
-/* harmony import */ var _product_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(298);
-/* harmony import */ var _common_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(297);
-var __webpack_async_dependencies__ = __webpack_handle_async_dependencies__([_main_js__WEBPACK_IMPORTED_MODULE_0__, _wallet_js__WEBPACK_IMPORTED_MODULE_1__, _addr_js__WEBPACK_IMPORTED_MODULE_2__, _product_js__WEBPACK_IMPORTED_MODULE_3__, _common_js__WEBPACK_IMPORTED_MODULE_4__]);
-([_main_js__WEBPACK_IMPORTED_MODULE_0__, _wallet_js__WEBPACK_IMPORTED_MODULE_1__, _addr_js__WEBPACK_IMPORTED_MODULE_2__, _product_js__WEBPACK_IMPORTED_MODULE_3__, _common_js__WEBPACK_IMPORTED_MODULE_4__] = __webpack_async_dependencies__.then ? (await __webpack_async_dependencies__)() : __webpack_async_dependencies__);
+/* harmony import */ var _common_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(24);
+/* harmony import */ var _addr_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(25);
+/* harmony import */ var _product_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(297);
+var __webpack_async_dependencies__ = __webpack_handle_async_dependencies__([_main_js__WEBPACK_IMPORTED_MODULE_0__, _common_js__WEBPACK_IMPORTED_MODULE_1__, _addr_js__WEBPACK_IMPORTED_MODULE_2__, _product_js__WEBPACK_IMPORTED_MODULE_3__]);
+([_main_js__WEBPACK_IMPORTED_MODULE_0__, _common_js__WEBPACK_IMPORTED_MODULE_1__, _addr_js__WEBPACK_IMPORTED_MODULE_2__, _product_js__WEBPACK_IMPORTED_MODULE_3__] = __webpack_async_dependencies__.then ? (await __webpack_async_dependencies__)() : __webpack_async_dependencies__);
 
 
 
@@ -16727,8 +16730,8 @@ async function loadProductData() {
                     name: _product.name,
                     contractsDeposited: Number(_product.mehContractsDeposited), // meh contracts deposited
                     mehContracts: Number(_product.mehContracts),
-                    contractPrice: (0,_common_js__WEBPACK_IMPORTED_MODULE_4__.cleanBigInt)(_product.mehContractPrice, _main_js__WEBPACK_IMPORTED_MODULE_0__.params.tokenScale),
-                    prizeMeh: (0,_common_js__WEBPACK_IMPORTED_MODULE_4__.cleanBigInt)(_product.prizeMeh, _main_js__WEBPACK_IMPORTED_MODULE_0__.params.tokenScale),
+                    contractPrice: (0,_common_js__WEBPACK_IMPORTED_MODULE_1__.cleanBigInt)(_product.mehContractPrice, _main_js__WEBPACK_IMPORTED_MODULE_0__.params.tokenScale),
+                    prizeMeh: (0,_common_js__WEBPACK_IMPORTED_MODULE_1__.cleanBigInt)(_product.prizeMeh, _main_js__WEBPACK_IMPORTED_MODULE_0__.params.tokenScale),
                     mehStore: _product.mehStore,
                     begin: Number(_product.begin),
                     end: Number(_product.end),
@@ -16760,13 +16763,15 @@ async function loadProductData() {
 async function setGameStatus() {
     await checkGameStatus();
     var x = setInterval(function () { checkGameStatus(); }, 60000); // Update the game status every minute
+    initTimer();
 }
 
 async function checkGameStatus() {
     var now = new Date().getTime();
     if (_main_js__WEBPACK_IMPORTED_MODULE_0__.params.gameEnd < now) { // game has ended
         _main_js__WEBPACK_IMPORTED_MODULE_0__.params.gameStatus = 2;
-        _main_js__WEBPACK_IMPORTED_MODULE_0__.params.timerDiv.innerHTML = "EXPIRED";
+        _main_js__WEBPACK_IMPORTED_MODULE_0__.params.timerDiv.innerHTML = "VOTING HAS ENDED";
+        _main_js__WEBPACK_IMPORTED_MODULE_0__.params.timerDiv.classList.add("small_text");
     } else if (_main_js__WEBPACK_IMPORTED_MODULE_0__.params.gameStart > now) { // game hasn't started
         _main_js__WEBPACK_IMPORTED_MODULE_0__.params.gameStatus = 0;
         _main_js__WEBPACK_IMPORTED_MODULE_0__.params.countDownDate = new Date(_main_js__WEBPACK_IMPORTED_MODULE_0__.params.gameStart).getTime();
@@ -16807,7 +16812,6 @@ async function checkTransactionQueue() {
 }
 
 function initTimer() {
-    console.log("initTimer");
     _main_js__WEBPACK_IMPORTED_MODULE_0__.params.timerId = setInterval(function () {
         var now = new Date().getTime();
         var distance = _main_js__WEBPACK_IMPORTED_MODULE_0__.params.countDownDate - now;
@@ -16825,38 +16829,39 @@ function initTimer() {
 
         if (distance < 0 || _main_js__WEBPACK_IMPORTED_MODULE_0__.params.gameStatus == 2) {
             clearInterval(_main_js__WEBPACK_IMPORTED_MODULE_0__.params.timerId);
-            _main_js__WEBPACK_IMPORTED_MODULE_0__.params.timerDiv.innerHTML = "EXPIRED";
+            _main_js__WEBPACK_IMPORTED_MODULE_0__.params.timerDiv.innerHTML = "VOTING HAS ENDED";
+            _main_js__WEBPACK_IMPORTED_MODULE_0__.params.timerDiv.classList.add("small_text")
         }
     }, 1000); // Update the count down every second
 }
 async function vote(_productId) {
-    const accounts = await (0,_common_js__WEBPACK_IMPORTED_MODULE_4__.getAccounts)();
+    const accounts = await (0,_common_js__WEBPACK_IMPORTED_MODULE_1__.getAccounts)();
     const productCost = products.find(product => product.id == _productId).contractPrice;
     if (accounts.length <= 0) {
-        (0,_common_js__WEBPACK_IMPORTED_MODULE_4__.showErrors)("connect a provider like metamask");
+        (0,_common_js__WEBPACK_IMPORTED_MODULE_1__.showErrors)("connect a provider like metamask");
         throw new Error("connect to metamask");
     }
 
     if (_main_js__WEBPACK_IMPORTED_MODULE_0__.sharedData.currApproval < productCost) {
-        (0,_common_js__WEBPACK_IMPORTED_MODULE_4__.showErrors)("Approval insufficient for product<br />approve more from link in header");
+        (0,_common_js__WEBPACK_IMPORTED_MODULE_1__.showErrors)("Approval insufficient for product<br />approve more from link in header");
         throw new Error("Approval insufficient for product");
     }
 
     if (_main_js__WEBPACK_IMPORTED_MODULE_0__.sharedData.currMehBalance < productCost) {
-        (0,_common_js__WEBPACK_IMPORTED_MODULE_4__.showErrors)("Insufficient Meh for product<br />buy more from link in header");
+        (0,_common_js__WEBPACK_IMPORTED_MODULE_1__.showErrors)("Insufficient Meh for product<br />buy more from link in header");
         throw new Error("Insufficient Meh for product");
     }
 
     let gas = {}
     try {
-        gas = await (0,_wallet_js__WEBPACK_IMPORTED_MODULE_1__.calcGas)({
+        gas = await (0,_common_js__WEBPACK_IMPORTED_MODULE_1__.calcGas)({
             account: accounts[0],
             context: _addr_js__WEBPACK_IMPORTED_MODULE_2__.MEHVote.methods,
             func: 'depositMeh',
             args: [_main_js__WEBPACK_IMPORTED_MODULE_0__.params.gameId, _productId, _main_js__WEBPACK_IMPORTED_MODULE_0__.params.assumedContracts]
         })
     } catch (e) {
-        (0,_common_js__WEBPACK_IMPORTED_MODULE_4__.showErrors)(`${e.message}`);
+        (0,_common_js__WEBPACK_IMPORTED_MODULE_1__.showErrors)(`${e.message}`);
         return;
     };
     //     console.log(gas);
@@ -16869,14 +16874,14 @@ async function vote(_productId) {
         'gasPrice': _addr_js__WEBPACK_IMPORTED_MODULE_2__.web3.utils.toHex(gas.gasPrice)
     };
     //console.log(`calling vote. game: ${params.gameId}, productId: ${_productId}, contracts: ${params.assumedContracts}`);
-    const txHash = await window.ethereum.request({
+    const txHash = await _main_js__WEBPACK_IMPORTED_MODULE_0__.params.provider.request({
         method: 'eth_sendTransaction',
         params: [tx],
     }).then(async result => {
-        (0,_common_js__WEBPACK_IMPORTED_MODULE_4__.showSuccess)('approve tx complete', result);
+        (0,_common_js__WEBPACK_IMPORTED_MODULE_1__.showSuccess)('approve tx complete', result);
         _main_js__WEBPACK_IMPORTED_MODULE_0__.params.transactionQueue.push(result);
     }, error => {
-        (0,_common_js__WEBPACK_IMPORTED_MODULE_4__.showErrors)(error.message)
+        (0,_common_js__WEBPACK_IMPORTED_MODULE_1__.showErrors)(error.message)
     }).finally(() => {
         // any wrap-up actions
     });
@@ -16885,7 +16890,7 @@ async function vote(_productId) {
 };
 
 async function approveMeh(amt) {
-    const accounts = await (0,_common_js__WEBPACK_IMPORTED_MODULE_4__.getAccounts)();
+    const accounts = await (0,_common_js__WEBPACK_IMPORTED_MODULE_1__.getAccounts)();
     if (accounts.length <= 0) {
         throw new Error("connect to metamask");
     }
@@ -16894,14 +16899,14 @@ async function approveMeh(amt) {
 
     let gas = {}
     try {
-        gas = await (0,_wallet_js__WEBPACK_IMPORTED_MODULE_1__.calcGas)({
+        gas = await (0,_common_js__WEBPACK_IMPORTED_MODULE_1__.calcGas)({
             account: accounts[0],
             context: _addr_js__WEBPACK_IMPORTED_MODULE_2__.MEHToken.methods,
             func: 'approve',
             args: [_addr_js__WEBPACK_IMPORTED_MODULE_2__.MEH_VOTE, amtWei]
         })
     } catch (e) {
-        (0,_common_js__WEBPACK_IMPORTED_MODULE_4__.showErrors)(`${e.message}`);
+        (0,_common_js__WEBPACK_IMPORTED_MODULE_1__.showErrors)(`${e.message}`);
         return;
     };
 
@@ -16913,15 +16918,15 @@ async function approveMeh(amt) {
         'gasPrice': _addr_js__WEBPACK_IMPORTED_MODULE_2__.web3.utils.toHex(gas.gasPrice)
     };
 
-    const txHash = await window.ethereum.request({
+    const txHash = await _main_js__WEBPACK_IMPORTED_MODULE_0__.params.provider.request({
         method: 'eth_sendTransaction',
         params: [tx],
     }).then(result => {
-        (0,_common_js__WEBPACK_IMPORTED_MODULE_4__.showSuccess)('approve tx complete', result);
+        (0,_common_js__WEBPACK_IMPORTED_MODULE_1__.showSuccess)('approve tx complete', result);
         _main_js__WEBPACK_IMPORTED_MODULE_0__.params.transactionQueue.push(result);
         //        updateMehApproval(amt);
     }, error => {
-        (0,_common_js__WEBPACK_IMPORTED_MODULE_4__.showErrors)(error.message)
+        (0,_common_js__WEBPACK_IMPORTED_MODULE_1__.showErrors)(error.message)
     }).finally(() => {
         // any wrap-up actions
     });
@@ -16930,22 +16935,22 @@ async function approveMeh(amt) {
 }
 
 async function claim(_productId) {
-    const accounts = await (0,_common_js__WEBPACK_IMPORTED_MODULE_4__.getAccounts)();
+    const accounts = await (0,_common_js__WEBPACK_IMPORTED_MODULE_1__.getAccounts)();
     if (accounts.length <= 0) {
-        (0,_common_js__WEBPACK_IMPORTED_MODULE_4__.showErrors)("connect a provider like metamask");
+        (0,_common_js__WEBPACK_IMPORTED_MODULE_1__.showErrors)("connect a provider like metamask");
         throw new Error("connect to metamask");
     }
 
     let gas = {}
     try {
-        gas = await (0,_wallet_js__WEBPACK_IMPORTED_MODULE_1__.calcGas)({
+        gas = await (0,_common_js__WEBPACK_IMPORTED_MODULE_1__.calcGas)({
             account: accounts[0],
             context: _addr_js__WEBPACK_IMPORTED_MODULE_2__.MEHVote.methods,
             func: 'claim',
             args: [_main_js__WEBPACK_IMPORTED_MODULE_0__.params.gameId, _productId]
         })
     } catch (e) {
-        (0,_common_js__WEBPACK_IMPORTED_MODULE_4__.showErrors)(`${e.message}`);
+        (0,_common_js__WEBPACK_IMPORTED_MODULE_1__.showErrors)(`${e.message}`);
         return;
     };
 
@@ -16956,14 +16961,14 @@ async function claim(_productId) {
         'gas': _addr_js__WEBPACK_IMPORTED_MODULE_2__.web3.utils.toHex(gas.estimatedGas),
         'gasPrice': _addr_js__WEBPACK_IMPORTED_MODULE_2__.web3.utils.toHex(gas.gasPrice)
     };
-    const txHash = await window.ethereum.request({
+    const txHash = await _main_js__WEBPACK_IMPORTED_MODULE_0__.params.provider.request({
         method: 'eth_sendTransaction',
         params: [tx],
     }).then(async result => {
-        (0,_common_js__WEBPACK_IMPORTED_MODULE_4__.showSuccess)('approve tx complete', result);
+        (0,_common_js__WEBPACK_IMPORTED_MODULE_1__.showSuccess)('approve tx complete', result);
         _main_js__WEBPACK_IMPORTED_MODULE_0__.params.transactionQueue.push(result);
     }, error => {
-        (0,_common_js__WEBPACK_IMPORTED_MODULE_4__.showErrors)(error.message)
+        (0,_common_js__WEBPACK_IMPORTED_MODULE_1__.showErrors)(error.message)
     }).finally(() => {
         // any wrap-up actions
     });
@@ -16992,235 +16997,153 @@ __webpack_async_result__();
 __webpack_require__.a(module, async (__webpack_handle_async_dependencies__, __webpack_async_result__) => { try {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   MEHScale: () => (/* binding */ MEHScale),
 /* harmony export */   calcGas: () => (/* binding */ calcGas),
-/* harmony export */   checkWallet: () => (/* binding */ checkWallet),
-/* harmony export */   connect: () => (/* binding */ connect),
-/* harmony export */   currWallet: () => (/* binding */ currWallet),
-/* harmony export */   getGasPrice: () => (/* binding */ getGasPrice),
-/* harmony export */   init: () => (/* binding */ init),
-/* harmony export */   provider: () => (/* binding */ provider),
-/* harmony export */   reloadClient: () => (/* binding */ reloadClient),
-/* harmony export */   showError: () => (/* binding */ showError),
-/* harmony export */   showSuccess: () => (/* binding */ showSuccess),
-/* harmony export */   switchNetwork: () => (/* binding */ switchNetwork),
-/* harmony export */   truncAddr: () => (/* binding */ truncAddr),
-/* harmony export */   updateConnectionStatus: () => (/* binding */ updateConnectionStatus)
+/* harmony export */   checkRemainingApproval: () => (/* binding */ checkRemainingApproval),
+/* harmony export */   cleanBigInt: () => (/* binding */ cleanBigInt),
+/* harmony export */   getAccounts: () => (/* binding */ getAccounts),
+/* harmony export */   helpApproval: () => (/* binding */ helpApproval),
+/* harmony export */   helpChain: () => (/* binding */ helpChain),
+/* harmony export */   helpProvider: () => (/* binding */ helpProvider),
+/* harmony export */   helpToken: () => (/* binding */ helpToken),
+/* harmony export */   removeApproval: () => (/* binding */ removeApproval),
+/* harmony export */   shortenNumber: () => (/* binding */ shortenNumber),
+/* harmony export */   showErrors: () => (/* binding */ showErrors),
+/* harmony export */   showSuccess: () => (/* binding */ showSuccess)
 /* harmony export */ });
-/* harmony import */ var _abi_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(25);
-/* harmony import */ var _addr_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(26);
-/* harmony import */ var _common_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(297);
-/* harmony import */ var _vote_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(23);
-/* harmony import */ var _main_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(0);
-var __webpack_async_dependencies__ = __webpack_handle_async_dependencies__([_addr_js__WEBPACK_IMPORTED_MODULE_1__, _common_js__WEBPACK_IMPORTED_MODULE_2__, _vote_js__WEBPACK_IMPORTED_MODULE_3__, _main_js__WEBPACK_IMPORTED_MODULE_4__]);
-([_addr_js__WEBPACK_IMPORTED_MODULE_1__, _common_js__WEBPACK_IMPORTED_MODULE_2__, _vote_js__WEBPACK_IMPORTED_MODULE_3__, _main_js__WEBPACK_IMPORTED_MODULE_4__] = __webpack_async_dependencies__.then ? (await __webpack_async_dependencies__)() : __webpack_async_dependencies__);
+/* harmony import */ var _main_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var _addr_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(25);
+var __webpack_async_dependencies__ = __webpack_handle_async_dependencies__([_main_js__WEBPACK_IMPORTED_MODULE_0__, _addr_js__WEBPACK_IMPORTED_MODULE_1__]);
+([_main_js__WEBPACK_IMPORTED_MODULE_0__, _addr_js__WEBPACK_IMPORTED_MODULE_1__] = __webpack_async_dependencies__.then ? (await __webpack_async_dependencies__)() : __webpack_async_dependencies__);
 
 
 
-
-
-
-const MEHScale = 1000000000000000000;
-let currWallet = null;
-let preferredNetwork = null;
-let provider = null;
-
-const prepWallet = {
-    ethereumProvider: false,
-    walletConnected: false,
-    correctChain: false,
-    tokenAdded: false
+function cleanBigInt(_bigInt, _divisor = 1) {
+    return Math.round(Number(_bigInt) / _divisor);
 };
 
-// 1. ethereum provider available
-// 2. have the right chain? add the chain?
-// 3. on the right chain? switch chain?
-// 4. have the token? add the token?
-// 5. get wallet address(s)
-
-async function init( _chainId = _addr_js__WEBPACK_IMPORTED_MODULE_1__.defaultChainId) {
-    console.log(`1 ... _chainId: ${_chainId}, defaultChainId: ${_addr_js__WEBPACK_IMPORTED_MODULE_1__.defaultChainId}`);
-    try {
-/*        provider = await detectEthereumProvider(); // defined in @metamask/detect-provider
-        if (provider) {
-            if (provider !== window.ethereum) {
-                console.error('Do you have multiple wallets installed?');
-            } else {
-                console.info('Ethereum provider successfully detected!');
-                prepWallet.ethereumProvider = (ethereum.isConnected())?true:false;
-            }
-        } else {
-            helpProvider();
-            console.error('Please install MetaMask!');
-            return;
-        };
-*/
-
-        await (0,_addr_js__WEBPACK_IMPORTED_MODULE_1__.init)();
-
-        preferredNetwork = (_chainId)?_chainId:_addr_js__WEBPACK_IMPORTED_MODULE_1__.chainId;
-        console.log(`2 ... preferredNetwork: ${preferredNetwork}`);
-
-        await _addr_js__WEBPACK_IMPORTED_MODULE_1__.web3.eth.getAccounts().then(async (accounts) => {
-            if (accounts.length === 0) {
-                console.log('No connected accounts');
-                await connect();
-            } else {
-                console.log('Connected with account:', accounts[0]);
-                currWallet = accounts[0].toLowerCase();
-                _main_js__WEBPACK_IMPORTED_MODULE_4__.sharedData.currMehBalance = await _addr_js__WEBPACK_IMPORTED_MODULE_1__.MEHToken.methods.balanceOf(currWallet).call().then((result) => {return (0,_common_js__WEBPACK_IMPORTED_MODULE_2__.cleanBigInt)(result,_main_js__WEBPACK_IMPORTED_MODULE_4__.params.tokenScale)});
-                updateConnectionStatus();
-            }
-        }).catch(error => {
-            console.error('Failed to fetch accounts:', error);
-        });
-
-    } catch (err) {
-        console.log(err);
-        return;
-    };
-
-/*
-    if (prepWallet.ethereumProvider) { // Handle user accounts
-        ethereum
-            .request({ method: 'eth_accounts' })
-            .then(async (accounts) => {
-//                console.log('got accounts', accounts);
-                if (accounts.length > 0) {
-                    currWallet = accounts[0].toLowerCase();
-                    sharedData.currMehBalance = await MEHToken.methods.balanceOf(currWallet).call().then((result) => {return cleanBigInt(result,params.tokenScale)});
-                    updateConnectionStatus();
-                } else {
-                    connect();
-                }
-            })
-            .catch((err) => {
-                console.error(err);
-            });
-    };
-*/
-    // Handle chain (network) and chainChanged (EIP-1193)
-    ethereum.on('chainChanged', handleChainChanged);
-    // Handle user accountsChanged (EIP-1193)
-    ethereum.on('accountsChanged', handleAccountsChanged);
-
-    ethereum.on('disconnect', reloadClient);
-
-//    console.log('wallet init complete');
-};
-
-function handleChainChanged(_chainId) {
-    // When chain changes, Metamask recommends reloading the page
-    reloadClient();
+function shortenNumber(_longNum, _dec = 0) {
+    return (_longNum >= 1000000000) ?
+        Number(_longNum / 1000000000).toFixed(_dec) + "B" :
+        (_longNum >= 1000000) ?
+            Number(_longNum / 1000000).toFixed(_dec) + "M" :
+            (_longNum >= 1000) ?
+                Number(_longNum / 1000).toFixed(_dec) + "K" : _longNum;
 }
 
-function reloadClient() {
-    // When chain changes, Metamask recommends reloading the page
-    window.location.reload();
+async function getAccounts() {
+    const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+    return accounts;
 }
 
-function handleAccountsChanged(accounts) {
-    // When chain changes, Metamask recommends reloading the page
-    reloadClient();
-};
+function showErrors(_message, _stop = false) {
+    let div = document.createElement("div");
+    div.id = "overlay";
+    document.body.insertAdjacentElement('beforeend', div);
+    div.innerHTML = _message;
+    document.body.classList.add("overlay_on");
 
-// Access user's accounts (EIP-1102)
-async function connect() {
-    await ethereum
-        .request({ method: 'eth_requestAccounts' })
-        .then(handleAccountsChanged)
-        .catch((err) => {
-            if (err.code === 4001) {
-                // user rejected connection request (EIP-1193)
-                (0,_common_js__WEBPACK_IMPORTED_MODULE_2__.showErrors)('User rejected connection request.');
-                console.log('Please connect to MetaMask.');
-            } else {
-                console.error(err);
-            }
-        });
-}
-
-async function updateConnectionStatus() {
-//    console.log('wallet.js updateConnectionStatus()');
-    const walletDiv = document.getElementById("wallet_status");
-
-    if (window.ethereum && currWallet) {
-//        console.log('IF wallet.js updateConnectionStatus()');
-        checkWallet(currWallet);
-        document.body.classList.add("connected");
-        walletDiv.innerText = 'Connected';
-        document.body.classList.remove("disconnected");
-        walletDiv.removeEventListener("click",connect);
-        console.info('Wallet:',currWallet);
-        const faucet_btn = document.getElementById('faucet_btn');
-        if (faucet_btn) {
-            faucet_btn.removeEventListener("click",connect);
-            faucet_btn.addEventListener("click",dripFaucet);
-        };
-        if (_main_js__WEBPACK_IMPORTED_MODULE_4__.sharedData.view == 'vote') {tokenDisplay()};
+    if (_stop) {
+        throw new Error(_message);
     } else {
-//        console.log('ELSE wallet.js updateConnectionStatus()');
-        currWallet = null;
-        document.body.classList.add("disconnected");
-        walletDiv.innerText = 'Connect';
-        document.body.classList.remove("connected");
-        walletDiv.addEventListener("click",connect);
-        const faucet_btn = document.getElementById('faucet_btn');
-        if (faucet_btn) {
-            faucet_btn.removeEventListener("click",dripFaucet);
-            faucet_btn.addEventListener("click",connect);
-        };
-    };
+        setTimeout(() => { document.body.classList.remove("overlay_on"); }, 5000);
+    }
 }
 
-// Prompt the user to switch network
-async function switchNetwork(_chainId = _addr_js__WEBPACK_IMPORTED_MODULE_1__.defaultChainId) {
-    console.log(`_chainId: ${_chainId}, chainId: ${_addr_js__WEBPACK_IMPORTED_MODULE_1__.chainId}, defaultChainId: ${_addr_js__WEBPACK_IMPORTED_MODULE_1__.defaultChainId}`);
-    if (_chainId != _addr_js__WEBPACK_IMPORTED_MODULE_1__.chainId) {
-        await window.ethereum.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: _chainId }]
-        }).then((out) => {
-            handleChainChanged(null);
-        }).catch((e) => {
-            if (e.code === 4902) {
-                (0,_common_js__WEBPACK_IMPORTED_MODULE_2__.helpChain)(_chainId);
-            }
-            throw new Error("Could not connect to a supported network");
-        });
-    };
+function showSuccess(_message, link = null) {
+    let div = document.createElement("div");
+    div.id = "overlay";
+    document.body.insertAdjacentElement('beforeend', div);
+    if (link) {
+        div.innerHTML = `${_message}<br /><a href="https://${_addr_js__WEBPACK_IMPORTED_MODULE_1__.etherscan}/tx/${link}" target="_blank">${link}</a>`;
+    } else {
+        div.innerHTML = _message;
+    }
+    document.body.classList.add("overlay_on");
+
+    setTimeout(() => { document.body.classList.remove("overlay_on"); }, 5000);
+    //console.log(_message);
+}
+
+// **********************
+// Connection helpers
+// **********************
+
+function helpProvider() {
+    _main_js__WEBPACK_IMPORTED_MODULE_0__.params.contentDiv.innerHTML =
+        `<div>Meh is a d/app and requires a web3 provider,
+        like <a href="https://metamask.io/download/" target="_blank">MetaMask</a>,
+        <a href="https://trustwallet.com/" target="_blank">Trust Wallet</a>,
+        or <a href="https://www.coinbase.com/wallet" target="_blank">Coinbase Wallet</a>.</div>`;
 };
 
-async function checkWallet(walletAddress = null) {
-    let useWallet = walletAddress;
-    if (!useWallet) {
+async function helpChain(_chainId = defaultChainId) { // for now we assume Base
+    if (_main_js__WEBPACK_IMPORTED_MODULE_0__.params.provider) {
+        try {
+            await _main_js__WEBPACK_IMPORTED_MODULE_0__.params.provider.request({
+                method: 'wallet_addEthereumChain',
+                params: [{
+                    chainId: _chainId, // A hexadecimal string representing the chain ID. For example, Ethereum Mainnet is 0x1
+                    chainName: (_chainId == '0x14a34') ? 'Base Sepolia' : 'Base', // A human-readable name for the chain
+                    rpcUrls: [`https://${(_chainId == '0x14a34') ? 'sepolia.base.org' : 'mainnet.base.org'}`], // An array of RPC URLs the wallet can use
+                    nativeCurrency: {
+                        name: 'Ether', // The currency the chain uses
+                        symbol: 'ETH', // The currency symbol
+                        decimals: 18 // The number of decimals the currency uses
+                    },
+                    blockExplorerUrls: [`https://${(_chainId == '0x14a34') ? 'sepolia-explorer.base.org' : 'basescan.org'}`] // An array of URLs to block explorers for this chain
+                }]
+            });
+            console.info('Chain added or switched successfully.');
+        } catch (error) {
+            console.error('Failed to add the chain', error);
+        }
+    } else {
+        console.error('Ethereum provider is not available. Install MetaMask!');
+    }
+};
+
+// this needs cleanup before use vvv
+async function helpToken() {
+    await window.ethereum.request({
+        "method": "wallet_watchAsset",
+        "params": {
+            "type": "ERC20",
+            "options": {
+                "address": _addr_js__WEBPACK_IMPORTED_MODULE_1__.MEH_TOKEN,
+                "symbol": "MEH",
+                "decimals": 18,
+                "image": "/images/meh_token.png"
+            }
+        }
+    });
+};
+
+function helpApproval(_amount) {
+};
+
+async function removeApproval(_wallet) {
+    const accounts = await getAccounts();
+    if (accounts.length <= 0) {
         throw new Error("connect to metamask");
-    };
-    // is wallet on a supported chain?
-    switchNetwork(preferredNetwork);
-
-    return;
-}
-
-async function dripFaucet() {
-//    var amtWei = web3.utils.toWei(amt.toString(),'ether');
-    const MEHFaucet = new _addr_js__WEBPACK_IMPORTED_MODULE_1__.web3.eth.Contract(_abi_js__WEBPACK_IMPORTED_MODULE_0__.abiFaucet, _addr_js__WEBPACK_IMPORTED_MODULE_1__.MEH_FAUCET);
+    }
 
     let gas = {}
-    try {gas = await calcGas({
-        account: currWallet,
-        context: MEHFaucet.methods,
-        func: 'faucet'
-    })} catch(e) {
-        console.error(`MEH: ${e.message}`);
-        showError();
+    try {
+        gas = await calcGas({
+            account: accounts[0],
+            context: _addr_js__WEBPACK_IMPORTED_MODULE_1__.MEHToken.methods,
+            func: 'approve',
+            args: [_addr_js__WEBPACK_IMPORTED_MODULE_1__.MEH_VOTE, 0]
+        })
+    } catch (e) {
+        showErrors(`${e.message}`);
         return;
     };
 
     const tx = {
-        'from': currWallet,
-        'to': _addr_js__WEBPACK_IMPORTED_MODULE_1__.MEH_FAUCET,
-        'data': MEHFaucet.methods.faucet().encodeABI(),
+        'from': accounts[0],
+        'to': _addr_js__WEBPACK_IMPORTED_MODULE_1__.MEH_TOKEN,
+        'data': _addr_js__WEBPACK_IMPORTED_MODULE_1__.MEHToken.methods.approve(_addr_js__WEBPACK_IMPORTED_MODULE_1__.MEH_VOTE, 0).encodeABI(),
         'gas': _addr_js__WEBPACK_IMPORTED_MODULE_1__.web3.utils.toHex(gas.estimatedGas),
         'gasPrice': _addr_js__WEBPACK_IMPORTED_MODULE_1__.web3.utils.toHex(gas.gasPrice)
     };
@@ -17229,18 +17152,22 @@ async function dripFaucet() {
         method: 'eth_sendTransaction',
         params: [tx],
     }).then(result => {
-        showSuccess('MEH drip tx complete');
-        let tmp = document.getElementById('faucet_btn');
-        tmp.src = '/images/meh_btn_money.png';
-    },error => {
-        console.error(`MEH: ${error.message}`)
-        showError();
+        showSuccess('remove approval tx complete', result);
+        _main_js__WEBPACK_IMPORTED_MODULE_0__.params.transactionQueue.push(result);
+        //        updateMehApproval(amt);
+    }, error => {
+        showErrors(error.message)
     }).finally(() => {
         // any wrap-up actions
     });
 
     return txHash;
-}
+};
+
+async function checkRemainingApproval(_wallet) {
+    let approval = await _addr_js__WEBPACK_IMPORTED_MODULE_1__.MEHToken.methods.allowance(_wallet, _addr_js__WEBPACK_IMPORTED_MODULE_1__.MEH_VOTE).call().then((_meh) => { return cleanBigInt(_meh, _main_js__WEBPACK_IMPORTED_MODULE_0__.params.tokenScale); });
+    return approval;
+};
 
 async function calcGas({account, context, func, args = null}) {
     let gasPrice = await getGasPrice();
@@ -17258,1541 +17185,12 @@ async function getGasPrice() {
     return price;
 }
 
-function showSuccess(message, tx = false) {
-    let tmp = document.createElement("div");
-    tmp.setAttribute("id","success_block");
-    if (tx) {
-        tmp.innerHTML = `<a href="https://${_addr_js__WEBPACK_IMPORTED_MODULE_1__.etherscan}/tx/${tx}" target="_blank">${message}</a>`;
-    } else {
-        tmp.innerHTML = `${message}`;
-    }
-    tmp.style.zIndex = 1000;
-    let successNode = document.body.appendChild(tmp);
-    setTimeout(() => {document.body.removeChild(successNode);}, 5000);
-}
 
-function showError(message = 'MEH', tx = false) {
-    let tmp = document.createElement("div");
-    tmp.setAttribute("id","error_block");
-    if (tx) {
-        tmp.innerHTML = `<a href="https://${_addr_js__WEBPACK_IMPORTED_MODULE_1__.etherscan}/tx/${tx}" target="_blank">${message}</a>`;
-    } else {
-        tmp.innerHTML = `ERROR: ${message}`;
-    }
-    tmp.style.zIndex = 1000;
-    let errorNode = document.body.appendChild(tmp);
-    setTimeout(() => {document.body.removeChild(errorNode);}, 5000);
-}
-
-function truncAddr(addr, limit) {
-    if (addr.length <= (limit * 2)) {
-        return addr;
-    }
-    var shortAddr = `${addr.substr(0, limit)}...${addr.substr(limit * -1)}`
-    return shortAddr;
-};
-
-async function tokenDisplay() {
-    if (_main_js__WEBPACK_IMPORTED_MODULE_4__.sharedData.view == 'vote') {
-//        const displayDiv = document.getElementById('token_display');
-        const displayDiv = document.getElementById('wallet');
-        _main_js__WEBPACK_IMPORTED_MODULE_4__.sharedData.currApproval = await (0,_common_js__WEBPACK_IMPORTED_MODULE_2__.checkRemainingApproval)(currWallet);
-        displayDiv.insertAdjacentHTML('beforeend',
-            `<div id="token_status">
-                ${(0,_common_js__WEBPACK_IMPORTED_MODULE_2__.shortenNumber)(_main_js__WEBPACK_IMPORTED_MODULE_4__.sharedData.currMehBalance,2)} Meh
-                <a href="https://app.uniswap.org/explore/tokens/base/0xa999542c71febba77602fbc2f784ba9ba0c850f6" target="_blank"><i class="fa-solid fa-circle-plus"></i></a> |
-                <span id="meh_approval" class="meh_approval ${(_main_js__WEBPACK_IMPORTED_MODULE_4__.sharedData.currApproval < 25000) && 'low_approval'}">${(0,_common_js__WEBPACK_IMPORTED_MODULE_2__.shortenNumber)(_main_js__WEBPACK_IMPORTED_MODULE_4__.sharedData.currApproval)} Approved</span>
-                <span id="del_approval"><i class="fa-regular fa-trash-can"></i></span>
-            </div>`
-        );
-        document.getElementById('meh_approval').addEventListener('click', () => {(0,_vote_js__WEBPACK_IMPORTED_MODULE_3__.approveMeh)(100000000);});
-        document.getElementById('del_approval').addEventListener('click', () => {(0,_common_js__WEBPACK_IMPORTED_MODULE_2__.removeApproval)()});
-    }
-}
 __webpack_async_result__();
 } catch(e) { __webpack_async_result__(e); } });
 
 /***/ }),
 /* 25 */
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   abiFaucet: () => (/* binding */ abiFaucet),
-/* harmony export */   abiMeh: () => (/* binding */ abiMeh),
-/* harmony export */   abiRoyalty: () => (/* binding */ abiRoyalty),
-/* harmony export */   abiVote: () => (/* binding */ abiVote)
-/* harmony export */ });
-const abiVote = [
-    {
-        "inputs": [
-            {
-                "internalType": "contract IERC20",
-                "name": "_mehToken",
-                "type": "address"
-            },
-            {
-                "internalType": "contract IRoyalty",
-                "name": "_royalties",
-                "type": "address"
-            }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "constructor"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "productId",
-                "type": "uint256"
-            },
-            {
-                "indexed": false,
-                "internalType": "string",
-                "name": "productName",
-                "type": "string"
-            },
-            {
-                "indexed": false,
-                "internalType": "string",
-                "name": "allocatorMerkleRoot",
-                "type": "string"
-            },
-            {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "totalContracts",
-                "type": "uint256"
-            }
-        ],
-        "name": "MehStore",
-        "type": "event"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "previousOwner",
-                "type": "address"
-            },
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "newOwner",
-                "type": "address"
-            }
-        ],
-        "name": "OwnershipTransferred",
-        "type": "event"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "_gameId",
-                "type": "uint256"
-            },
-            {
-                "internalType": "string",
-                "name": "_name",
-                "type": "string"
-            },
-            {
-                "internalType": "uint256",
-                "name": "_mehContracts",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "_mehContractPrice",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "_begin",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "_end",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "_totalContracts",
-                "type": "uint256"
-            },
-            {
-                "internalType": "bool",
-                "name": "_limitedRun",
-                "type": "bool"
-            },
-            {
-                "internalType": "uint256",
-                "name": "_prizeMeh",
-                "type": "uint256"
-            }
-        ],
-        "name": "addProductToGame",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "_gameId",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "_productId",
-                "type": "uint256"
-            }
-        ],
-        "name": "claim",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "_begin",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "_end",
-                "type": "uint256"
-            }
-        ],
-        "name": "createGame",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "_gameId",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "_productId",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "_numContracts",
-                "type": "uint256"
-            }
-        ],
-        "name": "depositMeh",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "_amount",
-                "type": "uint256"
-            }
-        ],
-        "name": "depositMehStore",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "name": "deposits",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "name": "games",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "id",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "begin",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "end",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "numProducts",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "gameId",
-                "type": "uint256"
-            }
-        ],
-        "name": "getProductsByGameId",
-        "outputs": [
-            {
-                "components": [
-                    {
-                        "internalType": "uint256",
-                        "name": "id",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "string",
-                        "name": "name",
-                        "type": "string"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "mehContractsDeposited",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "mehContracts",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "mehContractPrice",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "prizeMeh",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "bool",
-                        "name": "mehStore",
-                        "type": "bool"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "begin",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "end",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "totalContracts",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "bool",
-                        "name": "limitedRun",
-                        "type": "bool"
-                    }
-                ],
-                "internalType": "struct MehVoteV1.Product[]",
-                "name": "",
-                "type": "tuple[]"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "mehToken",
-        "outputs": [
-            {
-                "internalType": "contract IERC20",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "owner",
-        "outputs": [
-            {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "renounceOwnership",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "royalties",
-        "outputs": [
-            {
-                "internalType": "contract IRoyalty",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "newOwner",
-                "type": "address"
-            }
-        ],
-        "name": "transferOwnership",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    }
-];
-
-const abiRoyalty = [
-    {
-        "inputs": [
-            {
-                "internalType": "contract IERC20",
-                "name": "_mehToken",
-                "type": "address"
-            }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "constructor"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "owner",
-                "type": "address"
-            },
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "approved",
-                "type": "address"
-            },
-            {
-                "indexed": true,
-                "internalType": "uint256",
-                "name": "tokenId",
-                "type": "uint256"
-            }
-        ],
-        "name": "Approval",
-        "type": "event"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "owner",
-                "type": "address"
-            },
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "operator",
-                "type": "address"
-            },
-            {
-                "indexed": false,
-                "internalType": "bool",
-                "name": "approved",
-                "type": "bool"
-            }
-        ],
-        "name": "ApprovalForAll",
-        "type": "event"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "previousOwner",
-                "type": "address"
-            },
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "newOwner",
-                "type": "address"
-            }
-        ],
-        "name": "OwnershipTransferred",
-        "type": "event"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "from",
-                "type": "address"
-            },
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "to",
-                "type": "address"
-            },
-            {
-                "indexed": true,
-                "internalType": "uint256",
-                "name": "tokenId",
-                "type": "uint256"
-            }
-        ],
-        "name": "Transfer",
-        "type": "event"
-    },
-    {
-        "inputs": [],
-        "name": "MINTER_ADDRESS",
-        "outputs": [
-            {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "to",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "tokenId",
-                "type": "uint256"
-            }
-        ],
-        "name": "approve",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "owner",
-                "type": "address"
-            }
-        ],
-        "name": "balanceOf",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "baseURI",
-        "outputs": [
-            {
-                "internalType": "string",
-                "name": "",
-                "type": "string"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "_productId",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "_totalContracts",
-                "type": "uint256"
-            }
-        ],
-        "name": "createProduct",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "tokenId",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amt",
-                "type": "uint256"
-            }
-        ],
-        "name": "depositMehToken",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "name": "deposits",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "tokenId",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amt",
-                "type": "uint256"
-            }
-        ],
-        "name": "extractMehToken",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "tokenId",
-                "type": "uint256"
-            }
-        ],
-        "name": "getApproved",
-        "outputs": [
-            {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "owner",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "operator",
-                "type": "address"
-            }
-        ],
-        "name": "isApprovedForAll",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "mehToken",
-        "outputs": [
-            {
-                "internalType": "contract IERC20",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "_productId",
-                "type": "uint256"
-            },
-            {
-                "internalType": "address",
-                "name": "_to",
-                "type": "address"
-            }
-        ],
-        "name": "mint",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "name",
-        "outputs": [
-            {
-                "internalType": "string",
-                "name": "",
-                "type": "string"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "owner",
-        "outputs": [
-            {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "tokenId",
-                "type": "uint256"
-            }
-        ],
-        "name": "ownerOf",
-        "outputs": [
-            {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "name": "products",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "totalContracts",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "currentSerial",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "renounceOwnership",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "from",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "to",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "tokenId",
-                "type": "uint256"
-            }
-        ],
-        "name": "safeTransferFrom",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "from",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "to",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "tokenId",
-                "type": "uint256"
-            },
-            {
-                "internalType": "bytes",
-                "name": "data",
-                "type": "bytes"
-            }
-        ],
-        "name": "safeTransferFrom",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "operator",
-                "type": "address"
-            },
-            {
-                "internalType": "bool",
-                "name": "approved",
-                "type": "bool"
-            }
-        ],
-        "name": "setApprovalForAll",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "string",
-                "name": "newURI",
-                "type": "string"
-            }
-        ],
-        "name": "setBaseTokenURI",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "bytes4",
-                "name": "interfaceId",
-                "type": "bytes4"
-            }
-        ],
-        "name": "supportsInterface",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "symbol",
-        "outputs": [
-            {
-                "internalType": "string",
-                "name": "",
-                "type": "string"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "tokenId",
-                "type": "uint256"
-            }
-        ],
-        "name": "tokenURI",
-        "outputs": [
-            {
-                "internalType": "string",
-                "name": "",
-                "type": "string"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "from",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "to",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "tokenId",
-                "type": "uint256"
-            }
-        ],
-        "name": "transferFrom",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "newOwner",
-                "type": "address"
-            }
-        ],
-        "name": "transferOwnership",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "newMinter",
-                "type": "address"
-            }
-        ],
-        "name": "updateMinter",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    }
-];
-
-const abiFaucet = [
-    {
-        "inputs": [
-            {
-                "internalType": "contract IERC20",
-                "name": "_mehToken",
-                "type": "address"
-            }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "constructor"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "previousOwner",
-                "type": "address"
-            },
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "newOwner",
-                "type": "address"
-            }
-        ],
-        "name": "OwnershipTransferred",
-        "type": "event"
-    },
-    {
-        "inputs": [],
-        "name": "MAX_TOKEN_AMOUNT",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "MIN_TOKEN_AMOUNT",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "TIME_INTERVAL",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "faucet",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "faucetOn",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "name": "lastAccessTime",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "mehToken",
-        "outputs": [
-            {
-                "internalType": "contract IERC20",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "owner",
-        "outputs": [
-            {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "renounceOwnership",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "toggleFaucet",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "newOwner",
-                "type": "address"
-            }
-        ],
-        "name": "transferOwnership",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    }
-];
-
-const abiMeh = [
-    {
-        "inputs": [],
-        "stateMutability": "nonpayable",
-        "type": "constructor"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "owner",
-                "type": "address"
-            },
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "spender",
-                "type": "address"
-            },
-            {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "value",
-                "type": "uint256"
-            }
-        ],
-        "name": "Approval",
-        "type": "event"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "from",
-                "type": "address"
-            },
-            {
-                "indexed": true,
-                "internalType": "address",
-                "name": "to",
-                "type": "address"
-            },
-            {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "value",
-                "type": "uint256"
-            }
-        ],
-        "name": "Transfer",
-        "type": "event"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "owner",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "spender",
-                "type": "address"
-            }
-        ],
-        "name": "allowance",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "spender",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            }
-        ],
-        "name": "approve",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "account",
-                "type": "address"
-            }
-        ],
-        "name": "balanceOf",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            }
-        ],
-        "name": "burn",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "from",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            }
-        ],
-        "name": "burnMeh",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "account",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            }
-        ],
-        "name": "burnFrom",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "cap",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "decimals",
-        "outputs": [
-            {
-                "internalType": "uint8",
-                "name": "",
-                "type": "uint8"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "spender",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "subtractedValue",
-                "type": "uint256"
-            }
-        ],
-        "name": "decreaseAllowance",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "spender",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "addedValue",
-                "type": "uint256"
-            }
-        ],
-        "name": "increaseAllowance",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "name",
-        "outputs": [
-            {
-                "internalType": "string",
-                "name": "",
-                "type": "string"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "symbol",
-        "outputs": [
-            {
-                "internalType": "string",
-                "name": "",
-                "type": "string"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "totalSupply",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "to",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            }
-        ],
-        "name": "transfer",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "from",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "to",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            }
-        ],
-        "name": "transferFrom",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    }
-];
-
-/***/ }),
-/* 26 */
 /***/ ((module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -18809,17 +17207,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   alchemy: () => (/* binding */ alchemy),
 /* harmony export */   apiKey: () => (/* binding */ apiKey),
 /* harmony export */   chainId: () => (/* binding */ chainId),
-/* harmony export */   defaultChainId: () => (/* binding */ defaultChainId),
+/* harmony export */   chainInfo: () => (/* binding */ chainInfo),
 /* harmony export */   etherscan: () => (/* binding */ etherscan),
 /* harmony export */   init: () => (/* binding */ init),
+/* harmony export */   networkName: () => (/* binding */ networkName),
 /* harmony export */   web3: () => (/* binding */ web3)
 /* harmony export */ });
-/* harmony import */ var web3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27);
-/* harmony import */ var _wallet_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(24);
-/* harmony import */ var _abi_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(25);
-var __webpack_async_dependencies__ = __webpack_handle_async_dependencies__([_wallet_js__WEBPACK_IMPORTED_MODULE_1__]);
-_wallet_js__WEBPACK_IMPORTED_MODULE_1__ = (__webpack_async_dependencies__.then ? (await __webpack_async_dependencies__)() : __webpack_async_dependencies__)[0];
+/* harmony import */ var web3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(26);
+/* harmony import */ var _abi_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(296);
+/* harmony import */ var _main_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(0);
+var __webpack_async_dependencies__ = __webpack_handle_async_dependencies__([_main_js__WEBPACK_IMPORTED_MODULE_2__]);
+_main_js__WEBPACK_IMPORTED_MODULE_2__ = (__webpack_async_dependencies__.then ? (await __webpack_async_dependencies__)() : __webpack_async_dependencies__)[0];
 
+//import { switchNetwork } from './wallet.js';
 
 
 
@@ -18832,21 +17232,24 @@ let etherscan;
 let apiKey;
 let alchemy;
 
-const defaultChainId = '0x2105';
-// 0x2105 >>> BaseMainnet
-// 0x14a34 >>> BaseSepolia
-
 let chainId;
+let networkName;
 
 let MEHToken;
 let MEHVote;
 let MEHRoyalty;
 
+let chainInfo = [
+    {"chainName": "Base Sepolia", "chainId": "0x14a34", "supported": true},
+    {"chainName": "Base", "chainId": "0x2105", "supported": true},
+    {"chainName": "Ethereum", "chainId": "0x1", "supported": false}
+]
+
 //init();
 
 async function init() {
-    chainId = await window.ethereum.request({ method: 'eth_chainId' });
-    web3 = new web3__WEBPACK_IMPORTED_MODULE_0__["default"](window.ethereum);
+    chainId = await _main_js__WEBPACK_IMPORTED_MODULE_2__.params.provider.request({ method: 'eth_chainId' });
+    web3 = new web3__WEBPACK_IMPORTED_MODULE_0__["default"](_main_js__WEBPACK_IMPORTED_MODULE_2__.params.provider);
 
     if (chainId == '0x14a34') {    //  ----- BaseSepolia -----
         MEH_TOKEN = "0xEf4C3545edf08563bbC112D5CEf0A10B396Ea12E";
@@ -18856,6 +17259,7 @@ async function init() {
         apiKey = "GBfdhUAKP01Zmxr9l8JybRbAnEH7YRb9";
         alchemy = "https://base-sepolia.g.alchemy.com/v2/";
         etherscan = "sepolia.basescan.org";
+        networkName = "Base Sepolia";
     } else if (chainId == '0x2105') {    //  ----- Base -----
         MEH_TOKEN = "0xa999542c71FEbba77602fBc2F784bA9BA0C850F6";
         MEH_FAUCET = "0x97246294c9c373D5f3f5c0E0BA2D2029FF73877e";
@@ -18864,22 +17268,24 @@ async function init() {
         apiKey = "DSDV-PHXPq4Znjpnwr4DkthBE6MLWc--";
         alchemy = "https://base-mainnet.g.alchemy.com/v2/"
         etherscan = "basescan.org";
+        networkName = "Base Mainnet";
     } else {
+        networkName = "Unsupported";
         console.error(`Error: Unsupported chain`);
 //        document.getElementById("loading").classList.add('move'); // force the loading screen;
-        await (0,_wallet_js__WEBPACK_IMPORTED_MODULE_1__.switchNetwork)();
+//        await switchNetwork(); // should check whether window is active or not
     }
 
-    MEHToken = new web3.eth.Contract(_abi_js__WEBPACK_IMPORTED_MODULE_2__.abiMeh, MEH_TOKEN);
-    MEHVote = new web3.eth.Contract(_abi_js__WEBPACK_IMPORTED_MODULE_2__.abiVote, MEH_VOTE);
-    MEHRoyalty = new web3.eth.Contract(_abi_js__WEBPACK_IMPORTED_MODULE_2__.abiRoyalty, MEH_ROYALTY);
+    MEHToken = new web3.eth.Contract(_abi_js__WEBPACK_IMPORTED_MODULE_1__.abiMeh, MEH_TOKEN);
+    MEHVote = new web3.eth.Contract(_abi_js__WEBPACK_IMPORTED_MODULE_1__.abiVote, MEH_VOTE);
+    MEHRoyalty = new web3.eth.Contract(_abi_js__WEBPACK_IMPORTED_MODULE_1__.abiRoyalty, MEH_ROYALTY);
 };
 
 __webpack_async_result__();
 } catch(e) { __webpack_async_result__(e); } });
 
 /***/ }),
-/* 27 */
+/* 26 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -19172,23 +17578,23 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   utils: () => (/* reexport module object */ web3_utils__WEBPACK_IMPORTED_MODULE_16__),
 /* harmony export */   validator: () => (/* reexport module object */ web3_validator__WEBPACK_IMPORTED_MODULE_10__)
 /* harmony export */ });
-/* harmony import */ var _web3_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(28);
-/* harmony import */ var _types_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(294);
-/* harmony import */ var web3_core__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(29);
-/* harmony import */ var web3_eth__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(215);
-/* harmony import */ var web3_eth_contract__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(272);
-/* harmony import */ var web3_eth_iban__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(211);
-/* harmony import */ var web3_eth_personal__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(287);
-/* harmony import */ var web3_net__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(228);
-/* harmony import */ var web3_providers_http__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(117);
-/* harmony import */ var web3_providers_ws__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(119);
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(57);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(31);
-/* harmony import */ var _eth_exports_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(295);
-/* harmony import */ var _providers_exports_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(296);
-/* harmony import */ var web3_rpc_methods__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(218);
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(70);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(48);
+/* harmony import */ var _web3_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(27);
+/* harmony import */ var _types_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(293);
+/* harmony import */ var web3_core__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(28);
+/* harmony import */ var web3_eth__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(214);
+/* harmony import */ var web3_eth_contract__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(271);
+/* harmony import */ var web3_eth_iban__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(210);
+/* harmony import */ var web3_eth_personal__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(286);
+/* harmony import */ var web3_net__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(227);
+/* harmony import */ var web3_providers_http__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(116);
+/* harmony import */ var web3_providers_ws__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(118);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(56);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(30);
+/* harmony import */ var _eth_exports_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(294);
+/* harmony import */ var _providers_exports_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(295);
+/* harmony import */ var web3_rpc_methods__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(217);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(69);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(47);
 /*
 This file is part of web3.js.
 
@@ -19551,7 +17957,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=index.js.map
 
 /***/ }),
-/* 28 */
+/* 27 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -19560,20 +17966,20 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   Web3: () => (/* binding */ Web3),
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var web3_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(29);
-/* harmony import */ var web3_eth__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(215);
-/* harmony import */ var web3_eth_contract__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(272);
-/* harmony import */ var web3_eth_ens__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(278);
-/* harmony import */ var web3_eth_iban__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(211);
-/* harmony import */ var web3_eth_personal__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(287);
-/* harmony import */ var web3_net__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(228);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(48);
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(70);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(31);
-/* harmony import */ var _abi_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(290);
-/* harmony import */ var _accounts_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(291);
-/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(292);
-/* harmony import */ var _web3_eip6963_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(293);
+/* harmony import */ var web3_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(28);
+/* harmony import */ var web3_eth__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(214);
+/* harmony import */ var web3_eth_contract__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(271);
+/* harmony import */ var web3_eth_ens__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(277);
+/* harmony import */ var web3_eth_iban__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(210);
+/* harmony import */ var web3_eth_personal__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(286);
+/* harmony import */ var web3_net__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(227);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(47);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(69);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(30);
+/* harmony import */ var _abi_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(289);
+/* harmony import */ var _accounts_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(290);
+/* harmony import */ var _version_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(291);
+/* harmony import */ var _web3_eip6963_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(292);
 /*
 This file is part of web3.js.
 
@@ -19720,7 +18126,7 @@ Web3.modules = {
 //# sourceMappingURL=web3.js.map
 
 /***/ }),
-/* 29 */
+/* 28 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -19768,17 +18174,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   outputTransactionReceiptFormatter: () => (/* reexport safe */ _formatters_js__WEBPACK_IMPORTED_MODULE_8__.outputTransactionReceiptFormatter),
 /* harmony export */   txInputOptionsFormatter: () => (/* reexport safe */ _formatters_js__WEBPACK_IMPORTED_MODULE_8__.txInputOptionsFormatter)
 /* harmony export */ });
-/* harmony import */ var _web3_config_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
-/* harmony import */ var _web3_request_manager_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(116);
-/* harmony import */ var _web3_subscription_manager_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(122);
-/* harmony import */ var _web3_subscriptions_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(123);
-/* harmony import */ var _web3_context_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(124);
-/* harmony import */ var _web3_batch_request_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(208);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(121);
-/* harmony import */ var _types_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(209);
-/* harmony import */ var _formatters_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(210);
-/* harmony import */ var _web3_promi_event_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(214);
-/* harmony import */ var _web3_event_emitter_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(115);
+/* harmony import */ var _web3_config_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(29);
+/* harmony import */ var _web3_request_manager_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(115);
+/* harmony import */ var _web3_subscription_manager_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(121);
+/* harmony import */ var _web3_subscriptions_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(122);
+/* harmony import */ var _web3_context_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(123);
+/* harmony import */ var _web3_batch_request_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(207);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(120);
+/* harmony import */ var _types_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(208);
+/* harmony import */ var _formatters_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(209);
+/* harmony import */ var _web3_promi_event_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(213);
+/* harmony import */ var _web3_event_emitter_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(114);
 /*
 This file is part of web3.js.
 
@@ -19811,7 +18217,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=index.js.map
 
 /***/ }),
-/* 30 */
+/* 29 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -19820,9 +18226,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   Web3Config: () => (/* binding */ Web3Config),
 /* harmony export */   Web3ConfigEvent: () => (/* binding */ Web3ConfigEvent)
 /* harmony export */ });
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(48);
-/* harmony import */ var _web3_event_emitter_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(115);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(47);
+/* harmony import */ var _web3_event_emitter_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(114);
 /*
 This file is part of web3.js.
 
@@ -20222,7 +18628,7 @@ class Web3Config extends _web3_event_emitter_js__WEBPACK_IMPORTED_MODULE_2__.Web
 //# sourceMappingURL=web3_config.js.map
 
 /***/ }),
-/* 31 */
+/* 30 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -20483,22 +18889,22 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   genericRpcErrorMessageTemplate: () => (/* reexport safe */ _errors_rpc_error_messages_js__WEBPACK_IMPORTED_MODULE_14__.genericRpcErrorMessageTemplate),
 /* harmony export */   rpcErrorsMap: () => (/* reexport safe */ _errors_rpc_errors_js__WEBPACK_IMPORTED_MODULE_13__.rpcErrorsMap)
 /* harmony export */ });
-/* harmony import */ var _error_codes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(32);
-/* harmony import */ var _web3_error_base_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(33);
-/* harmony import */ var _errors_account_errors_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(34);
-/* harmony import */ var _errors_connection_errors_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(35);
-/* harmony import */ var _errors_contract_errors_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(36);
-/* harmony import */ var _errors_ens_errors_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(37);
-/* harmony import */ var _errors_generic_errors_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(38);
-/* harmony import */ var _errors_provider_errors_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(39);
-/* harmony import */ var _errors_signature_errors_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(40);
-/* harmony import */ var _errors_transaction_errors_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(41);
-/* harmony import */ var _errors_utils_errors_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(42);
-/* harmony import */ var _errors_response_errors_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(43);
-/* harmony import */ var _errors_core_errors_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(44);
-/* harmony import */ var _errors_rpc_errors_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(45);
-/* harmony import */ var _errors_rpc_error_messages_js__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(46);
-/* harmony import */ var _errors_schema_errors_js__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(47);
+/* harmony import */ var _error_codes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
+/* harmony import */ var _web3_error_base_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(32);
+/* harmony import */ var _errors_account_errors_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(33);
+/* harmony import */ var _errors_connection_errors_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(34);
+/* harmony import */ var _errors_contract_errors_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(35);
+/* harmony import */ var _errors_ens_errors_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(36);
+/* harmony import */ var _errors_generic_errors_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(37);
+/* harmony import */ var _errors_provider_errors_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(38);
+/* harmony import */ var _errors_signature_errors_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(39);
+/* harmony import */ var _errors_transaction_errors_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(40);
+/* harmony import */ var _errors_utils_errors_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(41);
+/* harmony import */ var _errors_response_errors_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(42);
+/* harmony import */ var _errors_core_errors_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(43);
+/* harmony import */ var _errors_rpc_errors_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(44);
+/* harmony import */ var _errors_rpc_error_messages_js__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(45);
+/* harmony import */ var _errors_schema_errors_js__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(46);
 /*
 This file is part of web3.js.
 
@@ -20534,7 +18940,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=index.js.map
 
 /***/ }),
-/* 32 */
+/* 31 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -20831,7 +19237,7 @@ const ERR_RPC_NOT_SUPPORTED = -32006;
 //# sourceMappingURL=error_codes.js.map
 
 /***/ }),
-/* 33 */
+/* 32 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -20896,7 +19302,7 @@ class InvalidValueError extends BaseWeb3Error {
 //# sourceMappingURL=web3_error_base.js.map
 
 /***/ }),
-/* 34 */
+/* 33 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -20912,8 +19318,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   PBKDF2IterationsError: () => (/* binding */ PBKDF2IterationsError),
 /* harmony export */   PrivateKeyLengthError: () => (/* binding */ PrivateKeyLengthError)
 /* harmony export */ });
-/* harmony import */ var _error_codes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(32);
-/* harmony import */ var _web3_error_base_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(33);
+/* harmony import */ var _error_codes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
+/* harmony import */ var _web3_error_base_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(32);
 /*
 This file is part of web3.js.
 
@@ -20990,7 +19396,7 @@ class PBKDF2IterationsError extends _web3_error_base_js__WEBPACK_IMPORTED_MODULE
 //# sourceMappingURL=account_errors.js.map
 
 /***/ }),
-/* 35 */
+/* 34 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -21005,8 +19411,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   PendingRequestsOnReconnectingError: () => (/* binding */ PendingRequestsOnReconnectingError),
 /* harmony export */   RequestAlreadySentError: () => (/* binding */ RequestAlreadySentError)
 /* harmony export */ });
-/* harmony import */ var _error_codes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(32);
-/* harmony import */ var _web3_error_base_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(33);
+/* harmony import */ var _error_codes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
+/* harmony import */ var _web3_error_base_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(32);
 /*
 This file is part of web3.js.
 
@@ -21092,7 +19498,7 @@ class RequestAlreadySentError extends ConnectionError {
 //# sourceMappingURL=connection_errors.js.map
 
 /***/ }),
-/* 36 */
+/* 35 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -21112,8 +19518,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   ResolverMethodMissingError: () => (/* binding */ ResolverMethodMissingError),
 /* harmony export */   Web3ContractError: () => (/* binding */ Web3ContractError)
 /* harmony export */ });
-/* harmony import */ var _error_codes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(32);
-/* harmony import */ var _web3_error_base_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(33);
+/* harmony import */ var _error_codes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
+/* harmony import */ var _web3_error_base_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(32);
 /*
 This file is part of web3.js.
 
@@ -21270,7 +19676,7 @@ class ContractTransactionDataAndInputError extends _web3_error_base_js__WEBPACK_
 //# sourceMappingURL=contract_errors.js.map
 
 /***/ }),
-/* 37 */
+/* 36 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -21280,8 +19686,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   ENSNetworkNotSyncedError: () => (/* binding */ ENSNetworkNotSyncedError),
 /* harmony export */   ENSUnsupportedNetworkError: () => (/* binding */ ENSUnsupportedNetworkError)
 /* harmony export */ });
-/* harmony import */ var _error_codes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(32);
-/* harmony import */ var _web3_error_base_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(33);
+/* harmony import */ var _error_codes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
+/* harmony import */ var _web3_error_base_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(32);
 /*
 This file is part of web3.js.
 
@@ -21322,7 +19728,7 @@ class ENSNetworkNotSyncedError extends _web3_error_base_js__WEBPACK_IMPORTED_MOD
 //# sourceMappingURL=ens_errors.js.map
 
 /***/ }),
-/* 38 */
+/* 37 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -21337,8 +19743,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   OperationAbortError: () => (/* binding */ OperationAbortError),
 /* harmony export */   OperationTimeoutError: () => (/* binding */ OperationTimeoutError)
 /* harmony export */ });
-/* harmony import */ var _error_codes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(32);
-/* harmony import */ var _web3_error_base_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(33);
+/* harmony import */ var _error_codes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
+/* harmony import */ var _web3_error_base_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(32);
 /*
 This file is part of web3.js.
 
@@ -21420,7 +19826,7 @@ class ExistingPluginNamespaceError extends _web3_error_base_js__WEBPACK_IMPORTED
 //# sourceMappingURL=generic_errors.js.map
 
 /***/ }),
-/* 39 */
+/* 38 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -21432,8 +19838,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   SubscriptionError: () => (/* binding */ SubscriptionError),
 /* harmony export */   Web3WSProviderError: () => (/* binding */ Web3WSProviderError)
 /* harmony export */ });
-/* harmony import */ var _error_codes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(32);
-/* harmony import */ var _web3_error_base_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(33);
+/* harmony import */ var _error_codes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
+/* harmony import */ var _web3_error_base_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(32);
 /*
 This file is part of web3.js.
 
@@ -21487,7 +19893,7 @@ class Web3WSProviderError extends _web3_error_base_js__WEBPACK_IMPORTED_MODULE_1
 //# sourceMappingURL=provider_errors.js.map
 
 /***/ }),
-/* 40 */
+/* 39 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -21495,8 +19901,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   SignatureError: () => (/* binding */ SignatureError)
 /* harmony export */ });
-/* harmony import */ var _error_codes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(32);
-/* harmony import */ var _web3_error_base_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(33);
+/* harmony import */ var _error_codes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
+/* harmony import */ var _web3_error_base_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(32);
 /*
 This file is part of web3.js.
 
@@ -21524,7 +19930,7 @@ class SignatureError extends _web3_error_base_js__WEBPACK_IMPORTED_MODULE_1__.In
 //# sourceMappingURL=signature_errors.js.map
 
 /***/ }),
-/* 41 */
+/* 40 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -21573,8 +19979,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   UnsupportedFeeMarketError: () => (/* binding */ UnsupportedFeeMarketError),
 /* harmony export */   UnsupportedTransactionTypeError: () => (/* binding */ UnsupportedTransactionTypeError)
 /* harmony export */ });
-/* harmony import */ var _error_codes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(32);
-/* harmony import */ var _web3_error_base_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(33);
+/* harmony import */ var _error_codes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
+/* harmony import */ var _web3_error_base_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(32);
 /*
 This file is part of web3.js.
 
@@ -21900,7 +20306,7 @@ class InvalidPropertiesForTransactionTypeError extends _web3_error_base_js__WEBP
 //# sourceMappingURL=transaction_errors.js.map
 
 /***/ }),
-/* 42 */
+/* 41 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -21921,8 +20327,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   InvalidUnsignedIntegerError: () => (/* binding */ InvalidUnsignedIntegerError),
 /* harmony export */   NibbleWidthError: () => (/* binding */ NibbleWidthError)
 /* harmony export */ });
-/* harmony import */ var _error_codes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(32);
-/* harmony import */ var _web3_error_base_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(33);
+/* harmony import */ var _error_codes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
+/* harmony import */ var _web3_error_base_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(32);
 /*
 This file is part of web3.js.
 
@@ -22029,7 +20435,7 @@ class InvalidTypeAbiInputError extends _web3_error_base_js__WEBPACK_IMPORTED_MOD
 //# sourceMappingURL=utils_errors.js.map
 
 /***/ }),
-/* 43 */
+/* 42 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -22038,8 +20444,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   InvalidResponseError: () => (/* binding */ InvalidResponseError),
 /* harmony export */   ResponseError: () => (/* binding */ ResponseError)
 /* harmony export */ });
-/* harmony import */ var _web3_error_base_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(33);
-/* harmony import */ var _error_codes_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(32);
+/* harmony import */ var _web3_error_base_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(32);
+/* harmony import */ var _error_codes_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(31);
 /*
 This file is part of web3.js.
 
@@ -22111,7 +20517,7 @@ class InvalidResponseError extends ResponseError {
 //# sourceMappingURL=response_errors.js.map
 
 /***/ }),
-/* 44 */
+/* 43 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -22120,8 +20526,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   ConfigChainMismatchError: () => (/* binding */ ConfigChainMismatchError),
 /* harmony export */   ConfigHardforkMismatchError: () => (/* binding */ ConfigHardforkMismatchError)
 /* harmony export */ });
-/* harmony import */ var _web3_error_base_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(33);
-/* harmony import */ var _error_codes_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(32);
+/* harmony import */ var _web3_error_base_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(32);
+/* harmony import */ var _error_codes_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(31);
 /*
 This file is part of web3.js.
 
@@ -22156,7 +20562,7 @@ class ConfigChainMismatchError extends _web3_error_base_js__WEBPACK_IMPORTED_MOD
 //# sourceMappingURL=core_errors.js.map
 
 /***/ }),
-/* 45 */
+/* 44 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -22178,9 +20584,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   VersionNotSupportedError: () => (/* binding */ VersionNotSupportedError),
 /* harmony export */   rpcErrorsMap: () => (/* binding */ rpcErrorsMap)
 /* harmony export */ });
-/* harmony import */ var _web3_error_base_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(33);
-/* harmony import */ var _error_codes_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(32);
-/* harmony import */ var _rpc_error_messages_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(46);
+/* harmony import */ var _web3_error_base_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(32);
+/* harmony import */ var _error_codes_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(31);
+/* harmony import */ var _rpc_error_messages_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(45);
 /*
 This file is part of web3.js.
 
@@ -22335,7 +20741,7 @@ rpcErrorsMap.set(_error_codes_js__WEBPACK_IMPORTED_MODULE_1__.ERR_RPC_LIMIT_EXCE
 //# sourceMappingURL=rpc_errors.js.map
 
 /***/ }),
-/* 46 */
+/* 45 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -22344,7 +20750,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   RpcErrorMessages: () => (/* binding */ RpcErrorMessages),
 /* harmony export */   genericRpcErrorMessageTemplate: () => (/* binding */ genericRpcErrorMessageTemplate)
 /* harmony export */ });
-/* harmony import */ var _error_codes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(32);
+/* harmony import */ var _error_codes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
 /*
 This file is part of web3.js.
 
@@ -22528,7 +20934,7 @@ const RpcErrorMessages = {
 //# sourceMappingURL=rpc_error_messages.js.map
 
 /***/ }),
-/* 47 */
+/* 46 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -22536,8 +20942,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   SchemaFormatError: () => (/* binding */ SchemaFormatError)
 /* harmony export */ });
-/* harmony import */ var _error_codes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(32);
-/* harmony import */ var _web3_error_base_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(33);
+/* harmony import */ var _error_codes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
+/* harmony import */ var _web3_error_base_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(32);
 /*
 This file is part of web3.js.
 
@@ -22569,7 +20975,7 @@ class SchemaFormatError extends _web3_error_base_js__WEBPACK_IMPORTED_MODULE_1__
 //# sourceMappingURL=schema_errors.js.map
 
 /***/ }),
-/* 48 */
+/* 47 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -22666,22 +21072,22 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   validateResponse: () => (/* reexport safe */ _json_rpc_js__WEBPACK_IMPORTED_MODULE_9__.validateResponse),
 /* harmony export */   waitWithTimeout: () => (/* reexport safe */ _promise_helpers_js__WEBPACK_IMPORTED_MODULE_8__.waitWithTimeout)
 /* harmony export */ });
-/* harmony import */ var _converters_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(49);
-/* harmony import */ var _event_emitter_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(98);
-/* harmony import */ var _validation_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(101);
-/* harmony import */ var _formatter_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(102);
-/* harmony import */ var _hash_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(105);
-/* harmony import */ var _random_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(106);
-/* harmony import */ var _string_manipulation_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(104);
-/* harmony import */ var _objects_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(103);
-/* harmony import */ var _promise_helpers_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(108);
-/* harmony import */ var _json_rpc_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(109);
-/* harmony import */ var _web3_deferred_promise_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(111);
-/* harmony import */ var _chunk_response_parser_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(112);
-/* harmony import */ var _uuid_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(110);
-/* harmony import */ var _web3_eip1193_provider_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(113);
-/* harmony import */ var _socket_provider_js__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(114);
-/* harmony import */ var _uint8array_js__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(97);
+/* harmony import */ var _converters_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(48);
+/* harmony import */ var _event_emitter_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(97);
+/* harmony import */ var _validation_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(100);
+/* harmony import */ var _formatter_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(101);
+/* harmony import */ var _hash_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(104);
+/* harmony import */ var _random_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(105);
+/* harmony import */ var _string_manipulation_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(103);
+/* harmony import */ var _objects_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(102);
+/* harmony import */ var _promise_helpers_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(107);
+/* harmony import */ var _json_rpc_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(108);
+/* harmony import */ var _web3_deferred_promise_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(110);
+/* harmony import */ var _chunk_response_parser_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(111);
+/* harmony import */ var _uuid_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(109);
+/* harmony import */ var _web3_eip1193_provider_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(112);
+/* harmony import */ var _socket_provider_js__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(113);
+/* harmony import */ var _uint8array_js__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(96);
 /*
 This file is part of web3.js.
 
@@ -22718,7 +21124,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=index.js.map
 
 /***/ }),
-/* 49 */
+/* 48 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -22752,11 +21158,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   utf8ToBytes: () => (/* binding */ utf8ToBytes),
 /* harmony export */   utf8ToHex: () => (/* binding */ utf8ToHex)
 /* harmony export */ });
-/* harmony import */ var ethereum_cryptography_keccak_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(50);
-/* harmony import */ var ethereum_cryptography_utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(56);
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(57);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(31);
-/* harmony import */ var _uint8array_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(97);
+/* harmony import */ var ethereum_cryptography_keccak_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(49);
+/* harmony import */ var ethereum_cryptography_utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(55);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(56);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(30);
+/* harmony import */ var _uint8array_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(96);
 /*
 This file is part of web3.js.
 
@@ -23317,7 +21723,7 @@ const toBool = (value) => {
 //# sourceMappingURL=converters.js.map
 
 /***/ }),
-/* 50 */
+/* 49 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -23328,8 +21734,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   keccak384: () => (/* binding */ keccak384),
 /* harmony export */   keccak512: () => (/* binding */ keccak512)
 /* harmony export */ });
-/* harmony import */ var _noble_hashes_sha3__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(51);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(56);
+/* harmony import */ var _noble_hashes_sha3__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(50);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(55);
 
 
 const keccak224 = (0,_utils_js__WEBPACK_IMPORTED_MODULE_0__.wrapHash)(_noble_hashes_sha3__WEBPACK_IMPORTED_MODULE_1__.keccak_224);
@@ -23343,7 +21749,7 @@ const keccak512 = (0,_utils_js__WEBPACK_IMPORTED_MODULE_0__.wrapHash)(_noble_has
 
 
 /***/ }),
-/* 51 */
+/* 50 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -23362,9 +21768,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   shake128: () => (/* binding */ shake128),
 /* harmony export */   shake256: () => (/* binding */ shake256)
 /* harmony export */ });
-/* harmony import */ var _assert_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(52);
-/* harmony import */ var _u64_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(53);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(54);
+/* harmony import */ var _assert_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(51);
+/* harmony import */ var _u64_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(52);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(53);
 
 
 
@@ -23575,7 +21981,7 @@ const shake256 = /* @__PURE__ */ genShake(0x1f, 136, 256 / 8);
 //# sourceMappingURL=sha3.js.map
 
 /***/ }),
-/* 52 */
+/* 51 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -23633,7 +22039,7 @@ const assert = { number, bool, bytes, hash, exists, output };
 //# sourceMappingURL=_assert.js.map
 
 /***/ }),
-/* 53 */
+/* 52 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -23727,7 +22133,7 @@ const u64 = {
 //# sourceMappingURL=_u64.js.map
 
 /***/ }),
-/* 54 */
+/* 53 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -23752,7 +22158,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   wrapConstructorWithOpts: () => (/* binding */ wrapConstructorWithOpts),
 /* harmony export */   wrapXOFConstructorWithOpts: () => (/* binding */ wrapXOFConstructorWithOpts)
 /* harmony export */ });
-/* harmony import */ var _noble_hashes_crypto__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(55);
+/* harmony import */ var _noble_hashes_crypto__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(54);
 /*! noble-hashes - MIT License (c) 2022 Paul Miller (paulmillr.com) */
 // We use WebCrypto aka globalThis.crypto, which exists in browsers and node.js 16+.
 // node.js versions earlier than v19 don't declare it in global scope.
@@ -23933,7 +22339,7 @@ function randomBytes(bytesLength = 32) {
 //# sourceMappingURL=utils.js.map
 
 /***/ }),
-/* 55 */
+/* 54 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -23945,7 +22351,7 @@ const crypto = typeof globalThis === 'object' && 'crypto' in globalThis ? global
 //# sourceMappingURL=crypto.js.map
 
 /***/ }),
-/* 56 */
+/* 55 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -23964,8 +22370,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   utf8ToBytes: () => (/* reexport safe */ _noble_hashes_utils__WEBPACK_IMPORTED_MODULE_1__.utf8ToBytes),
 /* harmony export */   wrapHash: () => (/* binding */ wrapHash)
 /* harmony export */ });
-/* harmony import */ var _noble_hashes_assert__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(52);
-/* harmony import */ var _noble_hashes_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(54);
+/* harmony import */ var _noble_hashes_assert__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(51);
+/* harmony import */ var _noble_hashes_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(53);
 
 
 const assertBool = _noble_hashes_assert__WEBPACK_IMPORTED_MODULE_0__["default"].bool;
@@ -24016,7 +22422,7 @@ const crypto = (() => {
 
 
 /***/ }),
-/* 57 */
+/* 56 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -24059,13 +22465,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   validateNoLeadingZeroes: () => (/* reexport safe */ _validation_index_js__WEBPACK_IMPORTED_MODULE_6__.validateNoLeadingZeroes),
 /* harmony export */   validator: () => (/* reexport safe */ _default_validator_js__WEBPACK_IMPORTED_MODULE_1__.validator)
 /* harmony export */ });
-/* harmony import */ var _web3_validator_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(58);
-/* harmony import */ var _default_validator_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(93);
-/* harmony import */ var _types_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(94);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(64);
-/* harmony import */ var _errors_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(61);
-/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(65);
-/* harmony import */ var _validation_index_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(95);
+/* harmony import */ var _web3_validator_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(57);
+/* harmony import */ var _default_validator_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(92);
+/* harmony import */ var _types_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(93);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(63);
+/* harmony import */ var _errors_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(60);
+/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(64);
+/* harmony import */ var _validation_index_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(94);
 /*
 This file is part of web3.js.
 
@@ -24092,7 +22498,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=index.js.map
 
 /***/ }),
-/* 58 */
+/* 57 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -24100,9 +22506,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Web3Validator: () => (/* binding */ Web3Validator)
 /* harmony export */ });
-/* harmony import */ var _validator_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(59);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(64);
-/* harmony import */ var _errors_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(61);
+/* harmony import */ var _validator_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(58);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(63);
+/* harmony import */ var _errors_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(60);
 
 
 
@@ -24140,7 +22546,7 @@ class Web3Validator {
 //# sourceMappingURL=web3_validator.js.map
 
 /***/ }),
-/* 59 */
+/* 58 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -24148,10 +22554,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Validator: () => (/* binding */ Validator)
 /* harmony export */ });
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
-/* harmony import */ var zod__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(60);
-/* harmony import */ var _errors_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(61);
-/* harmony import */ var _formats_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(62);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
+/* harmony import */ var zod__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(59);
+/* harmony import */ var _errors_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(60);
+/* harmony import */ var _formats_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(61);
 /*
 This file is part of web3.js.
 
@@ -24301,7 +22707,7 @@ class Validator {
 //# sourceMappingURL=validator.js.map
 
 /***/ }),
-/* 60 */
+/* 59 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -28656,7 +27062,7 @@ var z = /*#__PURE__*/Object.freeze({
 
 
 /***/ }),
-/* 61 */
+/* 60 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -28664,7 +27070,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Web3ValidatorError: () => (/* binding */ Web3ValidatorError)
 /* harmony export */ });
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
 /*
 This file is part of web3.js.
 
@@ -28702,7 +27108,7 @@ class Web3ValidatorError extends web3_errors__WEBPACK_IMPORTED_MODULE_0__.BaseWe
 //# sourceMappingURL=errors.js.map
 
 /***/ }),
-/* 62 */
+/* 61 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -28710,14 +27116,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _validation_address_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(63);
-/* harmony import */ var _validation_block_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(69);
-/* harmony import */ var _validation_bloom_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(88);
-/* harmony import */ var _validation_boolean_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(89);
-/* harmony import */ var _validation_bytes_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(68);
-/* harmony import */ var _validation_filter_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(90);
-/* harmony import */ var _validation_string_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(67);
-/* harmony import */ var _validation_numbers_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(87);
+/* harmony import */ var _validation_address_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(62);
+/* harmony import */ var _validation_block_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(68);
+/* harmony import */ var _validation_bloom_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(87);
+/* harmony import */ var _validation_boolean_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(88);
+/* harmony import */ var _validation_bytes_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(67);
+/* harmony import */ var _validation_filter_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(89);
+/* harmony import */ var _validation_string_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(66);
+/* harmony import */ var _validation_numbers_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(86);
 
 
 
@@ -28755,7 +27161,7 @@ formats.bytes256 = formats.bytes;
 //# sourceMappingURL=formats.js.map
 
 /***/ }),
-/* 63 */
+/* 62 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -28764,11 +27170,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   checkAddressCheckSum: () => (/* binding */ checkAddressCheckSum),
 /* harmony export */   isAddress: () => (/* binding */ isAddress)
 /* harmony export */ });
-/* harmony import */ var ethereum_cryptography_keccak_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(50);
-/* harmony import */ var ethereum_cryptography_utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(56);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(64);
-/* harmony import */ var _string_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(67);
-/* harmony import */ var _bytes_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(68);
+/* harmony import */ var ethereum_cryptography_keccak_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(49);
+/* harmony import */ var ethereum_cryptography_utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(55);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(63);
+/* harmony import */ var _string_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(66);
+/* harmony import */ var _bytes_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(67);
 /*
 This file is part of web3.js.
 
@@ -28840,7 +27246,7 @@ const isAddress = (value, checkChecksum = true) => {
 //# sourceMappingURL=address.js.map
 
 /***/ }),
-/* 64 */
+/* 63 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -28859,11 +27265,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   transformJsonDataToAbiFormat: () => (/* binding */ transformJsonDataToAbiFormat),
 /* harmony export */   uint8ArrayToHexString: () => (/* binding */ uint8ArrayToHexString)
 /* harmony export */ });
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
-/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(65);
-/* harmony import */ var _validation_abi_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(66);
-/* harmony import */ var _validation_string_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(67);
-/* harmony import */ var _errors_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(61);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
+/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(64);
+/* harmony import */ var _validation_abi_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(65);
+/* harmony import */ var _validation_string_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(66);
+/* harmony import */ var _errors_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(60);
 /*
 This file is part of web3.js.
 
@@ -29253,7 +27659,7 @@ function ensureIfUint8Array(data) {
 //# sourceMappingURL=utils.js.map
 
 /***/ }),
-/* 65 */
+/* 64 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -29281,7 +27687,7 @@ const VALID_ETH_BASE_TYPES = ['bool', 'int', 'uint', 'bytes', 'string', 'address
 //# sourceMappingURL=constants.js.map
 
 /***/ }),
-/* 66 */
+/* 65 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -29309,7 +27715,7 @@ const isAbiParameterSchema = (schema) => typeof schema === 'object' && 'type' in
 //# sourceMappingURL=abi.js.map
 
 /***/ }),
-/* 67 */
+/* 66 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -29399,7 +27805,7 @@ const validateNoLeadingZeroes = function (values) {
 //# sourceMappingURL=string.js.map
 
 /***/ }),
-/* 68 */
+/* 67 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -29408,8 +27814,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   isBytes: () => (/* binding */ isBytes),
 /* harmony export */   isUint8Array: () => (/* binding */ isUint8Array)
 /* harmony export */ });
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(64);
-/* harmony import */ var _string_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(67);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(63);
+/* harmony import */ var _string_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(66);
 /*
 This file is part of web3.js.
 
@@ -29474,7 +27880,7 @@ const isBytes = (value, options = {
 //# sourceMappingURL=bytes.js.map
 
 /***/ }),
-/* 69 */
+/* 68 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -29484,8 +27890,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   isBlockNumberOrTag: () => (/* binding */ isBlockNumberOrTag),
 /* harmony export */   isBlockTag: () => (/* binding */ isBlockTag)
 /* harmony export */ });
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(70);
-/* harmony import */ var _numbers_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(87);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(69);
+/* harmony import */ var _numbers_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(86);
 /*
 This file is part of web3.js.
 
@@ -29516,7 +27922,7 @@ const isBlockNumberOrTag = (value) => isBlockTag(value) || isBlockNumber(value);
 //# sourceMappingURL=block.js.map
 
 /***/ }),
-/* 70 */
+/* 69 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -29532,22 +27938,22 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   Web3BaseProvider: () => (/* reexport safe */ _web3_base_provider_js__WEBPACK_IMPORTED_MODULE_13__.Web3BaseProvider),
 /* harmony export */   Web3BaseWallet: () => (/* reexport safe */ _web3_base_wallet_js__WEBPACK_IMPORTED_MODULE_14__.Web3BaseWallet)
 /* harmony export */ });
-/* harmony import */ var _error_types_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(71);
-/* harmony import */ var _apis_eth_execution_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(72);
-/* harmony import */ var _apis_web3_eth_execution_api_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(73);
-/* harmony import */ var _apis_web3_net_api_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(74);
-/* harmony import */ var _apis_eth_personal_api_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(75);
-/* harmony import */ var _data_format_types_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(76);
-/* harmony import */ var _eth_types_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(77);
-/* harmony import */ var _eth_abi_types_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(78);
-/* harmony import */ var _eth_contract_types_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(79);
-/* harmony import */ var _json_rpc_types_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(80);
-/* harmony import */ var _primitives_types_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(81);
-/* harmony import */ var _utility_types_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(82);
-/* harmony import */ var _web3_api_types_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(83);
-/* harmony import */ var _web3_base_provider_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(84);
-/* harmony import */ var _web3_base_wallet_js__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(85);
-/* harmony import */ var _web3_deferred_promise_type_js__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(86);
+/* harmony import */ var _error_types_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(70);
+/* harmony import */ var _apis_eth_execution_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(71);
+/* harmony import */ var _apis_web3_eth_execution_api_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(72);
+/* harmony import */ var _apis_web3_net_api_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(73);
+/* harmony import */ var _apis_eth_personal_api_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(74);
+/* harmony import */ var _data_format_types_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(75);
+/* harmony import */ var _eth_types_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(76);
+/* harmony import */ var _eth_abi_types_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(77);
+/* harmony import */ var _eth_contract_types_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(78);
+/* harmony import */ var _json_rpc_types_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(79);
+/* harmony import */ var _primitives_types_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(80);
+/* harmony import */ var _utility_types_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(81);
+/* harmony import */ var _web3_api_types_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(82);
+/* harmony import */ var _web3_base_provider_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(83);
+/* harmony import */ var _web3_base_wallet_js__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(84);
+/* harmony import */ var _web3_deferred_promise_type_js__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(85);
 /*
 This file is part of web3.js.
 
@@ -29583,7 +27989,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=index.js.map
 
 /***/ }),
-/* 71 */
+/* 70 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -29608,7 +28014,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=error_types.js.map
 
 /***/ }),
-/* 72 */
+/* 71 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -29617,7 +28023,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=eth_execution_api.js.map
 
 /***/ }),
-/* 73 */
+/* 72 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -29626,7 +28032,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=web3_eth_execution_api.js.map
 
 /***/ }),
-/* 74 */
+/* 73 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -29635,7 +28041,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=web3_net_api.js.map
 
 /***/ }),
-/* 75 */
+/* 74 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -29644,7 +28050,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=eth_personal_api.js.map
 
 /***/ }),
-/* 76 */
+/* 75 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -29688,7 +28094,7 @@ const ETH_DATA_FORMAT = { number: FMT_NUMBER.HEX, bytes: FMT_BYTES.HEX };
 //# sourceMappingURL=data_format_types.js.map
 
 /***/ }),
-/* 77 */
+/* 76 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -29733,7 +28139,7 @@ var HardforksOrdered;
 //# sourceMappingURL=eth_types.js.map
 
 /***/ }),
-/* 78 */
+/* 77 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -29758,7 +28164,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=eth_abi_types.js.map
 
 /***/ }),
-/* 79 */
+/* 78 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -29783,7 +28189,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=eth_contract_types.js.map
 
 /***/ }),
-/* 80 */
+/* 79 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -29792,7 +28198,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=json_rpc_types.js.map
 
 /***/ }),
-/* 81 */
+/* 80 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -29821,7 +28227,7 @@ const TypedArray = Object.getPrototypeOf(Uint8Array);
 //# sourceMappingURL=primitives_types.js.map
 
 /***/ }),
-/* 82 */
+/* 81 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -29846,7 +28252,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=utility_types.js.map
 
 /***/ }),
-/* 83 */
+/* 82 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -29871,7 +28277,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=web3_api_types.js.map
 
 /***/ }),
-/* 84 */
+/* 83 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -29967,7 +28373,7 @@ class Web3BaseProvider {
 //# sourceMappingURL=web3_base_provider.js.map
 
 /***/ }),
-/* 85 */
+/* 84 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -29984,7 +28390,7 @@ class Web3BaseWallet extends Array {
 //# sourceMappingURL=web3_base_wallet.js.map
 
 /***/ }),
-/* 86 */
+/* 85 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -30009,7 +28415,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=web3_deferred_promise_type.js.map
 
 /***/ }),
-/* 87 */
+/* 86 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -30021,8 +28427,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   isNumber: () => (/* binding */ isNumber),
 /* harmony export */   isUInt: () => (/* binding */ isUInt)
 /* harmony export */ });
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(64);
-/* harmony import */ var _string_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(67);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(63);
+/* harmony import */ var _string_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(66);
 /*
 This file is part of web3.js.
 
@@ -30137,7 +28543,7 @@ const isNumber = (value) => {
 //# sourceMappingURL=numbers.js.map
 
 /***/ }),
-/* 88 */
+/* 87 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -30148,10 +28554,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   isInBloom: () => (/* binding */ isInBloom),
 /* harmony export */   isUserEthereumAddressInBloom: () => (/* binding */ isUserEthereumAddressInBloom)
 /* harmony export */ });
-/* harmony import */ var ethereum_cryptography_keccak_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(50);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(64);
-/* harmony import */ var _address_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(63);
-/* harmony import */ var _string_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(67);
+/* harmony import */ var ethereum_cryptography_keccak_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(49);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(63);
+/* harmony import */ var _address_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(62);
+/* harmony import */ var _string_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(66);
 /*
 This file is part of web3.js.
 
@@ -30253,7 +28659,7 @@ const isContractAddressInBloom = (bloom, contractAddress) => {
 //# sourceMappingURL=bloom.js.map
 
 /***/ }),
-/* 89 */
+/* 88 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -30261,7 +28667,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   isBoolean: () => (/* binding */ isBoolean)
 /* harmony export */ });
-/* harmony import */ var _string_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(67);
+/* harmony import */ var _string_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(66);
 /*
 This file is part of web3.js.
 
@@ -30298,7 +28704,7 @@ const isBoolean = (value) => {
 //# sourceMappingURL=boolean.js.map
 
 /***/ }),
-/* 90 */
+/* 89 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -30306,10 +28712,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   isFilterObject: () => (/* binding */ isFilterObject)
 /* harmony export */ });
-/* harmony import */ var _address_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(63);
-/* harmony import */ var _block_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(69);
-/* harmony import */ var _object_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(91);
-/* harmony import */ var _topic_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(92);
+/* harmony import */ var _address_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(62);
+/* harmony import */ var _block_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(68);
+/* harmony import */ var _object_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(90);
+/* harmony import */ var _topic_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(91);
 /*
 This file is part of web3.js.
 
@@ -30377,7 +28783,7 @@ const isFilterObject = (value) => {
 //# sourceMappingURL=filter.js.map
 
 /***/ }),
-/* 91 */
+/* 90 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -30386,7 +28792,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   isNullish: () => (/* binding */ isNullish),
 /* harmony export */   isObject: () => (/* binding */ isObject)
 /* harmony export */ });
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(70);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(69);
 /*
 This file is part of web3.js.
 
@@ -30417,7 +28823,7 @@ const isObject = (item) => typeof item === 'object' &&
 //# sourceMappingURL=object.js.map
 
 /***/ }),
-/* 92 */
+/* 91 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -30426,7 +28832,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   isTopic: () => (/* binding */ isTopic),
 /* harmony export */   isTopicInBloom: () => (/* binding */ isTopicInBloom)
 /* harmony export */ });
-/* harmony import */ var _bloom_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(88);
+/* harmony import */ var _bloom_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(87);
 /*
 This file is part of web3.js.
 
@@ -30475,7 +28881,7 @@ const isTopicInBloom = (bloom, topic) => {
 //# sourceMappingURL=topic.js.map
 
 /***/ }),
-/* 93 */
+/* 92 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -30483,7 +28889,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   validator: () => (/* binding */ validator)
 /* harmony export */ });
-/* harmony import */ var _web3_validator_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(58);
+/* harmony import */ var _web3_validator_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(57);
 /*
 This file is part of web3.js.
 
@@ -30505,7 +28911,7 @@ const validator = new _web3_validator_js__WEBPACK_IMPORTED_MODULE_0__.Web3Valida
 //# sourceMappingURL=default_validator.js.map
 
 /***/ }),
-/* 94 */
+/* 93 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -30530,7 +28936,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=types.js.map
 
 /***/ }),
-/* 95 */
+/* 94 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -30568,17 +28974,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   isValidEthBaseType: () => (/* reexport safe */ _eth_js__WEBPACK_IMPORTED_MODULE_5__.isValidEthBaseType),
 /* harmony export */   validateNoLeadingZeroes: () => (/* reexport safe */ _string_js__WEBPACK_IMPORTED_MODULE_8__.validateNoLeadingZeroes)
 /* harmony export */ });
-/* harmony import */ var _address_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(63);
-/* harmony import */ var _block_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(69);
-/* harmony import */ var _bloom_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(88);
-/* harmony import */ var _boolean_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(89);
-/* harmony import */ var _bytes_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(68);
-/* harmony import */ var _eth_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(96);
-/* harmony import */ var _filter_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(90);
-/* harmony import */ var _numbers_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(87);
-/* harmony import */ var _string_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(67);
-/* harmony import */ var _topic_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(92);
-/* harmony import */ var _object_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(91);
+/* harmony import */ var _address_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(62);
+/* harmony import */ var _block_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(68);
+/* harmony import */ var _bloom_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(87);
+/* harmony import */ var _boolean_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(88);
+/* harmony import */ var _bytes_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(67);
+/* harmony import */ var _eth_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(95);
+/* harmony import */ var _filter_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(89);
+/* harmony import */ var _numbers_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(86);
+/* harmony import */ var _string_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(66);
+/* harmony import */ var _topic_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(91);
+/* harmony import */ var _object_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(90);
 /*
 This file is part of web3.js.
 
@@ -30609,7 +29015,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=index.js.map
 
 /***/ }),
-/* 96 */
+/* 95 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -30617,7 +29023,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   isValidEthBaseType: () => (/* binding */ isValidEthBaseType)
 /* harmony export */ });
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(64);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(63);
 /*
 This file is part of web3.js.
 
@@ -30658,7 +29064,7 @@ const isValidEthBaseType = (type) => {
 //# sourceMappingURL=eth.js.map
 
 /***/ }),
-/* 97 */
+/* 96 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -30723,7 +29129,7 @@ function uint8ArrayEquals(a, b) {
 //# sourceMappingURL=uint8array.js.map
 
 /***/ }),
-/* 98 */
+/* 97 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -30731,7 +29137,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   EventEmitter: () => (/* binding */ EventEmitter)
 /* harmony export */ });
-/* harmony import */ var eventemitter3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(99);
+/* harmony import */ var eventemitter3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(98);
 /*
 This file is part of web3.js.
 
@@ -30771,7 +29177,7 @@ class EventEmitter extends eventemitter3__WEBPACK_IMPORTED_MODULE_0__["default"]
 //# sourceMappingURL=event_emitter.js.map
 
 /***/ }),
-/* 99 */
+/* 98 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -30780,7 +29186,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   EventEmitter: () => (/* reexport default export from named module */ _index_js__WEBPACK_IMPORTED_MODULE_0__),
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _index_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(100);
+/* harmony import */ var _index_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(99);
 
 
 
@@ -30788,7 +29194,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /***/ }),
-/* 100 */
+/* 99 */
 /***/ ((module) => {
 
 "use strict";
@@ -31131,7 +29537,7 @@ if (true) {
 
 
 /***/ }),
-/* 101 */
+/* 100 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -31151,9 +29557,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   isTopicInBloom: () => (/* binding */ isTopicInBloom),
 /* harmony export */   isUserEthereumAddressInBloom: () => (/* binding */ isUserEthereumAddressInBloom)
 /* harmony export */ });
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(57);
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(70);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(56);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(69);
 /*
 This file is part of web3.js.
 
@@ -31314,7 +29720,7 @@ const isNullish = web3_validator__WEBPACK_IMPORTED_MODULE_1__.isNullish;
 //# sourceMappingURL=validation.js.map
 
 /***/ }),
-/* 102 */
+/* 101 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -31325,13 +29731,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   format: () => (/* binding */ format),
 /* harmony export */   isDataFormat: () => (/* binding */ isDataFormat)
 /* harmony export */ });
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(70);
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(57);
-/* harmony import */ var _converters_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(49);
-/* harmony import */ var _objects_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(103);
-/* harmony import */ var _string_manipulation_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(104);
-/* harmony import */ var _uint8array_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(97);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(69);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(56);
+/* harmony import */ var _converters_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(48);
+/* harmony import */ var _objects_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(102);
+/* harmony import */ var _string_manipulation_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(103);
+/* harmony import */ var _uint8array_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(96);
 /*
 This file is part of web3.js.
 
@@ -31576,7 +29982,7 @@ const format = (schema, data, returnFormat) => {
 //# sourceMappingURL=formatter.js.map
 
 /***/ }),
-/* 103 */
+/* 102 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -31584,8 +29990,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   mergeDeep: () => (/* binding */ mergeDeep)
 /* harmony export */ });
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(70);
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(57);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(69);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(56);
 /*
 This file is part of web3.js.
 
@@ -31646,7 +30052,7 @@ const mergeDeep = (destination, ...sources) => {
 //# sourceMappingURL=objects.js.map
 
 /***/ }),
-/* 104 */
+/* 103 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -31659,9 +30065,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   rightPad: () => (/* binding */ rightPad),
 /* harmony export */   toTwosComplement: () => (/* binding */ toTwosComplement)
 /* harmony export */ });
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(57);
-/* harmony import */ var _converters_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(49);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(56);
+/* harmony import */ var _converters_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(48);
 /*
 This file is part of web3.js.
 
@@ -31804,7 +30210,7 @@ const fromTwosComplement = (value, nibbleWidth = 64) => {
 //# sourceMappingURL=string_manipulation.js.map
 
 /***/ }),
-/* 105 */
+/* 104 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -31820,12 +30226,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   soliditySha3: () => (/* binding */ soliditySha3),
 /* harmony export */   soliditySha3Raw: () => (/* binding */ soliditySha3Raw)
 /* harmony export */ });
-/* harmony import */ var ethereum_cryptography_keccak_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(50);
-/* harmony import */ var ethereum_cryptography_utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(56);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(31);
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(57);
-/* harmony import */ var _converters_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(49);
-/* harmony import */ var _string_manipulation_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(104);
+/* harmony import */ var ethereum_cryptography_keccak_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(49);
+/* harmony import */ var ethereum_cryptography_utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(55);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(30);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(56);
+/* harmony import */ var _converters_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(48);
+/* harmony import */ var _string_manipulation_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(103);
 /*
 This file is part of web3.js.
 
@@ -32164,7 +30570,7 @@ const getStorageSlotNumForLongString = (mainSlotNumber) => sha3(`0x${(typeof mai
 //# sourceMappingURL=hash.js.map
 
 /***/ }),
-/* 106 */
+/* 105 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -32173,8 +30579,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   randomBytes: () => (/* binding */ randomBytes),
 /* harmony export */   randomHex: () => (/* binding */ randomHex)
 /* harmony export */ });
-/* harmony import */ var ethereum_cryptography_random_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(107);
-/* harmony import */ var _converters_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(49);
+/* harmony import */ var ethereum_cryptography_random_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(106);
+/* harmony import */ var _converters_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(48);
 /*
 This file is part of web3.js.
 
@@ -32227,7 +30633,7 @@ const randomHex = (byteSize) => (0,_converters_js__WEBPACK_IMPORTED_MODULE_1__.b
 //# sourceMappingURL=random.js.map
 
 /***/ }),
-/* 107 */
+/* 106 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -32236,7 +30642,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   getRandomBytes: () => (/* binding */ getRandomBytes),
 /* harmony export */   getRandomBytesSync: () => (/* binding */ getRandomBytesSync)
 /* harmony export */ });
-/* harmony import */ var _noble_hashes_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(54);
+/* harmony import */ var _noble_hashes_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(53);
 
 function getRandomBytesSync(bytes) {
     return (0,_noble_hashes_utils__WEBPACK_IMPORTED_MODULE_0__.randomBytes)(bytes);
@@ -32247,7 +30653,7 @@ async function getRandomBytes(bytes) {
 
 
 /***/ }),
-/* 108 */
+/* 107 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -32260,7 +30666,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   rejectIfTimeout: () => (/* binding */ rejectIfTimeout),
 /* harmony export */   waitWithTimeout: () => (/* binding */ waitWithTimeout)
 /* harmony export */ });
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(57);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(56);
 /*
 This file is part of web3.js.
 
@@ -32409,7 +30815,7 @@ function rejectIfConditionAtInterval(cond, interval) {
 //# sourceMappingURL=promise_helpers.js.map
 
 /***/ }),
-/* 109 */
+/* 108 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -32428,9 +30834,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   toPayload: () => (/* binding */ toPayload),
 /* harmony export */   validateResponse: () => (/* binding */ validateResponse)
 /* harmony export */ });
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(57);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(31);
-/* harmony import */ var _uuid_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(110);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(56);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(30);
+/* harmony import */ var _uuid_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(109);
 /*
 This file is part of web3.js.
 
@@ -32514,7 +30920,7 @@ const isBatchRequest = (request) => Array.isArray(request) && request.length > 0
 //# sourceMappingURL=json_rpc.js.map
 
 /***/ }),
-/* 110 */
+/* 109 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -32522,8 +30928,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   uuidV4: () => (/* binding */ uuidV4)
 /* harmony export */ });
-/* harmony import */ var _converters_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(49);
-/* harmony import */ var _random_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(106);
+/* harmony import */ var _converters_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(48);
+/* harmony import */ var _random_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(105);
 /*
 This file is part of web3.js.
 
@@ -32579,7 +30985,7 @@ const uuidV4 = () => {
 //# sourceMappingURL=uuid.js.map
 
 /***/ }),
-/* 111 */
+/* 110 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -32587,7 +30993,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Web3DeferredPromise: () => (/* binding */ Web3DeferredPromise)
 /* harmony export */ });
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
 /*
 This file is part of web3.js.
 
@@ -32727,7 +31133,7 @@ _a = Symbol.toStringTag;
 //# sourceMappingURL=web3_deferred_promise.js.map
 
 /***/ }),
-/* 112 */
+/* 111 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -32735,7 +31141,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   ChunkResponseParser: () => (/* binding */ ChunkResponseParser)
 /* harmony export */ });
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
 
 class ChunkResponseParser {
     constructor(eventEmitter, autoReconnect) {
@@ -32800,7 +31206,7 @@ class ChunkResponseParser {
 //# sourceMappingURL=chunk_response_parser.js.map
 
 /***/ }),
-/* 113 */
+/* 112 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -32808,10 +31214,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Eip1193Provider: () => (/* binding */ Eip1193Provider)
 /* harmony export */ });
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(70);
-/* harmony import */ var eventemitter3__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(99);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(31);
-/* harmony import */ var _json_rpc_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(109);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(69);
+/* harmony import */ var eventemitter3__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(98);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(30);
+/* harmony import */ var _json_rpc_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(108);
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -32919,7 +31325,7 @@ class Eip1193Provider extends web3_types__WEBPACK_IMPORTED_MODULE_0__.Web3BasePr
 //# sourceMappingURL=web3_eip1193_provider.js.map
 
 /***/ }),
-/* 114 */
+/* 113 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -32927,12 +31333,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   SocketProvider: () => (/* binding */ SocketProvider)
 /* harmony export */ });
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
-/* harmony import */ var _web3_eip1193_provider_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(113);
-/* harmony import */ var _chunk_response_parser_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(112);
-/* harmony import */ var _validation_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(101);
-/* harmony import */ var _web3_deferred_promise_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(111);
-/* harmony import */ var _json_rpc_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(109);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
+/* harmony import */ var _web3_eip1193_provider_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(112);
+/* harmony import */ var _chunk_response_parser_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(111);
+/* harmony import */ var _validation_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(100);
+/* harmony import */ var _web3_deferred_promise_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(110);
+/* harmony import */ var _json_rpc_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(108);
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -33256,7 +31662,7 @@ class SocketProvider extends _web3_eip1193_provider_js__WEBPACK_IMPORTED_MODULE_
 //# sourceMappingURL=socket_provider.js.map
 
 /***/ }),
-/* 115 */
+/* 114 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -33264,7 +31670,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Web3EventEmitter: () => (/* binding */ Web3EventEmitter)
 /* harmony export */ });
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(48);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(47);
 /*
 This file is part of web3.js.
 
@@ -33323,7 +31729,7 @@ class Web3EventEmitter {
 //# sourceMappingURL=web3_event_emitter.js.map
 
 /***/ }),
-/* 116 */
+/* 115 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -33332,12 +31738,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   Web3RequestManager: () => (/* binding */ Web3RequestManager),
 /* harmony export */   Web3RequestManagerEvent: () => (/* binding */ Web3RequestManagerEvent)
 /* harmony export */ });
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
-/* harmony import */ var web3_providers_http__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(117);
-/* harmony import */ var web3_providers_ws__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(119);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(48);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(121);
-/* harmony import */ var _web3_event_emitter_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(115);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
+/* harmony import */ var web3_providers_http__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(116);
+/* harmony import */ var web3_providers_ws__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(118);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(47);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(120);
+/* harmony import */ var _web3_event_emitter_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(114);
 /*
 This file is part of web3.js.
 
@@ -33668,7 +32074,7 @@ class Web3RequestManager extends _web3_event_emitter_js__WEBPACK_IMPORTED_MODULE
 //# sourceMappingURL=web3_request_manager.js.map
 
 /***/ }),
-/* 117 */
+/* 116 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -33677,9 +32083,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   HttpProvider: () => (/* binding */ HttpProvider),
 /* harmony export */   "default": () => (/* binding */ HttpProvider)
 /* harmony export */ });
-/* harmony import */ var cross_fetch__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(118);
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(70);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(31);
+/* harmony import */ var cross_fetch__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(117);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(69);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(30);
 /*
 This file is part of web3.js.
 
@@ -33775,7 +32181,7 @@ class HttpProvider extends web3_types__WEBPACK_IMPORTED_MODULE_1__.Web3BaseProvi
 //# sourceMappingURL=index.js.map
 
 /***/ }),
-/* 118 */
+/* 117 */
 /***/ ((module, exports, __webpack_require__) => {
 
 // Save global object in a variable
@@ -34428,7 +32834,7 @@ module.exports = exports
 
 
 /***/ }),
-/* 119 */
+/* 118 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -34437,9 +32843,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   WebSocketProvider: () => (/* binding */ WebSocketProvider),
 /* harmony export */   "default": () => (/* binding */ WebSocketProvider)
 /* harmony export */ });
-/* harmony import */ var isomorphic_ws__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(120);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(48);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(31);
+/* harmony import */ var isomorphic_ws__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(119);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(47);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(30);
 /*
 This file is part of web3.js.
 
@@ -34577,7 +32983,7 @@ class WebSocketProvider extends web3_utils__WEBPACK_IMPORTED_MODULE_1__.SocketPr
 //# sourceMappingURL=index.js.map
 
 /***/ }),
-/* 120 */
+/* 119 */
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -34605,7 +33011,7 @@ if (typeof WebSocket !== 'undefined') {
 
 
 /***/ }),
-/* 121 */
+/* 120 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -34620,7 +33026,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   isSupportedProvider: () => (/* binding */ isSupportedProvider),
 /* harmony export */   isWeb3Provider: () => (/* binding */ isWeb3Provider)
 /* harmony export */ });
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(70);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(69);
 /*
 This file is part of web3.js.
 
@@ -34668,7 +33074,7 @@ const isSupportSubscriptions = (provider) => {
 //# sourceMappingURL=utils.js.map
 
 /***/ }),
-/* 122 */
+/* 121 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -34676,11 +33082,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Web3SubscriptionManager: () => (/* binding */ Web3SubscriptionManager)
 /* harmony export */ });
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(70);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(31);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(48);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(121);
-/* harmony import */ var _web3_request_manager_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(116);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(69);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(30);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(47);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(120);
+/* harmony import */ var _web3_request_manager_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(115);
 /*
 This file is part of web3.js.
 
@@ -34872,7 +33278,7 @@ class Web3SubscriptionManager {
 //# sourceMappingURL=web3_subscription_manager.js.map
 
 /***/ }),
-/* 123 */
+/* 122 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -34880,11 +33286,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Web3Subscription: () => (/* binding */ Web3Subscription)
 /* harmony export */ });
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(70);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(48);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(31);
-/* harmony import */ var _web3_subscription_manager_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(122);
-/* harmony import */ var _web3_event_emitter_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(115);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(69);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(47);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(30);
+/* harmony import */ var _web3_subscription_manager_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(121);
+/* harmony import */ var _web3_event_emitter_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(114);
 /*
 This file is part of web3.js.
 
@@ -35019,7 +33425,7 @@ class Web3Subscription extends _web3_event_emitter_js__WEBPACK_IMPORTED_MODULE_4
 //# sourceMappingURL=web3_subscriptions.js.map
 
 /***/ }),
-/* 124 */
+/* 123 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -35029,14 +33435,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   Web3EthPluginBase: () => (/* binding */ Web3EthPluginBase),
 /* harmony export */   Web3PluginBase: () => (/* binding */ Web3PluginBase)
 /* harmony export */ });
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(48);
-/* harmony import */ var web3_eth_accounts__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(125);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(121);
-/* harmony import */ var _web3_batch_request_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(208);
-/* harmony import */ var _web3_config_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(30);
-/* harmony import */ var _web3_request_manager_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(116);
-/* harmony import */ var _web3_subscription_manager_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(122);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(47);
+/* harmony import */ var web3_eth_accounts__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(124);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(120);
+/* harmony import */ var _web3_batch_request_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(207);
+/* harmony import */ var _web3_config_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(29);
+/* harmony import */ var _web3_request_manager_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(115);
+/* harmony import */ var _web3_subscription_manager_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(121);
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -35350,7 +33756,7 @@ class Web3EthPluginBase extends Web3PluginBase {
 //# sourceMappingURL=web3_context.js.map
 
 /***/ }),
-/* 125 */
+/* 124 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -35403,12 +33809,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   unpadUint8Array: () => (/* reexport safe */ _common_index_js__WEBPACK_IMPORTED_MODULE_4__.unpadUint8Array),
 /* harmony export */   zeros: () => (/* reexport safe */ _common_index_js__WEBPACK_IMPORTED_MODULE_4__.zeros)
 /* harmony export */ });
-/* harmony import */ var _wallet_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(126);
-/* harmony import */ var _account_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(127);
-/* harmony import */ var _types_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(205);
-/* harmony import */ var _schemas_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(146);
-/* harmony import */ var _common_index_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(206);
-/* harmony import */ var _tx_index_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(207);
+/* harmony import */ var _wallet_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(125);
+/* harmony import */ var _account_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(126);
+/* harmony import */ var _types_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(204);
+/* harmony import */ var _schemas_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(145);
+/* harmony import */ var _common_index_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(205);
+/* harmony import */ var _tx_index_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(206);
 /*
 This file is part of web3.js.
 
@@ -35455,7 +33861,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=index.js.map
 
 /***/ }),
-/* 126 */
+/* 125 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -35463,8 +33869,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Wallet: () => (/* binding */ Wallet)
 /* harmony export */ });
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(70);
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(57);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(69);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(56);
 /*
 This file is part of web3.js.
 
@@ -35883,7 +34289,7 @@ class Wallet extends web3_types__WEBPACK_IMPORTED_MODULE_0__.Web3BaseWallet {
 //# sourceMappingURL=wallet.js.map
 
 /***/ }),
-/* 127 */
+/* 126 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -35902,15 +34308,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   sign: () => (/* binding */ sign),
 /* harmony export */   signTransaction: () => (/* binding */ signTransaction)
 /* harmony export */ });
-/* harmony import */ var ethereum_cryptography_aes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(128);
-/* harmony import */ var ethereum_cryptography_pbkdf2_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(129);
-/* harmony import */ var ethereum_cryptography_scrypt_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(135);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(31);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(48);
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(57);
-/* harmony import */ var _tx_constants_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(137);
-/* harmony import */ var _schemas_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(146);
-/* harmony import */ var _tx_transactionFactory_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(147);
+/* harmony import */ var ethereum_cryptography_aes_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(127);
+/* harmony import */ var ethereum_cryptography_pbkdf2_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(128);
+/* harmony import */ var ethereum_cryptography_scrypt_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(134);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(30);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(47);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(56);
+/* harmony import */ var _tx_constants_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(136);
+/* harmony import */ var _schemas_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(145);
+/* harmony import */ var _tx_transactionFactory_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(146);
 /*
 This file is part of web3.js.
 
@@ -36581,7 +34987,7 @@ const decrypt = (keystore, password, nonStrict) => __awaiter(void 0, void 0, voi
 //# sourceMappingURL=account.js.map
 
 /***/ }),
-/* 128 */
+/* 127 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -36590,8 +34996,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   decrypt: () => (/* binding */ decrypt),
 /* harmony export */   encrypt: () => (/* binding */ encrypt)
 /* harmony export */ });
-/* harmony import */ var _noble_hashes_crypto__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(55);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(56);
+/* harmony import */ var _noble_hashes_crypto__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(54);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(55);
 
 
 const crypto = { web: _noble_hashes_crypto__WEBPACK_IMPORTED_MODULE_1__.crypto };
@@ -36688,7 +35094,7 @@ async function decrypt(cypherText, key, iv, mode = "aes-128-ctr", pkcs7PaddingEn
 
 
 /***/ }),
-/* 129 */
+/* 128 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -36697,10 +35103,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   pbkdf2: () => (/* binding */ pbkdf2),
 /* harmony export */   pbkdf2Sync: () => (/* binding */ pbkdf2Sync)
 /* harmony export */ });
-/* harmony import */ var _noble_hashes_pbkdf2__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(130);
-/* harmony import */ var _noble_hashes_sha256__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(132);
-/* harmony import */ var _noble_hashes_sha512__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(134);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(56);
+/* harmony import */ var _noble_hashes_pbkdf2__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(129);
+/* harmony import */ var _noble_hashes_sha256__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(131);
+/* harmony import */ var _noble_hashes_sha512__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(133);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(55);
 
 
 
@@ -36730,7 +35136,7 @@ function pbkdf2Sync(password, salt, iterations, keylen, digest) {
 
 
 /***/ }),
-/* 130 */
+/* 129 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -36739,9 +35145,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   pbkdf2: () => (/* binding */ pbkdf2),
 /* harmony export */   pbkdf2Async: () => (/* binding */ pbkdf2Async)
 /* harmony export */ });
-/* harmony import */ var _assert_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(52);
-/* harmony import */ var _hmac_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(131);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(54);
+/* harmony import */ var _assert_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(51);
+/* harmony import */ var _hmac_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(130);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(53);
 
 
 
@@ -36830,7 +35236,7 @@ async function pbkdf2Async(hash, password, salt, opts) {
 //# sourceMappingURL=pbkdf2.js.map
 
 /***/ }),
-/* 131 */
+/* 130 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -36839,8 +35245,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   HMAC: () => (/* binding */ HMAC),
 /* harmony export */   hmac: () => (/* binding */ hmac)
 /* harmony export */ });
-/* harmony import */ var _assert_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(52);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(54);
+/* harmony import */ var _assert_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(51);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(53);
 
 
 // HMAC (RFC 2104)
@@ -36920,7 +35326,7 @@ hmac.create = (hash, key) => new HMAC(hash, key);
 //# sourceMappingURL=hmac.js.map
 
 /***/ }),
-/* 132 */
+/* 131 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -36929,8 +35335,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   sha224: () => (/* binding */ sha224),
 /* harmony export */   sha256: () => (/* binding */ sha256)
 /* harmony export */ });
-/* harmony import */ var _sha2_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(133);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(54);
+/* harmony import */ var _sha2_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(132);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(53);
 
 
 // SHA2-256 need to try 2^128 hashes to execute birthday attack.
@@ -37059,7 +35465,7 @@ const sha224 = /* @__PURE__ */ (0,_utils_js__WEBPACK_IMPORTED_MODULE_1__.wrapCon
 //# sourceMappingURL=sha256.js.map
 
 /***/ }),
-/* 133 */
+/* 132 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -37067,8 +35473,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   SHA2: () => (/* binding */ SHA2)
 /* harmony export */ });
-/* harmony import */ var _assert_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(52);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(54);
+/* harmony import */ var _assert_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(51);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(53);
 
 
 // Polyfill for Safari 14
@@ -37185,7 +35591,7 @@ class SHA2 extends _utils_js__WEBPACK_IMPORTED_MODULE_0__.Hash {
 //# sourceMappingURL=_sha2.js.map
 
 /***/ }),
-/* 134 */
+/* 133 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -37197,9 +35603,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   sha512_224: () => (/* binding */ sha512_224),
 /* harmony export */   sha512_256: () => (/* binding */ sha512_256)
 /* harmony export */ });
-/* harmony import */ var _sha2_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(133);
-/* harmony import */ var _u64_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(53);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(54);
+/* harmony import */ var _sha2_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(132);
+/* harmony import */ var _u64_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(52);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(53);
 
 
 
@@ -37433,7 +35839,7 @@ const sha384 = /* @__PURE__ */ (0,_utils_js__WEBPACK_IMPORTED_MODULE_2__.wrapCon
 //# sourceMappingURL=sha512.js.map
 
 /***/ }),
-/* 135 */
+/* 134 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -37442,8 +35848,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   scrypt: () => (/* binding */ scrypt),
 /* harmony export */   scryptSync: () => (/* binding */ scryptSync)
 /* harmony export */ });
-/* harmony import */ var _noble_hashes_scrypt__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(136);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(56);
+/* harmony import */ var _noble_hashes_scrypt__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(135);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(55);
 
 
 async function scrypt(password, salt, n, p, r, dkLen, onProgress) {
@@ -37459,7 +35865,7 @@ function scryptSync(password, salt, n, p, r, dkLen, onProgress) {
 
 
 /***/ }),
-/* 136 */
+/* 135 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -37468,10 +35874,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   scrypt: () => (/* binding */ scrypt),
 /* harmony export */   scryptAsync: () => (/* binding */ scryptAsync)
 /* harmony export */ });
-/* harmony import */ var _assert_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(52);
-/* harmony import */ var _sha256_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(132);
-/* harmony import */ var _pbkdf2_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(130);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(54);
+/* harmony import */ var _assert_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(51);
+/* harmony import */ var _sha256_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(131);
+/* harmony import */ var _pbkdf2_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(129);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(53);
 
 
 
@@ -37692,7 +36098,7 @@ async function scryptAsync(password, salt, opts) {
 //# sourceMappingURL=scrypt.js.map
 
 /***/ }),
-/* 137 */
+/* 136 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -37704,7 +36110,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   SECP256K1_ORDER_DIV_2: () => (/* binding */ SECP256K1_ORDER_DIV_2),
 /* harmony export */   secp256k1: () => (/* binding */ secp256k1)
 /* harmony export */ });
-/* harmony import */ var ethereum_cryptography_secp256k1_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(138);
+/* harmony import */ var ethereum_cryptography_secp256k1_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(137);
 var _a;
 /*
 This file is part of web3.js.
@@ -37738,7 +36144,7 @@ const SECP256K1_ORDER_DIV_2 = SECP256K1_ORDER / BigInt(2);
 //# sourceMappingURL=constants.js.map
 
 /***/ }),
-/* 138 */
+/* 137 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -37746,12 +36152,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   secp256k1: () => (/* reexport safe */ _noble_curves_secp256k1__WEBPACK_IMPORTED_MODULE_0__.secp256k1)
 /* harmony export */ });
-/* harmony import */ var _noble_curves_secp256k1__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(139);
+/* harmony import */ var _noble_curves_secp256k1__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(138);
 
 
 
 /***/ }),
-/* 139 */
+/* 138 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -37762,13 +36168,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   schnorr: () => (/* binding */ schnorr),
 /* harmony export */   secp256k1: () => (/* binding */ secp256k1)
 /* harmony export */ });
-/* harmony import */ var _noble_hashes_sha256__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(132);
-/* harmony import */ var _noble_hashes_utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(54);
-/* harmony import */ var _abstract_modular_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(140);
-/* harmony import */ var _abstract_weierstrass_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(142);
-/* harmony import */ var _abstract_utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(141);
-/* harmony import */ var _abstract_hash_to_curve_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(144);
-/* harmony import */ var _shortw_utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(145);
+/* harmony import */ var _noble_hashes_sha256__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(131);
+/* harmony import */ var _noble_hashes_utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(53);
+/* harmony import */ var _abstract_modular_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(139);
+/* harmony import */ var _abstract_weierstrass_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(141);
+/* harmony import */ var _abstract_utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(140);
+/* harmony import */ var _abstract_hash_to_curve_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(143);
+/* harmony import */ var _shortw_utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(144);
 /*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) */
 
 
@@ -38025,7 +36431,7 @@ const encodeToCurve = /* @__PURE__ */ (() => htf.encodeToCurve)();
 //# sourceMappingURL=secp256k1.js.map
 
 /***/ }),
-/* 140 */
+/* 139 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -38052,7 +36458,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   tonelliShanks: () => (/* binding */ tonelliShanks),
 /* harmony export */   validateField: () => (/* binding */ validateField)
 /* harmony export */ });
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(141);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(140);
 /*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) */
 // Utilities for modular arithmetics and finite fields
 
@@ -38471,7 +36877,7 @@ function mapHashToField(key, fieldOrder, isLE = false) {
 //# sourceMappingURL=modular.js.map
 
 /***/ }),
-/* 141 */
+/* 140 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -38789,7 +37195,7 @@ function validateObject(object, validators, optValidators = {}) {
 //# sourceMappingURL=utils.js.map
 
 /***/ }),
-/* 142 */
+/* 141 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -38801,9 +37207,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   weierstrass: () => (/* binding */ weierstrass),
 /* harmony export */   weierstrassPoints: () => (/* binding */ weierstrassPoints)
 /* harmony export */ });
-/* harmony import */ var _modular_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(140);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(141);
-/* harmony import */ var _curve_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(143);
+/* harmony import */ var _modular_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(139);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(140);
+/* harmony import */ var _curve_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(142);
 /*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) */
 // Short Weierstrass curve. The formula is: y² = x³ + ax + b
 
@@ -39862,7 +38268,7 @@ function mapToCurveSimpleSWU(Fp, opts) {
 //# sourceMappingURL=weierstrass.js.map
 
 /***/ }),
-/* 143 */
+/* 142 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -39871,8 +38277,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   validateBasic: () => (/* binding */ validateBasic),
 /* harmony export */   wNAF: () => (/* binding */ wNAF)
 /* harmony export */ });
-/* harmony import */ var _modular_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(140);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(141);
+/* harmony import */ var _modular_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(139);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(140);
 /*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) */
 // Abelian group utilities
 
@@ -40031,7 +38437,7 @@ function validateBasic(curve) {
 //# sourceMappingURL=curve.js.map
 
 /***/ }),
-/* 144 */
+/* 143 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -40043,8 +38449,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   hash_to_field: () => (/* binding */ hash_to_field),
 /* harmony export */   isogenyMap: () => (/* binding */ isogenyMap)
 /* harmony export */ });
-/* harmony import */ var _modular_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(140);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(141);
+/* harmony import */ var _modular_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(139);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(140);
 
 
 function validateDST(dst) {
@@ -40220,7 +38626,7 @@ function createHasher(Point, mapToCurve, def) {
 //# sourceMappingURL=hash-to-curve.js.map
 
 /***/ }),
-/* 145 */
+/* 144 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -40229,9 +38635,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   createCurve: () => (/* binding */ createCurve),
 /* harmony export */   getHash: () => (/* binding */ getHash)
 /* harmony export */ });
-/* harmony import */ var _noble_hashes_hmac__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(131);
-/* harmony import */ var _noble_hashes_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(54);
-/* harmony import */ var _abstract_weierstrass_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(142);
+/* harmony import */ var _noble_hashes_hmac__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(130);
+/* harmony import */ var _noble_hashes_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(53);
+/* harmony import */ var _abstract_weierstrass_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(141);
 /*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) */
 
 
@@ -40251,7 +38657,7 @@ function createCurve(curveDef, defHash) {
 //# sourceMappingURL=_shortw_utils.js.map
 
 /***/ }),
-/* 146 */
+/* 145 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -40300,7 +38706,7 @@ const keyStoreSchema = {
 //# sourceMappingURL=schemas.js.map
 
 /***/ }),
-/* 147 */
+/* 146 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -40308,11 +38714,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   TransactionFactory: () => (/* binding */ TransactionFactory)
 /* harmony export */ });
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(48);
-/* harmony import */ var _common_utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(148);
-/* harmony import */ var _eip1559Transaction_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(151);
-/* harmony import */ var _eip2930Transaction_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(203);
-/* harmony import */ var _legacyTransaction_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(204);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(47);
+/* harmony import */ var _common_utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(147);
+/* harmony import */ var _eip1559Transaction_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(150);
+/* harmony import */ var _eip2930Transaction_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(202);
+/* harmony import */ var _legacyTransaction_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(203);
 /*
 This file is part of web3.js.
 
@@ -40429,7 +38835,7 @@ class TransactionFactory {
 //# sourceMappingURL=transactionFactory.js.map
 
 /***/ }),
-/* 148 */
+/* 147 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -40452,11 +38858,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   unpadUint8Array: () => (/* binding */ unpadUint8Array),
 /* harmony export */   zeros: () => (/* binding */ zeros)
 /* harmony export */ });
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(57);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(48);
-/* harmony import */ var _tx_constants_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(137);
-/* harmony import */ var _enums_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(149);
-/* harmony import */ var _types_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(150);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(56);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(47);
+/* harmony import */ var _tx_constants_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(136);
+/* harmony import */ var _enums_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(148);
+/* harmony import */ var _types_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(149);
 /*
 This file is part of web3.js.
 
@@ -40940,7 +39346,7 @@ function toType(input, outputType) {
 //# sourceMappingURL=utils.js.map
 
 /***/ }),
-/* 149 */
+/* 148 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -41055,7 +39461,7 @@ var CustomChain;
 //# sourceMappingURL=enums.js.map
 
 /***/ }),
-/* 150 */
+/* 149 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -41076,7 +39482,7 @@ var TypeOutput;
 //# sourceMappingURL=types.js.map
 
 /***/ }),
-/* 151 */
+/* 150 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -41084,14 +39490,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   FeeMarketEIP1559Transaction: () => (/* binding */ FeeMarketEIP1559Transaction)
 /* harmony export */ });
-/* harmony import */ var ethereum_cryptography_keccak_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(50);
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(57);
-/* harmony import */ var _ethereumjs_rlp__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(152);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(48);
-/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(137);
-/* harmony import */ var _baseTransaction_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(153);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(202);
-/* harmony import */ var _common_utils_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(148);
+/* harmony import */ var ethereum_cryptography_keccak_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(49);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(56);
+/* harmony import */ var _ethereumjs_rlp__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(151);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(47);
+/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(136);
+/* harmony import */ var _baseTransaction_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(152);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(201);
+/* harmony import */ var _common_utils_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(147);
 /*
 This file is part of web3.js.
 
@@ -41440,7 +39846,7 @@ class FeeMarketEIP1559Transaction extends _baseTransaction_js__WEBPACK_IMPORTED_
 //# sourceMappingURL=eip1559Transaction.js.map
 
 /***/ }),
-/* 152 */
+/* 151 */
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -41704,7 +40110,7 @@ exports.RLP = { encode, decode };
 //# sourceMappingURL=index.js.map
 
 /***/ }),
-/* 153 */
+/* 152 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -41712,14 +40118,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   BaseTransaction: () => (/* binding */ BaseTransaction)
 /* harmony export */ });
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(48);
-/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(137);
-/* harmony import */ var _common_utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(148);
-/* harmony import */ var _common_common_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(154);
-/* harmony import */ var _common_enums_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(149);
-/* harmony import */ var _types_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(200);
-/* harmony import */ var _address_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(201);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(202);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(47);
+/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(136);
+/* harmony import */ var _common_utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(147);
+/* harmony import */ var _common_common_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(153);
+/* harmony import */ var _common_enums_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(148);
+/* harmony import */ var _types_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(199);
+/* harmony import */ var _address_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(200);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(201);
 /*
 This file is part of web3.js.
 
@@ -42153,7 +40559,7 @@ class BaseTransaction {
 //# sourceMappingURL=baseTransaction.js.map
 
 /***/ }),
-/* 154 */
+/* 153 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -42161,16 +40567,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Common: () => (/* binding */ Common)
 /* harmony export */ });
-/* harmony import */ var crc_32__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(155);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(48);
-/* harmony import */ var _types_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(150);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(148);
-/* harmony import */ var _chains_goerli_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(156);
-/* harmony import */ var _chains_mainnet_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(157);
-/* harmony import */ var _chains_sepolia_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(158);
-/* harmony import */ var _eips_index_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(159);
-/* harmony import */ var _enums_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(149);
-/* harmony import */ var _hardforks_index_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(182);
+/* harmony import */ var crc_32__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(154);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(47);
+/* harmony import */ var _types_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(149);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(147);
+/* harmony import */ var _chains_goerli_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(155);
+/* harmony import */ var _chains_mainnet_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(156);
+/* harmony import */ var _chains_sepolia_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(157);
+/* harmony import */ var _eips_index_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(158);
+/* harmony import */ var _enums_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(148);
+/* harmony import */ var _hardforks_index_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(181);
 /*
 This file is part of web3.js.
 
@@ -43216,7 +41622,7 @@ class Common extends web3_utils__WEBPACK_IMPORTED_MODULE_1__.EventEmitter {
 //# sourceMappingURL=common.js.map
 
 /***/ }),
-/* 155 */
+/* 154 */
 /***/ ((__unused_webpack_module, exports) => {
 
 /*! crc32.js (C) 2014-present SheetJS -- http://sheetjs.com */
@@ -43329,7 +41735,7 @@ CRC32.str = crc32_str;
 
 
 /***/ }),
-/* 156 */
+/* 155 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -43436,7 +41842,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=goerli.js.map
 
 /***/ }),
-/* 157 */
+/* 156 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -43559,7 +41965,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=mainnet.js.map
 
 /***/ }),
-/* 158 */
+/* 157 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -43669,7 +42075,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=sepolia.js.map
 
 /***/ }),
-/* 159 */
+/* 158 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -43677,28 +42083,28 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   EIPs: () => (/* binding */ EIPs)
 /* harmony export */ });
-/* harmony import */ var _1153_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(160);
-/* harmony import */ var _1559_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(161);
-/* harmony import */ var _2315_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(162);
-/* harmony import */ var _2537_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(163);
-/* harmony import */ var _2565_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(164);
-/* harmony import */ var _2718_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(165);
-/* harmony import */ var _2929_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(166);
-/* harmony import */ var _2930_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(167);
-/* harmony import */ var _3198_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(168);
-/* harmony import */ var _3529_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(169);
-/* harmony import */ var _3540_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(170);
-/* harmony import */ var _3541_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(171);
-/* harmony import */ var _3554_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(172);
-/* harmony import */ var _3607_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(173);
-/* harmony import */ var _3651_js__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(174);
-/* harmony import */ var _3670_js__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(175);
-/* harmony import */ var _3675_js__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(176);
-/* harmony import */ var _3855_js__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(177);
-/* harmony import */ var _3860_js__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(178);
-/* harmony import */ var _4345_js__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(179);
-/* harmony import */ var _4399_js__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(180);
-/* harmony import */ var _5133_js__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(181);
+/* harmony import */ var _1153_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(159);
+/* harmony import */ var _1559_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(160);
+/* harmony import */ var _2315_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(161);
+/* harmony import */ var _2537_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(162);
+/* harmony import */ var _2565_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(163);
+/* harmony import */ var _2718_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(164);
+/* harmony import */ var _2929_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(165);
+/* harmony import */ var _2930_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(166);
+/* harmony import */ var _3198_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(167);
+/* harmony import */ var _3529_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(168);
+/* harmony import */ var _3540_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(169);
+/* harmony import */ var _3541_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(170);
+/* harmony import */ var _3554_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(171);
+/* harmony import */ var _3607_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(172);
+/* harmony import */ var _3651_js__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(173);
+/* harmony import */ var _3670_js__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(174);
+/* harmony import */ var _3675_js__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(175);
+/* harmony import */ var _3855_js__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(176);
+/* harmony import */ var _3860_js__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(177);
+/* harmony import */ var _4345_js__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(178);
+/* harmony import */ var _4399_js__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(179);
+/* harmony import */ var _5133_js__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(180);
 /*
 This file is part of web3.js.
 
@@ -43764,7 +42170,7 @@ const EIPs = {
 //# sourceMappingURL=index.js.map
 
 /***/ }),
-/* 160 */
+/* 159 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -43797,7 +42203,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=1153.js.map
 
 /***/ }),
-/* 161 */
+/* 160 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -43834,7 +42240,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=1559.js.map
 
 /***/ }),
-/* 162 */
+/* 161 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -43870,7 +42276,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=2315.js.map
 
 /***/ }),
-/* 163 */
+/* 162 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -44059,7 +42465,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=2537.js.map
 
 /***/ }),
-/* 164 */
+/* 163 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -44087,7 +42493,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=2565.js.map
 
 /***/ }),
-/* 165 */
+/* 164 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -44109,7 +42515,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=2718.js.map
 
 /***/ }),
-/* 166 */
+/* 165 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -44204,7 +42610,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=2929.js.map
 
 /***/ }),
-/* 167 */
+/* 166 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -44236,7 +42642,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=2930.js.map
 
 /***/ }),
-/* 168 */
+/* 167 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -44264,7 +42670,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=3198.js.map
 
 /***/ }),
-/* 169 */
+/* 168 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -44301,7 +42707,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=3529.js.map
 
 /***/ }),
-/* 170 */
+/* 169 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -44325,7 +42731,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=3540.js.map
 
 /***/ }),
-/* 171 */
+/* 170 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -44348,7 +42754,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=3541.js.map
 
 /***/ }),
-/* 172 */
+/* 171 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -44376,7 +42782,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=3554.js.map
 
 /***/ }),
-/* 173 */
+/* 172 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -44400,7 +42806,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=3607.js.map
 
 /***/ }),
-/* 174 */
+/* 173 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -44424,7 +42830,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=3651.js.map
 
 /***/ }),
-/* 175 */
+/* 174 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -44448,7 +42854,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=3670.js.map
 
 /***/ }),
-/* 176 */
+/* 175 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -44472,7 +42878,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=3675.js.map
 
 /***/ }),
-/* 177 */
+/* 176 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -44501,7 +42907,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=3855.js.map
 
 /***/ }),
-/* 178 */
+/* 177 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -44535,7 +42941,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=3860.js.map
 
 /***/ }),
-/* 179 */
+/* 178 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -44563,7 +42969,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=4345.js.map
 
 /***/ }),
-/* 180 */
+/* 179 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -44587,7 +42993,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=4399.js.map
 
 /***/ }),
-/* 181 */
+/* 180 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -44615,7 +43021,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=5133.js.map
 
 /***/ }),
-/* 182 */
+/* 181 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -44623,23 +43029,23 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   hardforks: () => (/* binding */ hardforks)
 /* harmony export */ });
-/* harmony import */ var _chainstart_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(183);
-/* harmony import */ var _dao_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(184);
-/* harmony import */ var _homestead_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(185);
-/* harmony import */ var _tangerineWhistle_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(186);
-/* harmony import */ var _spuriousDragon_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(187);
-/* harmony import */ var _byzantium_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(188);
-/* harmony import */ var _constantinople_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(189);
-/* harmony import */ var _petersburg_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(190);
-/* harmony import */ var _istanbul_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(191);
-/* harmony import */ var _muirGlacier_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(192);
-/* harmony import */ var _berlin_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(193);
-/* harmony import */ var _london_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(194);
-/* harmony import */ var _shanghai_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(195);
-/* harmony import */ var _arrowGlacier_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(196);
-/* harmony import */ var _grayGlacier_js__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(197);
-/* harmony import */ var _mergeForkIdTransition_js__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(198);
-/* harmony import */ var _merge_js__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(199);
+/* harmony import */ var _chainstart_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(182);
+/* harmony import */ var _dao_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(183);
+/* harmony import */ var _homestead_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(184);
+/* harmony import */ var _tangerineWhistle_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(185);
+/* harmony import */ var _spuriousDragon_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(186);
+/* harmony import */ var _byzantium_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(187);
+/* harmony import */ var _constantinople_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(188);
+/* harmony import */ var _petersburg_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(189);
+/* harmony import */ var _istanbul_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(190);
+/* harmony import */ var _muirGlacier_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(191);
+/* harmony import */ var _berlin_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(192);
+/* harmony import */ var _london_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(193);
+/* harmony import */ var _shanghai_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(194);
+/* harmony import */ var _arrowGlacier_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(195);
+/* harmony import */ var _grayGlacier_js__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(196);
+/* harmony import */ var _mergeForkIdTransition_js__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(197);
+/* harmony import */ var _merge_js__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(198);
 /*
 This file is part of web3.js.
 
@@ -44695,7 +43101,7 @@ const hardforks = {
 //# sourceMappingURL=index.js.map
 
 /***/ }),
-/* 183 */
+/* 182 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -45144,7 +43550,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=chainstart.js.map
 
 /***/ }),
-/* 184 */
+/* 183 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -45165,7 +43571,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=dao.js.map
 
 /***/ }),
-/* 185 */
+/* 184 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -45191,7 +43597,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=homestead.js.map
 
 /***/ }),
-/* 186 */
+/* 185 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -45245,7 +43651,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=tangerineWhistle.js.map
 
 /***/ }),
-/* 187 */
+/* 186 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -45276,7 +43682,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=spuriousDragon.js.map
 
 /***/ }),
-/* 188 */
+/* 187 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -45343,7 +43749,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=byzantium.js.map
 
 /***/ }),
-/* 189 */
+/* 188 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -45422,7 +43828,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=constantinople.js.map
 
 /***/ }),
-/* 190 */
+/* 189 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -45472,7 +43878,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=petersburg.js.map
 
 /***/ }),
-/* 191 */
+/* 190 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -45570,7 +43976,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=istanbul.js.map
 
 /***/ }),
-/* 192 */
+/* 191 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -45596,7 +44002,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=muirGlacier.js.map
 
 /***/ }),
-/* 193 */
+/* 192 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -45614,7 +44020,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=berlin.js.map
 
 /***/ }),
-/* 194 */
+/* 193 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -45632,7 +44038,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=london.js.map
 
 /***/ }),
-/* 195 */
+/* 194 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -45650,7 +44056,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=shanghai.js.map
 
 /***/ }),
-/* 196 */
+/* 195 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -45672,7 +44078,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=arrowGlacier.js.map
 
 /***/ }),
-/* 197 */
+/* 196 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -45694,7 +44100,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=grayGlacier.js.map
 
 /***/ }),
-/* 198 */
+/* 197 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -45712,7 +44118,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=mergeForkIdTransition.js.map
 
 /***/ }),
-/* 199 */
+/* 198 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -45735,7 +44141,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=merge.js.map
 
 /***/ }),
-/* 200 */
+/* 199 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -45788,7 +44194,7 @@ function isAccessList(input) {
 //# sourceMappingURL=types.js.map
 
 /***/ }),
-/* 201 */
+/* 200 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -45796,10 +44202,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Address: () => (/* binding */ Address)
 /* harmony export */ });
-/* harmony import */ var ethereum_cryptography_keccak_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(50);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(48);
-/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(137);
-/* harmony import */ var _common_utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(148);
+/* harmony import */ var ethereum_cryptography_keccak_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(49);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(47);
+/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(136);
+/* harmony import */ var _common_utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(147);
 /*
 This file is part of web3.js.
 
@@ -45879,7 +44285,7 @@ class Address {
 //# sourceMappingURL=address.js.map
 
 /***/ }),
-/* 202 */
+/* 201 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -45891,9 +44297,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   getDataFeeEIP2930: () => (/* binding */ getDataFeeEIP2930),
 /* harmony export */   verifyAccessList: () => (/* binding */ verifyAccessList)
 /* harmony export */ });
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(48);
-/* harmony import */ var _common_utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(148);
-/* harmony import */ var _types_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(200);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(47);
+/* harmony import */ var _common_utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(147);
+/* harmony import */ var _types_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(199);
 
 
 
@@ -46006,7 +44412,7 @@ const getDataFeeEIP2930 = (accessList, common) => {
 //# sourceMappingURL=utils.js.map
 
 /***/ }),
-/* 203 */
+/* 202 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -46014,14 +44420,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   AccessListEIP2930Transaction: () => (/* binding */ AccessListEIP2930Transaction)
 /* harmony export */ });
-/* harmony import */ var ethereum_cryptography_keccak_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(50);
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(57);
-/* harmony import */ var _ethereumjs_rlp__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(152);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(48);
-/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(137);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(202);
-/* harmony import */ var _common_utils_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(148);
-/* harmony import */ var _baseTransaction_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(153);
+/* harmony import */ var ethereum_cryptography_keccak_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(49);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(56);
+/* harmony import */ var _ethereumjs_rlp__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(151);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(47);
+/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(136);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(201);
+/* harmony import */ var _common_utils_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(147);
+/* harmony import */ var _baseTransaction_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(152);
 /*
 This file is part of web3.js.
 
@@ -46350,7 +44756,7 @@ class AccessListEIP2930Transaction extends _baseTransaction_js__WEBPACK_IMPORTED
 //# sourceMappingURL=eip2930Transaction.js.map
 
 /***/ }),
-/* 204 */
+/* 203 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -46358,14 +44764,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Transaction: () => (/* binding */ Transaction)
 /* harmony export */ });
-/* harmony import */ var _ethereumjs_rlp__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(152);
-/* harmony import */ var ethereum_cryptography_keccak_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(50);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(48);
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(57);
-/* harmony import */ var _common_utils_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(148);
-/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(137);
-/* harmony import */ var _baseTransaction_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(153);
-/* harmony import */ var _types_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(200);
+/* harmony import */ var _ethereumjs_rlp__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(151);
+/* harmony import */ var ethereum_cryptography_keccak_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(49);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(47);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(56);
+/* harmony import */ var _common_utils_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(147);
+/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(136);
+/* harmony import */ var _baseTransaction_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(152);
+/* harmony import */ var _types_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(199);
 /*
 This file is part of web3.js.
 
@@ -46716,7 +45122,7 @@ class Transaction extends _baseTransaction_js__WEBPACK_IMPORTED_MODULE_6__.BaseT
 //# sourceMappingURL=legacyTransaction.js.map
 
 /***/ }),
-/* 205 */
+/* 204 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -46741,7 +45147,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=types.js.map
 
 /***/ }),
-/* 206 */
+/* 205 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -46771,10 +45177,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   unpadUint8Array: () => (/* reexport safe */ _utils_js__WEBPACK_IMPORTED_MODULE_3__.unpadUint8Array),
 /* harmony export */   zeros: () => (/* reexport safe */ _utils_js__WEBPACK_IMPORTED_MODULE_3__.zeros)
 /* harmony export */ });
-/* harmony import */ var _common_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(154);
-/* harmony import */ var _enums_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(149);
-/* harmony import */ var _types_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(150);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(148);
+/* harmony import */ var _common_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(153);
+/* harmony import */ var _enums_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(148);
+/* harmony import */ var _types_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(149);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(147);
 /*
 This file is part of web3.js.
 
@@ -46799,7 +45205,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=index.js.map
 
 /***/ }),
-/* 207 */
+/* 206 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -46815,13 +45221,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   isAccessListUint8Array: () => (/* reexport safe */ _types_js__WEBPACK_IMPORTED_MODULE_6__.isAccessListUint8Array),
 /* harmony export */   txUtils: () => (/* reexport module object */ _utils_js__WEBPACK_IMPORTED_MODULE_5__)
 /* harmony export */ });
-/* harmony import */ var _eip1559Transaction_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(151);
-/* harmony import */ var _eip2930Transaction_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(203);
-/* harmony import */ var _legacyTransaction_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(204);
-/* harmony import */ var _transactionFactory_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(147);
-/* harmony import */ var _baseTransaction_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(153);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(202);
-/* harmony import */ var _types_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(200);
+/* harmony import */ var _eip1559Transaction_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(150);
+/* harmony import */ var _eip2930Transaction_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(202);
+/* harmony import */ var _legacyTransaction_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(203);
+/* harmony import */ var _transactionFactory_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(146);
+/* harmony import */ var _baseTransaction_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(152);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(201);
+/* harmony import */ var _types_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(199);
 /*
 This file is part of web3.js.
 
@@ -46849,7 +45255,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=index.js.map
 
 /***/ }),
-/* 208 */
+/* 207 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -46858,8 +45264,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   DEFAULT_BATCH_REQUEST_TIMEOUT: () => (/* binding */ DEFAULT_BATCH_REQUEST_TIMEOUT),
 /* harmony export */   Web3BatchRequest: () => (/* binding */ Web3BatchRequest)
 /* harmony export */ });
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(48);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(31);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(47);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(30);
 /*
 This file is part of web3.js.
 
@@ -46964,7 +45370,7 @@ class Web3BatchRequest {
 //# sourceMappingURL=web3_batch_request.js.map
 
 /***/ }),
-/* 209 */
+/* 208 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -46989,7 +45395,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=types.js.map
 
 /***/ }),
-/* 210 */
+/* 209 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -47015,11 +45421,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   outputTransactionReceiptFormatter: () => (/* binding */ outputTransactionReceiptFormatter),
 /* harmony export */   txInputOptionsFormatter: () => (/* binding */ txInputOptionsFormatter)
 /* harmony export */ });
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
-/* harmony import */ var web3_eth_iban__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(211);
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(70);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(48);
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(57);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
+/* harmony import */ var web3_eth_iban__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(210);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(69);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(47);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(56);
 /*
 This file is part of web3.js.
 
@@ -47430,7 +45836,7 @@ const outputSyncingFormatter = (result) => {
 //# sourceMappingURL=formatters.js.map
 
 /***/ }),
-/* 211 */
+/* 210 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -47439,8 +45845,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   Iban: () => (/* reexport safe */ _iban_js__WEBPACK_IMPORTED_MODULE_0__.Iban),
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _iban_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(212);
-/* harmony import */ var _types_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(213);
+/* harmony import */ var _iban_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(211);
+/* harmony import */ var _types_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(212);
 /*
 This file is part of web3.js.
 
@@ -47464,7 +45870,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=index.js.map
 
 /***/ }),
-/* 212 */
+/* 211 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -47472,9 +45878,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Iban: () => (/* binding */ Iban)
 /* harmony export */ });
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(48);
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(57);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(31);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(47);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(56);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(30);
 /*
 This file is part of web3.js.
 
@@ -47838,7 +46244,7 @@ Iban.toAddress = (iban) => {
 //# sourceMappingURL=iban.js.map
 
 /***/ }),
-/* 213 */
+/* 212 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -47863,7 +46269,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=types.js.map
 
 /***/ }),
-/* 214 */
+/* 213 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -47871,7 +46277,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Web3PromiEvent: () => (/* binding */ Web3PromiEvent)
 /* harmony export */ });
-/* harmony import */ var _web3_event_emitter_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(115);
+/* harmony import */ var _web3_event_emitter_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(114);
 /*
 This file is part of web3.js.
 
@@ -47935,7 +46341,7 @@ _a = Symbol.toStringTag;
 //# sourceMappingURL=web3_promi_event.js.map
 
 /***/ }),
-/* 215 */
+/* 214 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -48025,19 +46431,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   validateTransactionWithSender: () => (/* reexport safe */ _validation_js__WEBPACK_IMPORTED_MODULE_6__.validateTransactionWithSender),
 /* harmony export */   withdrawalsSchema: () => (/* reexport safe */ _schemas_js__WEBPACK_IMPORTED_MODULE_3__.withdrawalsSchema)
 /* harmony export */ });
-/* harmony import */ var setimmediate__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(216);
-/* harmony import */ var _web3_eth_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(217);
-/* harmony import */ var _utils_decoding_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(267);
-/* harmony import */ var _schemas_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(226);
-/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(231);
-/* harmony import */ var _types_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(269);
-/* harmony import */ var _validation_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(270);
-/* harmony import */ var _rpc_method_wrappers_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(222);
-/* harmony import */ var _utils_format_transaction_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(225);
-/* harmony import */ var _utils_prepare_transaction_for_signing_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(271);
-/* harmony import */ var _web3_subscriptions_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(268);
-/* harmony import */ var _utils_detect_transaction_type_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(224);
-/* harmony import */ var _utils_transaction_builder_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(227);
+/* harmony import */ var setimmediate__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(215);
+/* harmony import */ var _web3_eth_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(216);
+/* harmony import */ var _utils_decoding_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(266);
+/* harmony import */ var _schemas_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(225);
+/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(230);
+/* harmony import */ var _types_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(268);
+/* harmony import */ var _validation_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(269);
+/* harmony import */ var _rpc_method_wrappers_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(221);
+/* harmony import */ var _utils_format_transaction_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(224);
+/* harmony import */ var _utils_prepare_transaction_for_signing_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(270);
+/* harmony import */ var _web3_subscriptions_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(267);
+/* harmony import */ var _utils_detect_transaction_type_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(223);
+/* harmony import */ var _utils_transaction_builder_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(226);
 /*
 This file is part of web3.js.
 
@@ -48105,7 +46511,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=index.js.map
 
 /***/ }),
-/* 216 */
+/* 215 */
 /***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 (function (global, undefined) {
@@ -48297,7 +46703,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 
 
 /***/ }),
-/* 217 */
+/* 216 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -48306,13 +46712,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   Web3Eth: () => (/* binding */ Web3Eth),
 /* harmony export */   registeredSubscriptions: () => (/* binding */ registeredSubscriptions)
 /* harmony export */ });
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(70);
-/* harmony import */ var web3_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(29);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(31);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(48);
-/* harmony import */ var web3_rpc_methods__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(218);
-/* harmony import */ var _rpc_method_wrappers_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(222);
-/* harmony import */ var _web3_subscriptions_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(268);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(69);
+/* harmony import */ var web3_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(28);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(30);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(47);
+/* harmony import */ var web3_rpc_methods__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(217);
+/* harmony import */ var _rpc_method_wrappers_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(221);
+/* harmony import */ var _web3_subscriptions_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(267);
 /*
 This file is part of web3.js.
 
@@ -50009,7 +48415,7 @@ class Web3Eth extends web3_core__WEBPACK_IMPORTED_MODULE_1__.Web3Context {
 //# sourceMappingURL=web3_eth.js.map
 
 /***/ }),
-/* 218 */
+/* 217 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -50019,9 +48425,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   netRpcMethods: () => (/* reexport module object */ _net_rpc_methods_js__WEBPACK_IMPORTED_MODULE_1__),
 /* harmony export */   personalRpcMethods: () => (/* reexport module object */ _personal_rpc_methods_js__WEBPACK_IMPORTED_MODULE_2__)
 /* harmony export */ });
-/* harmony import */ var _eth_rpc_methods_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(219);
-/* harmony import */ var _net_rpc_methods_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(220);
-/* harmony import */ var _personal_rpc_methods_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(221);
+/* harmony import */ var _eth_rpc_methods_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(218);
+/* harmony import */ var _net_rpc_methods_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(219);
+/* harmony import */ var _personal_rpc_methods_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(220);
 /*
 This file is part of web3.js.
 
@@ -50045,7 +48451,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=index.js.map
 
 /***/ }),
-/* 219 */
+/* 218 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -50105,7 +48511,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   submitWork: () => (/* binding */ submitWork),
 /* harmony export */   uninstallFilter: () => (/* binding */ uninstallFilter)
 /* harmony export */ });
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(57);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(56);
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -50592,7 +48998,7 @@ function signTypedData(requestManager, address, typedData, useLegacy = false) {
 //# sourceMappingURL=eth_rpc_methods.js.map
 
 /***/ }),
-/* 220 */
+/* 219 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -50638,7 +49044,7 @@ function isListening(requestManager) {
 //# sourceMappingURL=net_rpc_methods.js.map
 
 /***/ }),
-/* 221 */
+/* 220 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -50720,7 +49126,7 @@ const ecRecover = (requestManager, signedData, signature) => __awaiter(void 0, v
 //# sourceMappingURL=personal_rpc_methods.js.map
 
 /***/ }),
-/* 222 */
+/* 221 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -50759,21 +49165,21 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   signTransaction: () => (/* binding */ signTransaction),
 /* harmony export */   signTypedData: () => (/* binding */ signTypedData)
 /* harmony export */ });
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(70);
-/* harmony import */ var web3_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(29);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(48);
-/* harmony import */ var web3_eth_accounts__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(125);
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(57);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(31);
-/* harmony import */ var web3_rpc_methods__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(218);
-/* harmony import */ var _utils_decode_signed_transaction_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(223);
-/* harmony import */ var _schemas_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(226);
-/* harmony import */ var _utils_transaction_builder_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(227);
-/* harmony import */ var _utils_format_transaction_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(225);
-/* harmony import */ var _utils_try_send_transaction_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(233);
-/* harmony import */ var _utils_wait_for_transaction_receipt_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(235);
-/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(231);
-/* harmony import */ var _utils_send_tx_helper_js__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(236);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(69);
+/* harmony import */ var web3_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(28);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(47);
+/* harmony import */ var web3_eth_accounts__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(124);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(56);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(30);
+/* harmony import */ var web3_rpc_methods__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(217);
+/* harmony import */ var _utils_decode_signed_transaction_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(222);
+/* harmony import */ var _schemas_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(225);
+/* harmony import */ var _utils_transaction_builder_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(226);
+/* harmony import */ var _utils_format_transaction_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(224);
+/* harmony import */ var _utils_try_send_transaction_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(232);
+/* harmony import */ var _utils_wait_for_transaction_receipt_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(234);
+/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(230);
+/* harmony import */ var _utils_send_tx_helper_js__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(235);
 /*
 This file is part of web3.js.
 
@@ -51378,7 +49784,7 @@ function signTypedData(web3Context, address, typedData, useLegacy, returnFormat)
 //# sourceMappingURL=rpc_method_wrappers.js.map
 
 /***/ }),
-/* 223 */
+/* 222 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -51386,10 +49792,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   decodeSignedTransaction: () => (/* binding */ decodeSignedTransaction)
 /* harmony export */ });
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(48);
-/* harmony import */ var web3_eth_accounts__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(125);
-/* harmony import */ var _detect_transaction_type_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(224);
-/* harmony import */ var _format_transaction_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(225);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(47);
+/* harmony import */ var web3_eth_accounts__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(124);
+/* harmony import */ var _detect_transaction_type_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(223);
+/* harmony import */ var _format_transaction_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(224);
 
 
 
@@ -51410,7 +49816,7 @@ function decodeSignedTransaction(encodedSignedTransaction, returnFormat, options
 //# sourceMappingURL=decode_signed_transaction.js.map
 
 /***/ }),
-/* 224 */
+/* 223 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -51420,10 +49826,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   detectRawTransactionType: () => (/* binding */ detectRawTransactionType),
 /* harmony export */   detectTransactionType: () => (/* binding */ detectTransactionType)
 /* harmony export */ });
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(48);
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(70);
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(57);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(31);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(47);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(69);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(56);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(30);
 /*
 This file is part of web3.js.
 
@@ -51545,7 +49951,7 @@ const detectRawTransactionType = (transaction) => transaction[0] > 0x7f ? '0x0' 
 //# sourceMappingURL=detect_transaction_type.js.map
 
 /***/ }),
-/* 225 */
+/* 224 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -51553,11 +49959,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   formatTransaction: () => (/* binding */ formatTransaction)
 /* harmony export */ });
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(70);
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(57);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(48);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(31);
-/* harmony import */ var _schemas_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(226);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(69);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(56);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(47);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(30);
+/* harmony import */ var _schemas_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(225);
 /*
 This file is part of web3.js.
 
@@ -51617,7 +50023,7 @@ function formatTransaction(transaction, returnFormat = web3_types__WEBPACK_IMPOR
 //# sourceMappingURL=format_transaction.js.map
 
 /***/ }),
-/* 226 */
+/* 225 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -52253,7 +50659,7 @@ const accountSchema = {
 //# sourceMappingURL=schemas.js.map
 
 /***/ }),
-/* 227 */
+/* 226 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -52265,17 +50671,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   getTransactionType: () => (/* binding */ getTransactionType),
 /* harmony export */   transactionBuilder: () => (/* binding */ transactionBuilder)
 /* harmony export */ });
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(70);
-/* harmony import */ var web3_eth_accounts__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(125);
-/* harmony import */ var web3_net__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(228);
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(57);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(31);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(48);
-/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(231);
-/* harmony import */ var _rpc_method_wrappers_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(222);
-/* harmony import */ var _detect_transaction_type_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(224);
-/* harmony import */ var _schemas_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(226);
-/* harmony import */ var _get_transaction_gas_pricing_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(232);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(69);
+/* harmony import */ var web3_eth_accounts__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(124);
+/* harmony import */ var web3_net__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(227);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(56);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(30);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(47);
+/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(230);
+/* harmony import */ var _rpc_method_wrappers_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(221);
+/* harmony import */ var _detect_transaction_type_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(223);
+/* harmony import */ var _schemas_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(225);
+/* harmony import */ var _get_transaction_gas_pricing_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(231);
 /*
 This file is part of web3.js.
 
@@ -52441,7 +50847,7 @@ const transactionBuilder = (options) => __awaiter(void 0, void 0, void 0, functi
 //# sourceMappingURL=transaction_builder.js.map
 
 /***/ }),
-/* 228 */
+/* 227 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -52453,8 +50859,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   getPeerCount: () => (/* reexport safe */ _rpc_method_wrappers_js__WEBPACK_IMPORTED_MODULE_1__.getPeerCount),
 /* harmony export */   isListening: () => (/* reexport safe */ _rpc_method_wrappers_js__WEBPACK_IMPORTED_MODULE_1__.isListening)
 /* harmony export */ });
-/* harmony import */ var _net_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(229);
-/* harmony import */ var _rpc_method_wrappers_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(230);
+/* harmony import */ var _net_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(228);
+/* harmony import */ var _rpc_method_wrappers_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(229);
 /*
 This file is part of web3.js.
 
@@ -52507,7 +50913,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=index.js.map
 
 /***/ }),
-/* 229 */
+/* 228 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -52515,9 +50921,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Net: () => (/* binding */ Net)
 /* harmony export */ });
-/* harmony import */ var web3_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(29);
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(70);
-/* harmony import */ var _rpc_method_wrappers_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(230);
+/* harmony import */ var web3_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(28);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(69);
+/* harmony import */ var _rpc_method_wrappers_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(229);
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -52601,7 +51007,7 @@ class Net extends web3_core__WEBPACK_IMPORTED_MODULE_0__.Web3Context {
 //# sourceMappingURL=net.js.map
 
 /***/ }),
-/* 230 */
+/* 229 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -52611,8 +51017,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   getPeerCount: () => (/* binding */ getPeerCount),
 /* harmony export */   isListening: () => (/* binding */ isListening)
 /* harmony export */ });
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(48);
-/* harmony import */ var web3_rpc_methods__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(218);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(47);
+/* harmony import */ var web3_rpc_methods__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(217);
 /*
 This file is part of web3.js.
 
@@ -52657,7 +51063,7 @@ const isListening = (web3Context) => __awaiter(void 0, void 0, void 0, function*
 //# sourceMappingURL=rpc_method_wrappers.js.map
 
 /***/ }),
-/* 231 */
+/* 230 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -52667,7 +51073,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   ALL_EVENTS_ABI: () => (/* binding */ ALL_EVENTS_ABI),
 /* harmony export */   NUMBER_DATA_FORMAT: () => (/* binding */ NUMBER_DATA_FORMAT)
 /* harmony export */ });
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(70);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(69);
 /*
 This file is part of web3.js.
 
@@ -52696,7 +51102,7 @@ const NUMBER_DATA_FORMAT = { bytes: web3_types__WEBPACK_IMPORTED_MODULE_0__.FMT_
 //# sourceMappingURL=constants.js.map
 
 /***/ }),
-/* 232 */
+/* 231 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -52704,11 +51110,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   getTransactionGasPricing: () => (/* binding */ getTransactionGasPricing)
 /* harmony export */ });
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(57);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(31);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(48);
-/* harmony import */ var _rpc_method_wrappers_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(222);
-/* harmony import */ var _transaction_builder_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(227);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(56);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(30);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(47);
+/* harmony import */ var _rpc_method_wrappers_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(221);
+/* harmony import */ var _transaction_builder_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(226);
 /*
 This file is part of web3.js.
 
@@ -52787,7 +51193,7 @@ function getTransactionGasPricing(transaction, web3Context, returnFormat) {
 //# sourceMappingURL=get_transaction_gas_pricing.js.map
 
 /***/ }),
-/* 233 */
+/* 232 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -52795,9 +51201,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   trySendTransaction: () => (/* binding */ trySendTransaction)
 /* harmony export */ });
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(48);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(31);
-/* harmony import */ var _reject_if_block_timeout_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(234);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(47);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(30);
+/* harmony import */ var _reject_if_block_timeout_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(233);
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -52842,7 +51248,7 @@ function trySendTransaction(web3Context, sendTransactionFunc, transactionHash) {
 //# sourceMappingURL=try_send_transaction.js.map
 
 /***/ }),
-/* 234 */
+/* 233 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -52850,10 +51256,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   rejectIfBlockTimeout: () => (/* binding */ rejectIfBlockTimeout)
 /* harmony export */ });
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(48);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(31);
-/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(231);
-/* harmony import */ var _rpc_method_wrappers_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(222);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(47);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(30);
+/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(230);
+/* harmony import */ var _rpc_method_wrappers_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(221);
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -52990,7 +51396,7 @@ function rejectIfBlockTimeout(web3Context, transactionHash) {
 //# sourceMappingURL=reject_if_block_timeout.js.map
 
 /***/ }),
-/* 235 */
+/* 234 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -52998,10 +51404,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   waitForTransactionReceipt: () => (/* binding */ waitForTransactionReceipt)
 /* harmony export */ });
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(48);
-/* harmony import */ var _reject_if_block_timeout_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(234);
-/* harmony import */ var _rpc_method_wrappers_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(222);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(47);
+/* harmony import */ var _reject_if_block_timeout_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(233);
+/* harmony import */ var _rpc_method_wrappers_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(221);
 /*
 This file is part of web3.js.
 
@@ -53072,7 +51478,7 @@ function waitForTransactionReceipt(web3Context, transactionHash, returnFormat) {
 //# sourceMappingURL=wait_for_transaction_receipt.js.map
 
 /***/ }),
-/* 236 */
+/* 235 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -53080,17 +51486,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   SendTxHelper: () => (/* binding */ SendTxHelper)
 /* harmony export */ });
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(70);
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(57);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(31);
-/* harmony import */ var web3_rpc_methods__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(218);
-/* harmony import */ var _get_transaction_gas_pricing_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(232);
-/* harmony import */ var _try_send_transaction_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(233);
-/* harmony import */ var _watch_transaction_for_confirmations_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(237);
-/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(231);
-/* harmony import */ var _get_transaction_error_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(240);
-/* harmony import */ var _get_revert_reason_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(241);
-/* harmony import */ var _decoding_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(267);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(69);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(56);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(30);
+/* harmony import */ var web3_rpc_methods__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(217);
+/* harmony import */ var _get_transaction_gas_pricing_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(231);
+/* harmony import */ var _try_send_transaction_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(232);
+/* harmony import */ var _watch_transaction_for_confirmations_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(236);
+/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(230);
+/* harmony import */ var _get_transaction_error_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(239);
+/* harmony import */ var _get_revert_reason_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(240);
+/* harmony import */ var _decoding_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(266);
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -53262,7 +51668,7 @@ class SendTxHelper {
 //# sourceMappingURL=send_tx_helper.js.map
 
 /***/ }),
-/* 237 */
+/* 236 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -53270,12 +51676,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   watchTransactionForConfirmations: () => (/* binding */ watchTransactionForConfirmations)
 /* harmony export */ });
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(48);
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(57);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(31);
-/* harmony import */ var _schemas_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(226);
-/* harmony import */ var _watch_transaction_by_polling_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(238);
-/* harmony import */ var _watch_transaction_by_subscription_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(239);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(47);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(56);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(30);
+/* harmony import */ var _schemas_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(225);
+/* harmony import */ var _watch_transaction_by_polling_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(237);
+/* harmony import */ var _watch_transaction_by_subscription_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(238);
 
 
 
@@ -53319,7 +51725,7 @@ function watchTransactionForConfirmations(web3Context, transactionPromiEvent, tr
 //# sourceMappingURL=watch_transaction_for_confirmations.js.map
 
 /***/ }),
-/* 238 */
+/* 237 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -53327,9 +51733,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   watchTransactionByPolling: () => (/* binding */ watchTransactionByPolling)
 /* harmony export */ });
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(48);
-/* harmony import */ var web3_rpc_methods__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(218);
-/* harmony import */ var _schemas_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(226);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(47);
+/* harmony import */ var web3_rpc_methods__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(217);
+/* harmony import */ var _schemas_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(225);
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -53371,7 +51777,7 @@ const watchTransactionByPolling = ({ web3Context, transactionReceipt, transactio
 //# sourceMappingURL=watch_transaction_by_polling.js.map
 
 /***/ }),
-/* 239 */
+/* 238 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -53379,9 +51785,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   watchTransactionBySubscription: () => (/* binding */ watchTransactionBySubscription)
 /* harmony export */ });
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(48);
-/* harmony import */ var _schemas_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(226);
-/* harmony import */ var _watch_transaction_by_polling_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(238);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(47);
+/* harmony import */ var _schemas_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(225);
+/* harmony import */ var _watch_transaction_by_polling_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(237);
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -53464,7 +51870,7 @@ const watchTransactionBySubscription = ({ web3Context, transactionReceipt, trans
 //# sourceMappingURL=watch_transaction_by_subscription.js.map
 
 /***/ }),
-/* 240 */
+/* 239 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -53472,8 +51878,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   getTransactionError: () => (/* binding */ getTransactionError)
 /* harmony export */ });
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
-/* harmony import */ var _get_revert_reason_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(241);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
+/* harmony import */ var _get_revert_reason_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(240);
 /*
 This file is part of web3.js.
 
@@ -53535,7 +51941,7 @@ function getTransactionError(web3Context, transactionFormatted, transactionRecei
 //# sourceMappingURL=get_transaction_error.js.map
 
 /***/ }),
-/* 241 */
+/* 240 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -53544,10 +51950,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   getRevertReason: () => (/* binding */ getRevertReason),
 /* harmony export */   parseTransactionError: () => (/* binding */ parseTransactionError)
 /* harmony export */ });
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
-/* harmony import */ var web3_eth_abi__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(242);
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(70);
-/* harmony import */ var _rpc_method_wrappers_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(222);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
+/* harmony import */ var web3_eth_abi__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(241);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(69);
+/* harmony import */ var _rpc_method_wrappers_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(221);
 /*
 This file is part of web3.js.
 
@@ -53627,7 +52033,7 @@ function getRevertReason(web3Context, transaction, contractAbi, returnFormat = w
 //# sourceMappingURL=get_revert_reason.js.map
 
 /***/ }),
-/* 242 */
+/* 241 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -53661,14 +52067,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   mapStructToCoderFormat: () => (/* reexport safe */ _utils_js__WEBPACK_IMPORTED_MODULE_5__.mapStructToCoderFormat),
 /* harmony export */   mapTypes: () => (/* reexport safe */ _utils_js__WEBPACK_IMPORTED_MODULE_5__.mapTypes)
 /* harmony export */ });
-/* harmony import */ var _api_errors_api_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(243);
-/* harmony import */ var _api_events_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(245);
-/* harmony import */ var _api_functions_api_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(246);
-/* harmony import */ var _api_logs_api_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(264);
-/* harmony import */ var _api_parameters_api_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(247);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(244);
-/* harmony import */ var _decode_contract_error_data_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(265);
-/* harmony import */ var _eip_712_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(266);
+/* harmony import */ var _api_errors_api_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(242);
+/* harmony import */ var _api_events_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(244);
+/* harmony import */ var _api_functions_api_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(245);
+/* harmony import */ var _api_logs_api_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(263);
+/* harmony import */ var _api_parameters_api_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(246);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(243);
+/* harmony import */ var _decode_contract_error_data_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(264);
+/* harmony import */ var _eip_712_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(265);
 /*
 This file is part of web3.js.
 
@@ -53696,7 +52102,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=index.js.map
 
 /***/ }),
-/* 243 */
+/* 242 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -53704,9 +52110,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   encodeErrorSignature: () => (/* binding */ encodeErrorSignature)
 /* harmony export */ });
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(48);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(31);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(244);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(47);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(30);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(243);
 /*
 This file is part of web3.js.
 
@@ -53749,7 +52155,7 @@ const encodeErrorSignature = (functionName) => {
 //# sourceMappingURL=errors_api.js.map
 
 /***/ }),
-/* 244 */
+/* 243 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -53770,8 +52176,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   mapStructToCoderFormat: () => (/* binding */ mapStructToCoderFormat),
 /* harmony export */   mapTypes: () => (/* binding */ mapTypes)
 /* harmony export */ });
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(48);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(47);
 /*
 This file is part of web3.js.
 
@@ -53973,7 +52379,7 @@ const jsonInterfaceMethodToString = (json) => {
 //# sourceMappingURL=utils.js.map
 
 /***/ }),
-/* 245 */
+/* 244 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -53981,9 +52387,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   encodeEventSignature: () => (/* binding */ encodeEventSignature)
 /* harmony export */ });
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(48);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(31);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(244);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(47);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(30);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(243);
 /*
 This file is part of web3.js.
 
@@ -54072,7 +52478,7 @@ const encodeEventSignature = (functionName) => {
 //# sourceMappingURL=events_api.js.map
 
 /***/ }),
-/* 246 */
+/* 245 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -54081,10 +52487,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   encodeFunctionCall: () => (/* binding */ encodeFunctionCall),
 /* harmony export */   encodeFunctionSignature: () => (/* binding */ encodeFunctionSignature)
 /* harmony export */ });
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(48);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(244);
-/* harmony import */ var _parameters_api_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(247);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(47);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(243);
+/* harmony import */ var _parameters_api_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(246);
 /*
 This file is part of web3.js.
 
@@ -54221,7 +52627,7 @@ const encodeFunctionCall = (jsonInterface, params) => {
 //# sourceMappingURL=functions_api.js.map
 
 /***/ }),
-/* 247 */
+/* 246 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -54234,9 +52640,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   encodeParameters: () => (/* reexport safe */ _coders_encode_js__WEBPACK_IMPORTED_MODULE_2__.encodeParameters),
 /* harmony export */   inferTypesAndEncodeParameters: () => (/* reexport safe */ _coders_encode_js__WEBPACK_IMPORTED_MODULE_2__.inferTypesAndEncodeParameters)
 /* harmony export */ });
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
-/* harmony import */ var _coders_decode_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(248);
-/* harmony import */ var _coders_encode_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(263);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
+/* harmony import */ var _coders_decode_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(247);
+/* harmony import */ var _coders_encode_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(262);
 /*
 This file is part of web3.js.
 
@@ -54510,7 +52916,7 @@ const decodeParameter = (abi, bytes) => decodeParameters([abi], bytes)['0'];
 //# sourceMappingURL=parameters_api.js.map
 
 /***/ }),
-/* 248 */
+/* 247 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -54518,9 +52924,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   decodeParameters: () => (/* binding */ decodeParameters)
 /* harmony export */ });
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(57);
-/* harmony import */ var _base_tuple_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(249);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(252);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(56);
+/* harmony import */ var _base_tuple_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(248);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(251);
 /*
 This file is part of web3.js.
 
@@ -54548,7 +52954,7 @@ function decodeParameters(abis, bytes, _loose) {
 //# sourceMappingURL=decode.js.map
 
 /***/ }),
-/* 249 */
+/* 248 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -54557,12 +52963,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   decodeTuple: () => (/* binding */ decodeTuple),
 /* harmony export */   encodeTuple: () => (/* binding */ encodeTuple)
 /* harmony export */ });
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(48);
-/* harmony import */ var _index_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(250);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(262);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(252);
-/* harmony import */ var _number_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(257);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(47);
+/* harmony import */ var _index_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(249);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(261);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(251);
+/* harmony import */ var _number_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(256);
 /*
 This file is part of web3.js.
 
@@ -54683,7 +53089,7 @@ function decodeTuple(param, bytes) {
 //# sourceMappingURL=tuple.js.map
 
 /***/ }),
-/* 250 */
+/* 249 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -54706,14 +53112,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   encodeString: () => (/* reexport safe */ _string_js__WEBPACK_IMPORTED_MODULE_5__.encodeString),
 /* harmony export */   encodeTuple: () => (/* reexport safe */ _tuple_js__WEBPACK_IMPORTED_MODULE_6__.encodeTuple)
 /* harmony export */ });
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
-/* harmony import */ var _address_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(251);
-/* harmony import */ var _bool_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(256);
-/* harmony import */ var _bytes_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(259);
-/* harmony import */ var _number_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(257);
-/* harmony import */ var _string_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(260);
-/* harmony import */ var _tuple_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(249);
-/* harmony import */ var _array_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(261);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
+/* harmony import */ var _address_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(250);
+/* harmony import */ var _bool_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(255);
+/* harmony import */ var _bytes_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(258);
+/* harmony import */ var _number_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(256);
+/* harmony import */ var _string_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(259);
+/* harmony import */ var _tuple_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(248);
+/* harmony import */ var _array_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(260);
 /*
 This file is part of web3.js.
 
@@ -54806,7 +53212,7 @@ function decodeParamFromAbiParameter(param, bytes) {
 //# sourceMappingURL=index.js.map
 
 /***/ }),
-/* 251 */
+/* 250 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -54815,10 +53221,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   decodeAddress: () => (/* binding */ decodeAddress),
 /* harmony export */   encodeAddress: () => (/* binding */ encodeAddress)
 /* harmony export */ });
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(48);
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(57);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(252);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(47);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(56);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(251);
 /*
 This file is part of web3.js.
 
@@ -54891,7 +53297,7 @@ function decodeAddress(_param, bytes) {
 //# sourceMappingURL=address.js.map
 
 /***/ }),
-/* 252 */
+/* 251 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -54906,10 +53312,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   isDynamic: () => (/* binding */ isDynamic),
 /* harmony export */   toAbiParams: () => (/* binding */ toAbiParams)
 /* harmony export */ });
-/* harmony import */ var abitype__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(253);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(48);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(244);
+/* harmony import */ var abitype__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(252);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(47);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(243);
 /*
 This file is part of web3.js.
 
@@ -55017,7 +53423,7 @@ function isDynamic(param) {
 //# sourceMappingURL=utils.js.map
 
 /***/ }),
-/* 253 */
+/* 252 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -55030,8 +53436,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   parseAbiParameter: () => (/* binding */ parseAbiParameter2),
 /* harmony export */   parseAbiParameters: () => (/* binding */ parseAbiParameters)
 /* harmony export */ });
-/* harmony import */ var _chunk_WP7KDV47_mjs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(254);
-/* harmony import */ var _chunk_NHABU752_mjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(255);
+/* harmony import */ var _chunk_WP7KDV47_mjs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(253);
+/* harmony import */ var _chunk_NHABU752_mjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(254);
 
 
 
@@ -55615,7 +54021,7 @@ function parseAbiParameters(params) {
 
 
 /***/ }),
-/* 254 */
+/* 253 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -55639,7 +54045,7 @@ var isTupleRegex = /^\(.+?\).*?$/;
 
 
 /***/ }),
-/* 255 */
+/* 254 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -55658,7 +54064,7 @@ var __publicField = (obj, key, value) => {
 
 
 /***/ }),
-/* 256 */
+/* 255 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -55667,10 +54073,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   decodeBool: () => (/* binding */ decodeBool),
 /* harmony export */   encodeBoolean: () => (/* binding */ encodeBoolean)
 /* harmony export */ });
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(48);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(252);
-/* harmony import */ var _number_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(257);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(47);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(251);
+/* harmony import */ var _number_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(256);
 /*
 This file is part of web3.js.
 
@@ -55724,7 +54130,7 @@ function decodeBool(_param, bytes) {
 //# sourceMappingURL=bool.js.map
 
 /***/ }),
-/* 257 */
+/* 256 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -55733,11 +54139,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   decodeNumber: () => (/* binding */ decodeNumber),
 /* harmony export */   encodeNumber: () => (/* binding */ encodeNumber)
 /* harmony export */ });
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(48);
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(57);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(252);
-/* harmony import */ var _numbersLimits_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(258);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(47);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(56);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(251);
+/* harmony import */ var _numbersLimits_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(257);
 /*
 This file is part of web3.js.
 
@@ -55851,7 +54257,7 @@ function decodeNumber(param, bytes) {
 //# sourceMappingURL=number.js.map
 
 /***/ }),
-/* 258 */
+/* 257 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -55898,7 +54304,7 @@ numberLimits.set(`uint`, numberLimits.get('uint256'));
 //# sourceMappingURL=numbersLimits.js.map
 
 /***/ }),
-/* 259 */
+/* 258 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -55907,11 +54313,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   decodeBytes: () => (/* binding */ decodeBytes),
 /* harmony export */   encodeBytes: () => (/* binding */ encodeBytes)
 /* harmony export */ });
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(48);
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(57);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(252);
-/* harmony import */ var _number_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(257);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(47);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(56);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(251);
+/* harmony import */ var _number_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(256);
 /*
 This file is part of web3.js.
 
@@ -56010,7 +54416,7 @@ function decodeBytes(param, bytes) {
 //# sourceMappingURL=bytes.js.map
 
 /***/ }),
-/* 260 */
+/* 259 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -56019,9 +54425,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   decodeString: () => (/* binding */ decodeString),
 /* harmony export */   encodeString: () => (/* binding */ encodeString)
 /* harmony export */ });
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(48);
-/* harmony import */ var _bytes_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(259);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(47);
+/* harmony import */ var _bytes_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(258);
 /*
 This file is part of web3.js.
 
@@ -56059,7 +54465,7 @@ function decodeString(_param, bytes) {
 //# sourceMappingURL=string.js.map
 
 /***/ }),
-/* 261 */
+/* 260 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -56068,12 +54474,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   decodeArray: () => (/* binding */ decodeArray),
 /* harmony export */   encodeArray: () => (/* binding */ encodeArray)
 /* harmony export */ });
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(48);
-/* harmony import */ var _index_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(250);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(252);
-/* harmony import */ var _number_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(257);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(262);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(47);
+/* harmony import */ var _index_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(249);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(251);
+/* harmony import */ var _number_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(256);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(261);
 /*
 This file is part of web3.js.
 
@@ -56177,7 +54583,7 @@ function decodeArray(param, bytes) {
 //# sourceMappingURL=array.js.map
 
 /***/ }),
-/* 262 */
+/* 261 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -56185,9 +54591,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   encodeDynamicParams: () => (/* binding */ encodeDynamicParams)
 /* harmony export */ });
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(48);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(252);
-/* harmony import */ var _number_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(257);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(47);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(251);
+/* harmony import */ var _number_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(256);
 /*
 This file is part of web3.js.
 
@@ -56236,7 +54642,7 @@ function encodeDynamicParams(encodedParams) {
 //# sourceMappingURL=utils.js.map
 
 /***/ }),
-/* 263 */
+/* 262 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -56245,11 +54651,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   encodeParameters: () => (/* binding */ encodeParameters),
 /* harmony export */   inferTypesAndEncodeParameters: () => (/* binding */ inferTypesAndEncodeParameters)
 /* harmony export */ });
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(48);
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(57);
-/* harmony import */ var _base_index_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(250);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(252);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(47);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(56);
+/* harmony import */ var _base_index_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(249);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(251);
 /*
 This file is part of web3.js.
 
@@ -56360,7 +54766,7 @@ function inferTypesAndEncodeParameters(params) {
 //# sourceMappingURL=encode.js.map
 
 /***/ }),
-/* 264 */
+/* 263 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -56368,7 +54774,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   decodeLog: () => (/* binding */ decodeLog)
 /* harmony export */ });
-/* harmony import */ var _parameters_api_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(247);
+/* harmony import */ var _parameters_api_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(246);
 /*
 This file is part of web3.js.
 
@@ -56474,7 +54880,7 @@ const decodeLog = (inputs, data, topics) => {
 //# sourceMappingURL=logs_api.js.map
 
 /***/ }),
-/* 265 */
+/* 264 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -56482,9 +54888,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   decodeContractErrorData: () => (/* binding */ decodeContractErrorData)
 /* harmony export */ });
-/* harmony import */ var _api_errors_api_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(243);
-/* harmony import */ var _api_parameters_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(247);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(244);
+/* harmony import */ var _api_errors_api_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(242);
+/* harmony import */ var _api_parameters_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(246);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(243);
 /*
 This file is part of web3.js.
 
@@ -56530,7 +54936,7 @@ const decodeContractErrorData = (errorsAbi, error) => {
 //# sourceMappingURL=decode_contract_error_data.js.map
 
 /***/ }),
-/* 266 */
+/* 265 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -56538,9 +54944,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   getMessage: () => (/* binding */ getMessage)
 /* harmony export */ });
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(48);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(31);
-/* harmony import */ var _coders_encode_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(263);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(47);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(30);
+/* harmony import */ var _coders_encode_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(262);
 /*
 This file is part of web3.js.
 
@@ -56683,7 +55089,7 @@ const encodeData = (typedData, type, data) => {
 //# sourceMappingURL=eip_712.js.map
 
 /***/ }),
-/* 267 */
+/* 266 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -56691,11 +55097,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   decodeEventABI: () => (/* binding */ decodeEventABI)
 /* harmony export */ });
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(48);
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(70);
-/* harmony import */ var web3_eth_abi__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(242);
-/* harmony import */ var _schemas_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(226);
-/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(231);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(47);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(69);
+/* harmony import */ var web3_eth_abi__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(241);
+/* harmony import */ var _schemas_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(225);
+/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(230);
 /*
 This file is part of web3.js.
 
@@ -56758,7 +55164,7 @@ const decodeEventABI = (event, data, jsonInterface, returnFormat = web3_types__W
 //# sourceMappingURL=decoding.js.map
 
 /***/ }),
-/* 268 */
+/* 267 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -56769,9 +55175,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   NewPendingTransactionsSubscription: () => (/* binding */ NewPendingTransactionsSubscription),
 /* harmony export */   SyncingSubscription: () => (/* binding */ SyncingSubscription)
 /* harmony export */ });
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(48);
-/* harmony import */ var web3_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(29);
-/* harmony import */ var _schemas_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(226);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(47);
+/* harmony import */ var web3_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(28);
+/* harmony import */ var _schemas_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(225);
 /*
 This file is part of web3.js.
 
@@ -56908,7 +55314,7 @@ class SyncingSubscription extends web3_core__WEBPACK_IMPORTED_MODULE_1__.Web3Sub
 //# sourceMappingURL=web3_subscriptions.js.map
 
 /***/ }),
-/* 269 */
+/* 268 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -56933,7 +55339,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=types.js.map
 
 /***/ }),
-/* 270 */
+/* 269 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -56958,10 +55364,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   validateTransactionForSigning: () => (/* binding */ validateTransactionForSigning),
 /* harmony export */   validateTransactionWithSender: () => (/* binding */ validateTransactionWithSender)
 /* harmony export */ });
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(70);
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(57);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(31);
-/* harmony import */ var _utils_format_transaction_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(225);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(69);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(56);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(30);
+/* harmony import */ var _utils_format_transaction_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(224);
 /*
 This file is part of web3.js.
 
@@ -57222,7 +55628,7 @@ const validateTransactionForSigning = (transaction, overrideMethod) => {
 //# sourceMappingURL=validation.js.map
 
 /***/ }),
-/* 271 */
+/* 270 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -57230,13 +55636,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   prepareTransactionForSigning: () => (/* binding */ prepareTransactionForSigning)
 /* harmony export */ });
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(70);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(48);
-/* harmony import */ var web3_eth_accounts__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(125);
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(57);
-/* harmony import */ var _validation_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(270);
-/* harmony import */ var _format_transaction_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(225);
-/* harmony import */ var _transaction_builder_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(227);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(69);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(47);
+/* harmony import */ var web3_eth_accounts__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(124);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(56);
+/* harmony import */ var _validation_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(269);
+/* harmony import */ var _format_transaction_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(224);
+/* harmony import */ var _transaction_builder_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(226);
 /*
 This file is part of web3.js.
 
@@ -57346,7 +55752,7 @@ const prepareTransactionForSigning = (transaction, web3Context, privateKey, fill
 //# sourceMappingURL=prepare_transaction_for_signing.js.map
 
 /***/ }),
-/* 272 */
+/* 271 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -57366,11 +55772,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   getSendTxParams: () => (/* reexport safe */ _utils_js__WEBPACK_IMPORTED_MODULE_4__.getSendTxParams),
 /* harmony export */   isWeb3ContractContext: () => (/* reexport safe */ _utils_js__WEBPACK_IMPORTED_MODULE_4__.isWeb3ContractContext)
 /* harmony export */ });
-/* harmony import */ var _contract_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(273);
-/* harmony import */ var _encoding_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(274);
-/* harmony import */ var _log_subscription_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(275);
-/* harmony import */ var _types_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(277);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(276);
+/* harmony import */ var _contract_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(272);
+/* harmony import */ var _encoding_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(273);
+/* harmony import */ var _log_subscription_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(274);
+/* harmony import */ var _types_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(276);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(275);
 /*
 This file is part of web3.js.
 
@@ -57422,7 +55828,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=index.js.map
 
 /***/ }),
-/* 273 */
+/* 272 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -57430,16 +55836,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Contract: () => (/* binding */ Contract)
 /* harmony export */ });
-/* harmony import */ var web3_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(29);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(31);
-/* harmony import */ var web3_eth__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(215);
-/* harmony import */ var web3_eth_abi__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(242);
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(70);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(48);
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(57);
-/* harmony import */ var _encoding_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(274);
-/* harmony import */ var _log_subscription_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(275);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(276);
+/* harmony import */ var web3_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(28);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(30);
+/* harmony import */ var web3_eth__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(214);
+/* harmony import */ var web3_eth_abi__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(241);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(69);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(47);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(56);
+/* harmony import */ var _encoding_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(273);
+/* harmony import */ var _log_subscription_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(274);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(275);
 /*
 This file is part of web3.js.
 
@@ -58348,7 +56754,7 @@ class Contract extends web3_core__WEBPACK_IMPORTED_MODULE_0__.Web3Context {
 //# sourceMappingURL=contract.js.map
 
 /***/ }),
-/* 274 */
+/* 273 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -58360,11 +56766,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   encodeEventABI: () => (/* binding */ encodeEventABI),
 /* harmony export */   encodeMethodABI: () => (/* binding */ encodeMethodABI)
 /* harmony export */ });
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(48);
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(70);
-/* harmony import */ var web3_eth_abi__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(242);
-/* harmony import */ var web3_eth__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(215);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(31);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(47);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(69);
+/* harmony import */ var web3_eth_abi__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(241);
+/* harmony import */ var web3_eth__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(214);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(30);
 /*
 This file is part of web3.js.
 
@@ -58502,7 +56908,7 @@ const decodeMethodReturn = (abi, returnValues) => {
 //# sourceMappingURL=encoding.js.map
 
 /***/ }),
-/* 275 */
+/* 274 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -58510,8 +56916,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   LogsSubscription: () => (/* binding */ LogsSubscription)
 /* harmony export */ });
-/* harmony import */ var web3_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(29);
-/* harmony import */ var web3_eth__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(215);
+/* harmony import */ var web3_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(28);
+/* harmony import */ var web3_eth__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(214);
 /*
 This file is part of web3.js.
 
@@ -58603,7 +57009,7 @@ class LogsSubscription extends web3_core__WEBPACK_IMPORTED_MODULE_0__.Web3Subscr
 //# sourceMappingURL=log_subscription.js.map
 
 /***/ }),
-/* 276 */
+/* 275 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -58615,9 +57021,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   getSendTxParams: () => (/* binding */ getSendTxParams),
 /* harmony export */   isWeb3ContractContext: () => (/* binding */ isWeb3ContractContext)
 /* harmony export */ });
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(48);
-/* harmony import */ var _encoding_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(274);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(47);
+/* harmony import */ var _encoding_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(273);
 /*
 This file is part of web3.js.
 
@@ -58734,7 +57140,7 @@ const getCreateAccessListParams = ({ abi, params, options, contractOptions, }) =
 //# sourceMappingURL=utils.js.map
 
 /***/ }),
-/* 277 */
+/* 276 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -58759,7 +57165,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=types.js.map
 
 /***/ }),
-/* 278 */
+/* 277 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -58768,8 +57174,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   ENS: () => (/* reexport safe */ _ens_js__WEBPACK_IMPORTED_MODULE_1__.ENS),
 /* harmony export */   registryAddresses: () => (/* reexport safe */ _config_js__WEBPACK_IMPORTED_MODULE_0__.registryAddresses)
 /* harmony export */ });
-/* harmony import */ var _config_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(279);
-/* harmony import */ var _ens_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(280);
+/* harmony import */ var _config_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(278);
+/* harmony import */ var _ens_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(279);
 /*
 This file is part of web3.js.
 
@@ -58805,7 +57211,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=index.js.map
 
 /***/ }),
-/* 279 */
+/* 278 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -58871,7 +57277,7 @@ const networkIds = {
 //# sourceMappingURL=config.js.map
 
 /***/ }),
-/* 280 */
+/* 279 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -58879,14 +57285,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   ENS: () => (/* binding */ ENS)
 /* harmony export */ });
-/* harmony import */ var web3_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(29);
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(31);
-/* harmony import */ var web3_eth__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(215);
-/* harmony import */ var web3_net__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(228);
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(70);
-/* harmony import */ var _config_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(279);
-/* harmony import */ var _registry_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(281);
-/* harmony import */ var _resolver_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(286);
+/* harmony import */ var web3_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(28);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(30);
+/* harmony import */ var web3_eth__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(214);
+/* harmony import */ var web3_net__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(227);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(69);
+/* harmony import */ var _config_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(278);
+/* harmony import */ var _registry_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(280);
+/* harmony import */ var _resolver_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(285);
 /*
 This file is part of web3.js.
 
@@ -59171,7 +57577,7 @@ class ENS extends web3_core__WEBPACK_IMPORTED_MODULE_0__.Web3Context {
 //# sourceMappingURL=ens.js.map
 
 /***/ }),
-/* 281 */
+/* 280 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -59179,11 +57585,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Registry: () => (/* binding */ Registry)
 /* harmony export */ });
-/* harmony import */ var web3_eth_contract__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(272);
-/* harmony import */ var _abi_ens_ENSRegistry_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(282);
-/* harmony import */ var _abi_ens_PublicResolver_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(283);
-/* harmony import */ var _config_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(279);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(284);
+/* harmony import */ var web3_eth_contract__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(271);
+/* harmony import */ var _abi_ens_ENSRegistry_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(281);
+/* harmony import */ var _abi_ens_PublicResolver_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(282);
+/* harmony import */ var _config_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(278);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(283);
 /*
 This file is part of web3.js.
 
@@ -59279,7 +57685,7 @@ class Registry {
 //# sourceMappingURL=registry.js.map
 
 /***/ }),
-/* 282 */
+/* 281 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -59472,7 +57878,7 @@ const ENSRegistryAbi = [
 //# sourceMappingURL=ENSRegistry.js.map
 
 /***/ }),
-/* 283 */
+/* 282 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -60093,7 +58499,7 @@ const PublicResolverAbi = [
 //# sourceMappingURL=PublicResolver.js.map
 
 /***/ }),
-/* 284 */
+/* 283 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -60102,8 +58508,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   namehash: () => (/* binding */ namehash),
 /* harmony export */   normalize: () => (/* binding */ normalize)
 /* harmony export */ });
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(48);
-/* harmony import */ var _adraffy_ens_normalize__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(285);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(47);
+/* harmony import */ var _adraffy_ens_normalize__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(284);
 /*
 This file is part of web3.js.
 
@@ -60143,7 +58549,7 @@ const namehash = (inputName) => {
 //# sourceMappingURL=utils.js.map
 
 /***/ }),
-/* 285 */
+/* 284 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -61404,7 +59810,7 @@ function collapse_valid_tokens(tokens) {
 
 
 /***/ }),
-/* 286 */
+/* 285 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -61412,11 +59818,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Resolver: () => (/* binding */ Resolver)
 /* harmony export */ });
-/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(31);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(48);
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(57);
-/* harmony import */ var _config_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(279);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(284);
+/* harmony import */ var web3_errors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(30);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(47);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(56);
+/* harmony import */ var _config_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(278);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(283);
 /*
 This file is part of web3.js.
 
@@ -61538,7 +59944,7 @@ class Resolver {
 //# sourceMappingURL=resolver.js.map
 
 /***/ }),
-/* 287 */
+/* 286 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -61547,7 +59953,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   Personal: () => (/* reexport safe */ _personal_js__WEBPACK_IMPORTED_MODULE_0__.Personal),
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _personal_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(288);
+/* harmony import */ var _personal_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(287);
 /*
 This file is part of web3.js.
 
@@ -61588,7 +59994,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=index.js.map
 
 /***/ }),
-/* 288 */
+/* 287 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -61596,8 +60002,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Personal: () => (/* binding */ Personal)
 /* harmony export */ });
-/* harmony import */ var web3_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(29);
-/* harmony import */ var _rpc_method_wrappers_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(289);
+/* harmony import */ var web3_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(28);
+/* harmony import */ var _rpc_method_wrappers_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(288);
 /*
 This file is part of web3.js.
 
@@ -61848,7 +60254,7 @@ class Personal extends web3_core__WEBPACK_IMPORTED_MODULE_0__.Web3Context {
 //# sourceMappingURL=personal.js.map
 
 /***/ }),
-/* 289 */
+/* 288 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -61864,11 +60270,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   signTransaction: () => (/* binding */ signTransaction),
 /* harmony export */   unlockAccount: () => (/* binding */ unlockAccount)
 /* harmony export */ });
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(48);
-/* harmony import */ var web3_eth__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(215);
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(70);
-/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(57);
-/* harmony import */ var web3_rpc_methods__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(218);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(47);
+/* harmony import */ var web3_eth__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(214);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(69);
+/* harmony import */ var web3_validator__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(56);
+/* harmony import */ var web3_rpc_methods__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(217);
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -61925,7 +60331,7 @@ const ecRecover = (requestManager, signedData, signature) => __awaiter(void 0, v
 //# sourceMappingURL=rpc_method_wrappers.js.map
 
 /***/ }),
-/* 290 */
+/* 289 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -61933,7 +60339,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var web3_eth_abi__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(242);
+/* harmony import */ var web3_eth_abi__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(241);
 /*
 This file is part of web3.js.
 
@@ -61967,7 +60373,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=abi.js.map
 
 /***/ }),
-/* 291 */
+/* 290 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -61975,10 +60381,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   initAccountsForContext: () => (/* binding */ initAccountsForContext)
 /* harmony export */ });
-/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(70);
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(48);
-/* harmony import */ var web3_eth__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(215);
-/* harmony import */ var web3_eth_accounts__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(125);
+/* harmony import */ var web3_types__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(69);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(47);
+/* harmony import */ var web3_eth__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(214);
+/* harmony import */ var web3_eth_accounts__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(124);
 /*
 This file is part of web3.js.
 
@@ -62058,7 +60464,7 @@ const initAccountsForContext = (context) => {
 //# sourceMappingURL=accounts.js.map
 
 /***/ }),
-/* 292 */
+/* 291 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -62070,7 +60476,7 @@ __webpack_require__.r(__webpack_exports__);
 //# sourceMappingURL=version.js.map
 
 /***/ }),
-/* 293 */
+/* 292 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -62138,7 +60544,7 @@ const onNewProviderDiscovered = (callback) => {
 //# sourceMappingURL=web3_eip6963.js.map
 
 /***/ }),
-/* 294 */
+/* 293 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -62163,7 +60569,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=types.js.map
 
 /***/ }),
-/* 295 */
+/* 294 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -62258,13 +60664,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   validateTransactionWithSender: () => (/* reexport safe */ web3_eth__WEBPACK_IMPORTED_MODULE_0__.validateTransactionWithSender),
 /* harmony export */   withdrawalsSchema: () => (/* reexport safe */ web3_eth__WEBPACK_IMPORTED_MODULE_0__.withdrawalsSchema)
 /* harmony export */ });
-/* harmony import */ var web3_eth__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(215);
-/* harmony import */ var web3_eth_abi__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(242);
-/* harmony import */ var web3_eth_accounts__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(125);
-/* harmony import */ var web3_eth_contract__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(272);
-/* harmony import */ var web3_eth_ens__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(278);
-/* harmony import */ var web3_eth_personal__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(287);
-/* harmony import */ var web3_eth_iban__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(211);
+/* harmony import */ var web3_eth__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(214);
+/* harmony import */ var web3_eth_abi__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(241);
+/* harmony import */ var web3_eth_accounts__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(124);
+/* harmony import */ var web3_eth_contract__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(271);
+/* harmony import */ var web3_eth_ens__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(277);
+/* harmony import */ var web3_eth_personal__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(286);
+/* harmony import */ var web3_eth_iban__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(210);
 /*
 This file is part of web3.js.
 
@@ -62291,7 +60697,7 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=eth.exports.js.map
 
 /***/ }),
-/* 296 */
+/* 295 */
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -62307,10 +60713,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   web3ProvidersMapUpdated: () => (/* reexport safe */ _web3_eip6963_js__WEBPACK_IMPORTED_MODULE_3__.web3ProvidersMapUpdated),
 /* harmony export */   ws: () => (/* reexport module object */ web3_providers_ws__WEBPACK_IMPORTED_MODULE_2__)
 /* harmony export */ });
-/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(48);
-/* harmony import */ var web3_providers_http__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(117);
-/* harmony import */ var web3_providers_ws__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(119);
-/* harmony import */ var _web3_eip6963_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(293);
+/* harmony import */ var web3_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(47);
+/* harmony import */ var web3_providers_http__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(116);
+/* harmony import */ var web3_providers_ws__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(118);
+/* harmony import */ var _web3_eip6963_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(292);
 /*
 This file is part of web3.js.
 
@@ -62334,192 +60740,1486 @@ along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 //# sourceMappingURL=providers.exports.js.map
 
 /***/ }),
-/* 297 */
-/***/ ((module, __webpack_exports__, __webpack_require__) => {
+/* 296 */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-__webpack_require__.a(module, async (__webpack_handle_async_dependencies__, __webpack_async_result__) => { try {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   checkRemainingApproval: () => (/* binding */ checkRemainingApproval),
-/* harmony export */   cleanBigInt: () => (/* binding */ cleanBigInt),
-/* harmony export */   getAccounts: () => (/* binding */ getAccounts),
-/* harmony export */   helpApproval: () => (/* binding */ helpApproval),
-/* harmony export */   helpChain: () => (/* binding */ helpChain),
-/* harmony export */   helpProvider: () => (/* binding */ helpProvider),
-/* harmony export */   helpToken: () => (/* binding */ helpToken),
-/* harmony export */   removeApproval: () => (/* binding */ removeApproval),
-/* harmony export */   shortenNumber: () => (/* binding */ shortenNumber),
-/* harmony export */   showErrors: () => (/* binding */ showErrors),
-/* harmony export */   showSuccess: () => (/* binding */ showSuccess)
+/* harmony export */   abiFaucet: () => (/* binding */ abiFaucet),
+/* harmony export */   abiMeh: () => (/* binding */ abiMeh),
+/* harmony export */   abiRoyalty: () => (/* binding */ abiRoyalty),
+/* harmony export */   abiVote: () => (/* binding */ abiVote)
 /* harmony export */ });
-/* harmony import */ var _main_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
-/* harmony import */ var _addr_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(26);
-/* harmony import */ var _wallet_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(24);
-var __webpack_async_dependencies__ = __webpack_handle_async_dependencies__([_main_js__WEBPACK_IMPORTED_MODULE_0__, _addr_js__WEBPACK_IMPORTED_MODULE_1__, _wallet_js__WEBPACK_IMPORTED_MODULE_2__]);
-([_main_js__WEBPACK_IMPORTED_MODULE_0__, _addr_js__WEBPACK_IMPORTED_MODULE_1__, _wallet_js__WEBPACK_IMPORTED_MODULE_2__] = __webpack_async_dependencies__.then ? (await __webpack_async_dependencies__)() : __webpack_async_dependencies__);
-
-
-
-
-function cleanBigInt(_bigInt, _divisor = 1) {
-    return Math.round(Number(_bigInt) / _divisor);
-};
-
-function shortenNumber(_longNum, _dec = 0) {
-    return (_longNum >= 1000000000) ?
-        Number(_longNum / 1000000000).toFixed(_dec) + "B" :
-        (_longNum >= 1000000) ?
-            Number(_longNum / 1000000).toFixed(_dec) + "M" :
-            (_longNum >= 1000) ?
-                Number(_longNum / 1000).toFixed(_dec) + "K" : _longNum;
-}
-
-async function getAccounts() {
-    const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
-    return accounts;
-}
-
-function showErrors(_message, _stop = false) {
-    let div = document.createElement("div");
-    div.id = "overlay";
-    document.body.insertAdjacentElement('beforeend', div);
-    div.innerHTML = _message;
-    document.body.classList.add("overlay_on");
-
-    if (_stop) {
-        throw new Error(_message);
-    } else {
-        setTimeout(() => { document.body.classList.remove("overlay_on"); }, 5000);
-    }
-}
-
-function showSuccess(_message, link = null) {
-    let div = document.createElement("div");
-    div.id = "overlay";
-    document.body.insertAdjacentElement('beforeend', div);
-    if (link) {
-        div.innerHTML = `${_message}<br /><a href="https://${_addr_js__WEBPACK_IMPORTED_MODULE_1__.etherscan}/tx/${link}" target="_blank">${link}</a>`;
-    } else {
-        div.innerHTML = _message;
-    }
-    document.body.classList.add("overlay_on");
-
-    setTimeout(() => { document.body.classList.remove("overlay_on"); }, 5000);
-    //console.log(_message);
-}
-
-// **********************
-// Connection helpers
-// **********************
-
-function helpProvider() {
-    _main_js__WEBPACK_IMPORTED_MODULE_0__.params.contentDiv.innerHTML =
-        `<div>Meh is a d/app and requires a web3 provider,
-        like <a href="https://metamask.io/download/" target="_blank">MetaMask</a>,
-        <a href="https://trustwallet.com/" target="_blank">Trust Wallet</a>,
-        or <a href="https://www.coinbase.com/wallet" target="_blank">Coinbase Wallet</a>.</div>`;
-};
-
-async function helpChain(_chainId = defaultChainId) { // for now we assume Base
-    if (window.ethereum) {
-        try {
-            await window.ethereum.request({
-                method: 'wallet_addEthereumChain',
-                params: [{
-                    chainId: _chainId, // A hexadecimal string representing the chain ID. For example, Ethereum Mainnet is 0x1
-                    chainName: (_chainId == '0x14a34') ? 'Base Sepolia' : 'Base', // A human-readable name for the chain
-                    rpcUrls: [`https://${(_chainId == '0x14a34') ? 'sepolia.base.org' : 'mainnet.base.org'}`], // An array of RPC URLs the wallet can use
-                    nativeCurrency: {
-                        name: 'Ether', // The currency the chain uses
-                        symbol: 'ETH', // The currency symbol
-                        decimals: 18 // The number of decimals the currency uses
-                    },
-                    blockExplorerUrls: [`https://${(_chainId == '0x14a34') ? 'sepolia-explorer.base.org' : 'basescan.org'}`] // An array of URLs to block explorers for this chain
-                }]
-            });
-            console.info('Chain added or switched successfully.');
-        } catch (error) {
-            console.error('Failed to add the chain', error);
-        }
-    } else {
-        console.error('Ethereum provider is not available. Install MetaMask!');
-    }
-};
-
-// this needs cleanup before use vvv
-async function helpToken() {
-    await window.ethereum.request({
-        "method": "wallet_watchAsset",
-        "params": {
-            "type": "ERC20",
-            "options": {
-                "address": _addr_js__WEBPACK_IMPORTED_MODULE_1__.MEH_TOKEN,
-                "symbol": "MEH",
-                "decimals": 18,
-                "image": "/images/meh_token.png"
+const abiVote = [
+    {
+        "inputs": [
+            {
+                "internalType": "contract IERC20",
+                "name": "_mehToken",
+                "type": "address"
+            },
+            {
+                "internalType": "contract IRoyalty",
+                "name": "_royalties",
+                "type": "address"
             }
-        }
-    });
-};
-
-function helpApproval(_amount) {
-};
-
-async function removeApproval(_wallet) {
-    const accounts = await getAccounts();
-    if (accounts.length <= 0) {
-        throw new Error("connect to metamask");
+        ],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "productId",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "string",
+                "name": "productName",
+                "type": "string"
+            },
+            {
+                "indexed": false,
+                "internalType": "string",
+                "name": "allocatorMerkleRoot",
+                "type": "string"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "totalContracts",
+                "type": "uint256"
+            }
+        ],
+        "name": "MehStore",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "previousOwner",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "newOwner",
+                "type": "address"
+            }
+        ],
+        "name": "OwnershipTransferred",
+        "type": "event"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_gameId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "string",
+                "name": "_name",
+                "type": "string"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_mehContracts",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_mehContractPrice",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_begin",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_end",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_totalContracts",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bool",
+                "name": "_limitedRun",
+                "type": "bool"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_prizeMeh",
+                "type": "uint256"
+            }
+        ],
+        "name": "addProductToGame",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_gameId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_productId",
+                "type": "uint256"
+            }
+        ],
+        "name": "claim",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_begin",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_end",
+                "type": "uint256"
+            }
+        ],
+        "name": "createGame",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_gameId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_productId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_numContracts",
+                "type": "uint256"
+            }
+        ],
+        "name": "depositMeh",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "depositMehStore",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "name": "deposits",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "name": "games",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "id",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "begin",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "end",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "numProducts",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "gameId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getProductsByGameId",
+        "outputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "id",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "name",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "mehContractsDeposited",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "mehContracts",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "mehContractPrice",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "prizeMeh",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "mehStore",
+                        "type": "bool"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "begin",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "end",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "totalContracts",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "limitedRun",
+                        "type": "bool"
+                    }
+                ],
+                "internalType": "struct MehVoteV1.Product[]",
+                "name": "",
+                "type": "tuple[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "mehToken",
+        "outputs": [
+            {
+                "internalType": "contract IERC20",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "owner",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "renounceOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "royalties",
+        "outputs": [
+            {
+                "internalType": "contract IRoyalty",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "newOwner",
+                "type": "address"
+            }
+        ],
+        "name": "transferOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
     }
+];
 
-    let gas = {}
-    try {
-        gas = await (0,_wallet_js__WEBPACK_IMPORTED_MODULE_2__.calcGas)({
-            account: accounts[0],
-            context: _addr_js__WEBPACK_IMPORTED_MODULE_1__.MEHToken.methods,
-            func: 'approve',
-            args: [_addr_js__WEBPACK_IMPORTED_MODULE_1__.MEH_VOTE, 0]
-        })
-    } catch (e) {
-        showErrors(`${e.message}`);
-        return;
-    };
+const abiRoyalty = [
+    {
+        "inputs": [
+            {
+                "internalType": "contract IERC20",
+                "name": "_mehToken",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "approved",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "Approval",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "operator",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "bool",
+                "name": "approved",
+                "type": "bool"
+            }
+        ],
+        "name": "ApprovalForAll",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "previousOwner",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "newOwner",
+                "type": "address"
+            }
+        ],
+        "name": "OwnershipTransferred",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "from",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "Transfer",
+        "type": "event"
+    },
+    {
+        "inputs": [],
+        "name": "MINTER_ADDRESS",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "approve",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
+            }
+        ],
+        "name": "balanceOf",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "baseURI",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_productId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_totalContracts",
+                "type": "uint256"
+            }
+        ],
+        "name": "createProduct",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amt",
+                "type": "uint256"
+            }
+        ],
+        "name": "depositMehToken",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "name": "deposits",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amt",
+                "type": "uint256"
+            }
+        ],
+        "name": "extractMehToken",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getApproved",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "operator",
+                "type": "address"
+            }
+        ],
+        "name": "isApprovedForAll",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "mehToken",
+        "outputs": [
+            {
+                "internalType": "contract IERC20",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_productId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "address",
+                "name": "_to",
+                "type": "address"
+            }
+        ],
+        "name": "mint",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "name",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "owner",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "ownerOf",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "name": "products",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "totalContracts",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "currentSerial",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "renounceOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "from",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "safeTransferFrom",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "from",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes",
+                "name": "data",
+                "type": "bytes"
+            }
+        ],
+        "name": "safeTransferFrom",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "operator",
+                "type": "address"
+            },
+            {
+                "internalType": "bool",
+                "name": "approved",
+                "type": "bool"
+            }
+        ],
+        "name": "setApprovalForAll",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "newURI",
+                "type": "string"
+            }
+        ],
+        "name": "setBaseTokenURI",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes4",
+                "name": "interfaceId",
+                "type": "bytes4"
+            }
+        ],
+        "name": "supportsInterface",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "symbol",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "tokenURI",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "from",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "transferFrom",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "newOwner",
+                "type": "address"
+            }
+        ],
+        "name": "transferOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "newMinter",
+                "type": "address"
+            }
+        ],
+        "name": "updateMinter",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
+];
 
-    const tx = {
-        'from': accounts[0],
-        'to': _addr_js__WEBPACK_IMPORTED_MODULE_1__.MEH_TOKEN,
-        'data': _addr_js__WEBPACK_IMPORTED_MODULE_1__.MEHToken.methods.approve(_addr_js__WEBPACK_IMPORTED_MODULE_1__.MEH_VOTE, 0).encodeABI(),
-        'gas': _addr_js__WEBPACK_IMPORTED_MODULE_1__.web3.utils.toHex(gas.estimatedGas),
-        'gasPrice': _addr_js__WEBPACK_IMPORTED_MODULE_1__.web3.utils.toHex(gas.gasPrice)
-    };
+const abiFaucet = [
+    {
+        "inputs": [
+            {
+                "internalType": "contract IERC20",
+                "name": "_mehToken",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "previousOwner",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "newOwner",
+                "type": "address"
+            }
+        ],
+        "name": "OwnershipTransferred",
+        "type": "event"
+    },
+    {
+        "inputs": [],
+        "name": "MAX_TOKEN_AMOUNT",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "MIN_TOKEN_AMOUNT",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "TIME_INTERVAL",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "faucet",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "faucetOn",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "name": "lastAccessTime",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "mehToken",
+        "outputs": [
+            {
+                "internalType": "contract IERC20",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "owner",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "renounceOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "toggleFaucet",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "newOwner",
+                "type": "address"
+            }
+        ],
+        "name": "transferOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
+];
 
-    const txHash = await window.ethereum.request({
-        method: 'eth_sendTransaction',
-        params: [tx],
-    }).then(result => {
-        showSuccess('remove approval tx complete', result);
-        _main_js__WEBPACK_IMPORTED_MODULE_0__.params.transactionQueue.push(result);
-        //        updateMehApproval(amt);
-    }, error => {
-        showErrors(error.message)
-    }).finally(() => {
-        // any wrap-up actions
-    });
-
-    return txHash;
-};
-
-async function checkRemainingApproval(_wallet) {
-    let approval = await _addr_js__WEBPACK_IMPORTED_MODULE_1__.MEHToken.methods.allowance(_wallet, _addr_js__WEBPACK_IMPORTED_MODULE_1__.MEH_VOTE).call().then((_meh) => { return cleanBigInt(_meh, _main_js__WEBPACK_IMPORTED_MODULE_0__.params.tokenScale); });
-    return approval;
-};
-
-
-__webpack_async_result__();
-} catch(e) { __webpack_async_result__(e); } });
+const abiMeh = [
+    {
+        "inputs": [],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "spender",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+            }
+        ],
+        "name": "Approval",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "from",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "value",
+                "type": "uint256"
+            }
+        ],
+        "name": "Transfer",
+        "type": "event"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "spender",
+                "type": "address"
+            }
+        ],
+        "name": "allowance",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "spender",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "approve",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "account",
+                "type": "address"
+            }
+        ],
+        "name": "balanceOf",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "burn",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "from",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "burnMeh",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "account",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "burnFrom",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "cap",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "decimals",
+        "outputs": [
+            {
+                "internalType": "uint8",
+                "name": "",
+                "type": "uint8"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "spender",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "subtractedValue",
+                "type": "uint256"
+            }
+        ],
+        "name": "decreaseAllowance",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "spender",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "addedValue",
+                "type": "uint256"
+            }
+        ],
+        "name": "increaseAllowance",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "name",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "symbol",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "totalSupply",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "transfer",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "from",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "transferFrom",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
+];
 
 /***/ }),
-/* 298 */
+/* 297 */
 /***/ ((module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -62528,12 +62228,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   product: () => (/* binding */ product)
 /* harmony export */ });
-/* harmony import */ var _common_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(297);
+/* harmony import */ var _common_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(24);
 /* harmony import */ var _vote_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(23);
-/* harmony import */ var _wallet_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(24);
-/* harmony import */ var _addr_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(26);
-var __webpack_async_dependencies__ = __webpack_handle_async_dependencies__([_common_js__WEBPACK_IMPORTED_MODULE_0__, _vote_js__WEBPACK_IMPORTED_MODULE_1__, _wallet_js__WEBPACK_IMPORTED_MODULE_2__, _addr_js__WEBPACK_IMPORTED_MODULE_3__]);
-([_common_js__WEBPACK_IMPORTED_MODULE_0__, _vote_js__WEBPACK_IMPORTED_MODULE_1__, _wallet_js__WEBPACK_IMPORTED_MODULE_2__, _addr_js__WEBPACK_IMPORTED_MODULE_3__] = __webpack_async_dependencies__.then ? (await __webpack_async_dependencies__)() : __webpack_async_dependencies__);
+/* harmony import */ var _main_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(0);
+/* harmony import */ var _addr_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(25);
+var __webpack_async_dependencies__ = __webpack_handle_async_dependencies__([_common_js__WEBPACK_IMPORTED_MODULE_0__, _vote_js__WEBPACK_IMPORTED_MODULE_1__, _main_js__WEBPACK_IMPORTED_MODULE_2__, _addr_js__WEBPACK_IMPORTED_MODULE_3__]);
+([_common_js__WEBPACK_IMPORTED_MODULE_0__, _vote_js__WEBPACK_IMPORTED_MODULE_1__, _main_js__WEBPACK_IMPORTED_MODULE_2__, _addr_js__WEBPACK_IMPORTED_MODULE_3__] = __webpack_async_dependencies__.then ? (await __webpack_async_dependencies__)() : __webpack_async_dependencies__);
 
 
 
@@ -62635,12 +62335,225 @@ class product {
     }
 
     async checkForOwnedContracts() {
-        this.contractsOwned = Number(await _addr_js__WEBPACK_IMPORTED_MODULE_3__.MEHVote.methods.deposits(_wallet_js__WEBPACK_IMPORTED_MODULE_2__.currWallet,_addr_js__WEBPACK_IMPORTED_MODULE_3__.web3.utils.padLeft(_addr_js__WEBPACK_IMPORTED_MODULE_3__.web3.utils.numberToHex(this.id),40)).call());
+        this.contractsOwned = Number(await _addr_js__WEBPACK_IMPORTED_MODULE_3__.MEHVote.methods.deposits(_main_js__WEBPACK_IMPORTED_MODULE_2__.params.wallet,_addr_js__WEBPACK_IMPORTED_MODULE_3__.web3.utils.padLeft(_addr_js__WEBPACK_IMPORTED_MODULE_3__.web3.utils.numberToHex(this.id),40)).call());
     }
 };
 
 __webpack_async_result__();
 } catch(e) { __webpack_async_result__(e); } });
+
+/***/ }),
+/* 298 */
+/***/ ((module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.a(module, async (__webpack_handle_async_dependencies__, __webpack_async_result__) => { try {
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   connect: () => (/* binding */ connect),
+/* harmony export */   init: () => (/* binding */ init)
+/* harmony export */ });
+/* harmony import */ var _metamask_detect_provider__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(299);
+/* harmony import */ var _metamask_detect_provider__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_metamask_detect_provider__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _addr_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(25);
+/* harmony import */ var _main_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(0);
+/* harmony import */ var _common_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(24);
+var __webpack_async_dependencies__ = __webpack_handle_async_dependencies__([_addr_js__WEBPACK_IMPORTED_MODULE_1__, _main_js__WEBPACK_IMPORTED_MODULE_2__, _common_js__WEBPACK_IMPORTED_MODULE_3__]);
+([_addr_js__WEBPACK_IMPORTED_MODULE_1__, _main_js__WEBPACK_IMPORTED_MODULE_2__, _common_js__WEBPACK_IMPORTED_MODULE_3__] = __webpack_async_dependencies__.then ? (await __webpack_async_dependencies__)() : __webpack_async_dependencies__);
+
+
+
+
+
+async function init() {
+    // this returns the provider, or null if it wasn't detected
+    _main_js__WEBPACK_IMPORTED_MODULE_2__.params.provider = await _metamask_detect_provider__WEBPACK_IMPORTED_MODULE_0___default()();
+
+    if (_main_js__WEBPACK_IMPORTED_MODULE_2__.params.provider) {
+        await startApp(_main_js__WEBPACK_IMPORTED_MODULE_2__.params.provider); // Initialize your app
+    } else {
+        console.log('Please install MetaMask!');
+        // call showErrors with stop
+        (0,_common_js__WEBPACK_IMPORTED_MODULE_3__.showErrors)("Please install a web3 provider like MetaMask", true);
+    }
+
+    _main_js__WEBPACK_IMPORTED_MODULE_2__.params.currNetwork = await ethereum.request({ method: 'eth_chainId' });
+
+    await switchNetwork(_main_js__WEBPACK_IMPORTED_MODULE_2__.params.preferredNetwork)
+
+    await (0,_addr_js__WEBPACK_IMPORTED_MODULE_1__.init)();
+    
+    // Verify this is the desired chain.
+    // --- if not, try to switch to desired chain
+    // --- try/catch in case that fails due to the chain not being known...in which case try to add
+    // --- if we add the chain, may also need to (explicity) switch to it
+
+    await ethereum
+        .request({ method: 'eth_accounts' })
+        .then(handleAccounts)
+        .catch((err) => {
+            // Some unexpected error.
+            // For backwards compatibility reasons, if no accounts are available,
+            // eth_accounts will return an empty array.
+            console.error(err);
+        });
+}
+
+async function startApp(_provider) {
+    if (_provider !== window.ethereum) {
+        console.error('Do you have multiple wallets installed?');
+        // If the provider returned by detectEthereumProvider is not the same as
+        // window.ethereum, something is overwriting it. There are likely multiple wallets.
+        (0,_common_js__WEBPACK_IMPORTED_MODULE_3__.showErrors)("There was an error getting your provider, do you have multiple wallets installed?", true);
+    }
+    ethereum.on('chainChanged', handleChainChanged);
+
+    // Note that this event is emitted on page load...
+    // --- if the array of accounts is non-empty, you're already connected.
+    ethereum.on('accountsChanged', handleAccounts);
+
+    // set a 'read' flag to true, so we can start any operations that only need to read
+    // --- NOTE: may yet be wrong chain
+}
+
+function handleChainChanged(_chainId) {
+    // When the chain changes, reload the page
+    window.location.reload();
+}
+
+// 'eth_accounts' returns an array
+function handleAccounts(accounts) {
+    if (accounts.length === 0) {
+        // MetaMask is locked or the user has not connected any accounts
+console.log(`in read mode`);
+        // in read-mode at this point
+        // update connection status
+        // provide 'connect' option
+        // there is an experimental ethereum._metamask.isUnlocked() that we may use to validate
+    } else if (accounts[0] !== _main_js__WEBPACK_IMPORTED_MODULE_2__.params.wallet) {
+        _main_js__WEBPACK_IMPORTED_MODULE_2__.params.wallet = accounts[0];
+
+console.log(`can send txs`);
+        // update connection status
+        // At this point we should be able to send txs
+        // --- no longer stuck in read-mode
+    }
+    showConnectionInfo();
+}
+
+function connect() {
+    ethereum
+        .request({ method: 'eth_requestAccounts' })
+        .then(handleAccounts)
+        .catch((err) => {
+            if (err.code === 4001) {
+                // EIP-1193 userRejectedRequest error
+                // If this happens, the user rejected the connection request.
+                console.log('Please connect to MetaMask.');
+            } else {
+                console.error(err);
+            }
+        });
+}
+
+async function switchNetwork(_chainId = _main_js__WEBPACK_IMPORTED_MODULE_2__.params.preferredNetwork) {
+    if (_chainId != _main_js__WEBPACK_IMPORTED_MODULE_2__.params.currNetwork) {
+        await _main_js__WEBPACK_IMPORTED_MODULE_2__.params.provider.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: _chainId }]
+        }).then((out) => {
+            handleChainChanged(null);
+        }).catch((e) => {
+            if (e.code === 4902) {
+//                helpChain(_chainId);
+console.log(`need to add chain ${_chainId}`);
+            }
+            throw new Error("Could not connect to a supported network");
+        });
+    };
+};
+
+function showConnectionInfo() {
+    let infoDiv = document.createElement("div");
+    infoDiv.id = "connection_info";
+    let _network= _addr_js__WEBPACK_IMPORTED_MODULE_1__.chainInfo.find(({ chainId }) => chainId === _main_js__WEBPACK_IMPORTED_MODULE_2__.params.currNetwork);
+    // Layer in logic for known but unsupported networks
+    infoDiv.innerHTML = `${(_network) ? _network.chainName : 'unknown'} ${_main_js__WEBPACK_IMPORTED_MODULE_2__.params.wallet}`;
+    let existingInfoDiv = document.getElementById("connection_info");
+    (existingInfoDiv) ? existingInfoDiv.replaceWith(infoDiv) : 
+        document.getElementById("wallet").insertAdjacentElement('beforeend', infoDiv);
+}
+__webpack_async_result__();
+} catch(e) { __webpack_async_result__(e); } });
+
+/***/ }),
+/* 299 */
+/***/ ((module) => {
+
+"use strict";
+
+/**
+ * Returns a Promise that resolves to the value of window.ethereum if it is
+ * set within the given timeout, or null.
+ * The Promise will not reject, but an error will be thrown if invalid options
+ * are provided.
+ *
+ * @param options - Options bag.
+ * @param options.mustBeMetaMask - Whether to only look for MetaMask providers.
+ * Default: false
+ * @param options.silent - Whether to silence console errors. Does not affect
+ * thrown errors. Default: false
+ * @param options.timeout - Milliseconds to wait for 'ethereum#initialized' to
+ * be dispatched. Default: 3000
+ * @returns A Promise that resolves with the Provider if it is detected within
+ * given timeout, otherwise null.
+ */
+function detectEthereumProvider({ mustBeMetaMask = false, silent = false, timeout = 3000, } = {}) {
+    _validateInputs();
+    let handled = false;
+    return new Promise((resolve) => {
+        if (window.ethereum) {
+            handleEthereum();
+        }
+        else {
+            window.addEventListener('ethereum#initialized', handleEthereum, { once: true });
+            setTimeout(() => {
+                handleEthereum();
+            }, timeout);
+        }
+        function handleEthereum() {
+            if (handled) {
+                return;
+            }
+            handled = true;
+            window.removeEventListener('ethereum#initialized', handleEthereum);
+            const { ethereum } = window;
+            if (ethereum && (!mustBeMetaMask || ethereum.isMetaMask)) {
+                resolve(ethereum);
+            }
+            else {
+                const message = mustBeMetaMask && ethereum
+                    ? 'Non-MetaMask window.ethereum detected.'
+                    : 'Unable to detect window.ethereum.';
+                !silent && console.error('@metamask/detect-provider:', message);
+                resolve(null);
+            }
+        }
+    });
+    function _validateInputs() {
+        if (typeof mustBeMetaMask !== 'boolean') {
+            throw new Error(`@metamask/detect-provider: Expected option 'mustBeMetaMask' to be a boolean.`);
+        }
+        if (typeof silent !== 'boolean') {
+            throw new Error(`@metamask/detect-provider: Expected option 'silent' to be a boolean.`);
+        }
+        if (typeof timeout !== 'number') {
+            throw new Error(`@metamask/detect-provider: Expected option 'timeout' to be a number.`);
+        }
+    }
+}
+module.exports = detectEthereumProvider;
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaW5kZXguanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyIuLi9zcmMvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IjtBQWdCQTs7Ozs7Ozs7Ozs7Ozs7O0dBZUc7QUFDSCxTQUFTLHNCQUFzQixDQUErQixFQUM1RCxjQUFjLEdBQUcsS0FBSyxFQUN0QixNQUFNLEdBQUcsS0FBSyxFQUNkLE9BQU8sR0FBRyxJQUFJLEdBQ2YsR0FBRyxFQUFFO0lBRUosZUFBZSxFQUFFLENBQUM7SUFFbEIsSUFBSSxPQUFPLEdBQUcsS0FBSyxDQUFDO0lBRXBCLE9BQU8sSUFBSSxPQUFPLENBQUMsQ0FBQyxPQUFPLEVBQUUsRUFBRTtRQUM3QixJQUFLLE1BQWlCLENBQUMsUUFBUSxFQUFFO1lBRS9CLGNBQWMsRUFBRSxDQUFDO1NBRWxCO2FBQU07WUFFTCxNQUFNLENBQUMsZ0JBQWdCLENBQ3JCLHNCQUFzQixFQUN0QixjQUFjLEVBQ2QsRUFBRSxJQUFJLEVBQUUsSUFBSSxFQUFFLENBQ2YsQ0FBQztZQUVGLFVBQVUsQ0FBQyxHQUFHLEVBQUU7Z0JBQ2QsY0FBYyxFQUFFLENBQUM7WUFDbkIsQ0FBQyxFQUFFLE9BQU8sQ0FBQyxDQUFDO1NBQ2I7UUFFRCxTQUFTLGNBQWM7WUFFckIsSUFBSSxPQUFPLEVBQUU7Z0JBQ1gsT0FBTzthQUNSO1lBQ0QsT0FBTyxHQUFHLElBQUksQ0FBQztZQUVmLE1BQU0sQ0FBQyxtQkFBbUIsQ0FBQyxzQkFBc0IsRUFBRSxjQUFjLENBQUMsQ0FBQztZQUVuRSxNQUFNLEVBQUUsUUFBUSxFQUFFLEdBQUcsTUFBZ0IsQ0FBQztZQUV0QyxJQUFJLFFBQVEsSUFBSSxDQUFDLENBQUMsY0FBYyxJQUFJLFFBQVEsQ0FBQyxVQUFVLENBQUMsRUFBRTtnQkFDeEQsT0FBTyxDQUFDLFFBQXdCLENBQUMsQ0FBQzthQUNuQztpQkFBTTtnQkFFTCxNQUFNLE9BQU8sR0FBRyxjQUFjLElBQUksUUFBUTtvQkFDeEMsQ0FBQyxDQUFDLHdDQUF3QztvQkFDMUMsQ0FBQyxDQUFDLG1DQUFtQyxDQUFDO2dCQUV4QyxDQUFDLE1BQU0sSUFBSSxPQUFPLENBQUMsS0FBSyxDQUFDLDRCQUE0QixFQUFFLE9BQU8sQ0FBQyxDQUFDO2dCQUNoRSxPQUFPLENBQUMsSUFBSSxDQUFDLENBQUM7YUFDZjtRQUNILENBQUM7SUFDSCxDQUFDLENBQUMsQ0FBQztJQUVILFNBQVMsZUFBZTtRQUN0QixJQUFJLE9BQU8sY0FBYyxLQUFLLFNBQVMsRUFBRTtZQUN2QyxNQUFNLElBQUksS0FBSyxDQUFDLDhFQUE4RSxDQUFDLENBQUM7U0FDakc7UUFDRCxJQUFJLE9BQU8sTUFBTSxLQUFLLFNBQVMsRUFBRTtZQUMvQixNQUFNLElBQUksS0FBSyxDQUFDLHNFQUFzRSxDQUFDLENBQUM7U0FDekY7UUFDRCxJQUFJLE9BQU8sT0FBTyxLQUFLLFFBQVEsRUFBRTtZQUMvQixNQUFNLElBQUksS0FBSyxDQUFDLHNFQUFzRSxDQUFDLENBQUM7U0FDekY7SUFDSCxDQUFDO0FBQ0gsQ0FBQztBQWxGRCxpQkFBUyxzQkFBc0IsQ0FBQyIsInNvdXJjZXNDb250ZW50IjpbImludGVyZmFjZSBNZXRhTWFza0V0aGVyZXVtUHJvdmlkZXIge1xuICBpc01ldGFNYXNrPzogYm9vbGVhbjtcbiAgb25jZShldmVudE5hbWU6IHN0cmluZyB8IHN5bWJvbCwgbGlzdGVuZXI6ICguLi5hcmdzOiBhbnlbXSkgPT4gdm9pZCk6IHRoaXM7XG4gIG9uKGV2ZW50TmFtZTogc3RyaW5nIHwgc3ltYm9sLCBsaXN0ZW5lcjogKC4uLmFyZ3M6IGFueVtdKSA9PiB2b2lkKTogdGhpcztcbiAgb2ZmKGV2ZW50TmFtZTogc3RyaW5nIHwgc3ltYm9sLCBsaXN0ZW5lcjogKC4uLmFyZ3M6IGFueVtdKSA9PiB2b2lkKTogdGhpcztcbiAgYWRkTGlzdGVuZXIoZXZlbnROYW1lOiBzdHJpbmcgfCBzeW1ib2wsIGxpc3RlbmVyOiAoLi4uYXJnczogYW55W10pID0+IHZvaWQpOiB0aGlzO1xuICByZW1vdmVMaXN0ZW5lcihldmVudE5hbWU6IHN0cmluZyB8IHN5bWJvbCwgbGlzdGVuZXI6ICguLi5hcmdzOiBhbnlbXSkgPT4gdm9pZCk6IHRoaXM7XG4gIHJlbW92ZUFsbExpc3RlbmVycyhldmVudD86IHN0cmluZyB8IHN5bWJvbCk6IHRoaXM7XG59XG5cbmludGVyZmFjZSBXaW5kb3cge1xuICBldGhlcmV1bT86IE1ldGFNYXNrRXRoZXJldW1Qcm92aWRlcjtcbn1cblxuZXhwb3J0ID0gZGV0ZWN0RXRoZXJldW1Qcm92aWRlcjtcblxuLyoqXG4gKiBSZXR1cm5zIGEgUHJvbWlzZSB0aGF0IHJlc29sdmVzIHRvIHRoZSB2YWx1ZSBvZiB3aW5kb3cuZXRoZXJldW0gaWYgaXQgaXNcbiAqIHNldCB3aXRoaW4gdGhlIGdpdmVuIHRpbWVvdXQsIG9yIG51bGwuXG4gKiBUaGUgUHJvbWlzZSB3aWxsIG5vdCByZWplY3QsIGJ1dCBhbiBlcnJvciB3aWxsIGJlIHRocm93biBpZiBpbnZhbGlkIG9wdGlvbnNcbiAqIGFyZSBwcm92aWRlZC5cbiAqXG4gKiBAcGFyYW0gb3B0aW9ucyAtIE9wdGlvbnMgYmFnLlxuICogQHBhcmFtIG9wdGlvbnMubXVzdEJlTWV0YU1hc2sgLSBXaGV0aGVyIHRvIG9ubHkgbG9vayBmb3IgTWV0YU1hc2sgcHJvdmlkZXJzLlxuICogRGVmYXVsdDogZmFsc2VcbiAqIEBwYXJhbSBvcHRpb25zLnNpbGVudCAtIFdoZXRoZXIgdG8gc2lsZW5jZSBjb25zb2xlIGVycm9ycy4gRG9lcyBub3QgYWZmZWN0XG4gKiB0aHJvd24gZXJyb3JzLiBEZWZhdWx0OiBmYWxzZVxuICogQHBhcmFtIG9wdGlvbnMudGltZW91dCAtIE1pbGxpc2Vjb25kcyB0byB3YWl0IGZvciAnZXRoZXJldW0jaW5pdGlhbGl6ZWQnIHRvXG4gKiBiZSBkaXNwYXRjaGVkLiBEZWZhdWx0OiAzMDAwXG4gKiBAcmV0dXJucyBBIFByb21pc2UgdGhhdCByZXNvbHZlcyB3aXRoIHRoZSBQcm92aWRlciBpZiBpdCBpcyBkZXRlY3RlZCB3aXRoaW5cbiAqIGdpdmVuIHRpbWVvdXQsIG90aGVyd2lzZSBudWxsLlxuICovXG5mdW5jdGlvbiBkZXRlY3RFdGhlcmV1bVByb3ZpZGVyPFQgPSBNZXRhTWFza0V0aGVyZXVtUHJvdmlkZXI+KHtcbiAgbXVzdEJlTWV0YU1hc2sgPSBmYWxzZSxcbiAgc2lsZW50ID0gZmFsc2UsXG4gIHRpbWVvdXQgPSAzMDAwLFxufSA9IHt9KTogUHJvbWlzZTxUIHwgbnVsbD4ge1xuXG4gIF92YWxpZGF0ZUlucHV0cygpO1xuXG4gIGxldCBoYW5kbGVkID0gZmFsc2U7XG5cbiAgcmV0dXJuIG5ldyBQcm9taXNlKChyZXNvbHZlKSA9PiB7XG4gICAgaWYgKCh3aW5kb3cgYXMgV2luZG93KS5ldGhlcmV1bSkge1xuXG4gICAgICBoYW5kbGVFdGhlcmV1bSgpO1xuXG4gICAgfSBlbHNlIHtcblxuICAgICAgd2luZG93LmFkZEV2ZW50TGlzdGVuZXIoXG4gICAgICAgICdldGhlcmV1bSNpbml0aWFsaXplZCcsXG4gICAgICAgIGhhbmRsZUV0aGVyZXVtLFxuICAgICAgICB7IG9uY2U6IHRydWUgfSxcbiAgICAgICk7XG5cbiAgICAgIHNldFRpbWVvdXQoKCkgPT4ge1xuICAgICAgICBoYW5kbGVFdGhlcmV1bSgpO1xuICAgICAgfSwgdGltZW91dCk7XG4gICAgfVxuXG4gICAgZnVuY3Rpb24gaGFuZGxlRXRoZXJldW0oKSB7XG5cbiAgICAgIGlmIChoYW5kbGVkKSB7XG4gICAgICAgIHJldHVybjtcbiAgICAgIH1cbiAgICAgIGhhbmRsZWQgPSB0cnVlO1xuXG4gICAgICB3aW5kb3cucmVtb3ZlRXZlbnRMaXN0ZW5lcignZXRoZXJldW0jaW5pdGlhbGl6ZWQnLCBoYW5kbGVFdGhlcmV1bSk7XG5cbiAgICAgIGNvbnN0IHsgZXRoZXJldW0gfSA9IHdpbmRvdyBhcyBXaW5kb3c7XG5cbiAgICAgIGlmIChldGhlcmV1bSAmJiAoIW11c3RCZU1ldGFNYXNrIHx8IGV0aGVyZXVtLmlzTWV0YU1hc2spKSB7XG4gICAgICAgIHJlc29sdmUoZXRoZXJldW0gYXMgdW5rbm93biBhcyBUKTtcbiAgICAgIH0gZWxzZSB7XG5cbiAgICAgICAgY29uc3QgbWVzc2FnZSA9IG11c3RCZU1ldGFNYXNrICYmIGV0aGVyZXVtXG4gICAgICAgICAgPyAnTm9uLU1ldGFNYXNrIHdpbmRvdy5ldGhlcmV1bSBkZXRlY3RlZC4nXG4gICAgICAgICAgOiAnVW5hYmxlIHRvIGRldGVjdCB3aW5kb3cuZXRoZXJldW0uJztcblxuICAgICAgICAhc2lsZW50ICYmIGNvbnNvbGUuZXJyb3IoJ0BtZXRhbWFzay9kZXRlY3QtcHJvdmlkZXI6JywgbWVzc2FnZSk7XG4gICAgICAgIHJlc29sdmUobnVsbCk7XG4gICAgICB9XG4gICAgfVxuICB9KTtcblxuICBmdW5jdGlvbiBfdmFsaWRhdGVJbnB1dHMoKSB7XG4gICAgaWYgKHR5cGVvZiBtdXN0QmVNZXRhTWFzayAhPT0gJ2Jvb2xlYW4nKSB7XG4gICAgICB0aHJvdyBuZXcgRXJyb3IoYEBtZXRhbWFzay9kZXRlY3QtcHJvdmlkZXI6IEV4cGVjdGVkIG9wdGlvbiAnbXVzdEJlTWV0YU1hc2snIHRvIGJlIGEgYm9vbGVhbi5gKTtcbiAgICB9XG4gICAgaWYgKHR5cGVvZiBzaWxlbnQgIT09ICdib29sZWFuJykge1xuICAgICAgdGhyb3cgbmV3IEVycm9yKGBAbWV0YW1hc2svZGV0ZWN0LXByb3ZpZGVyOiBFeHBlY3RlZCBvcHRpb24gJ3NpbGVudCcgdG8gYmUgYSBib29sZWFuLmApO1xuICAgIH1cbiAgICBpZiAodHlwZW9mIHRpbWVvdXQgIT09ICdudW1iZXInKSB7XG4gICAgICB0aHJvdyBuZXcgRXJyb3IoYEBtZXRhbWFzay9kZXRlY3QtcHJvdmlkZXI6IEV4cGVjdGVkIG9wdGlvbiAndGltZW91dCcgdG8gYmUgYSBudW1iZXIuYCk7XG4gICAgfVxuICB9XG59XG4iXX0=
 
 /***/ })
 /******/ 	]);

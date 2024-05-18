@@ -1,5 +1,5 @@
-import {params, sharedData} from './main.js';
-import { init as walletInit, calcGas } from './wallet.js';
+import { params, sharedData } from './main.js';
+import { calcGas } from './common.js';
 import {
     MEH_VOTE,
     MEH_TOKEN,
@@ -106,13 +106,15 @@ export async function loadProductData() {
 export async function setGameStatus() {
     await checkGameStatus();
     var x = setInterval(function () { checkGameStatus(); }, 60000); // Update the game status every minute
+    initTimer();
 }
 
 export async function checkGameStatus() {
     var now = new Date().getTime();
     if (params.gameEnd < now) { // game has ended
         params.gameStatus = 2;
-        params.timerDiv.innerHTML = "EXPIRED";
+        params.timerDiv.innerHTML = "VOTING HAS ENDED";
+        params.timerDiv.classList.add("small_text");
     } else if (params.gameStart > now) { // game hasn't started
         params.gameStatus = 0;
         params.countDownDate = new Date(params.gameStart).getTime();
@@ -170,7 +172,8 @@ export function initTimer() {
 
         if (distance < 0 || params.gameStatus == 2) {
             clearInterval(params.timerId);
-            params.timerDiv.innerHTML = "EXPIRED";
+            params.timerDiv.innerHTML = "VOTING HAS ENDED";
+            params.timerDiv.classList.add("small_text")
         }
     }, 1000); // Update the count down every second
 }
@@ -214,7 +217,7 @@ export async function vote(_productId) {
         'gasPrice': web3.utils.toHex(gas.gasPrice)
     };
     //console.log(`calling vote. game: ${params.gameId}, productId: ${_productId}, contracts: ${params.assumedContracts}`);
-    const txHash = await window.ethereum.request({
+    const txHash = await params.provider.request({
         method: 'eth_sendTransaction',
         params: [tx],
     }).then(async result => {
@@ -258,7 +261,7 @@ export async function approveMeh(amt) {
         'gasPrice': web3.utils.toHex(gas.gasPrice)
     };
 
-    const txHash = await window.ethereum.request({
+    const txHash = await params.provider.request({
         method: 'eth_sendTransaction',
         params: [tx],
     }).then(result => {
@@ -301,7 +304,7 @@ export async function claim(_productId) {
         'gas': web3.utils.toHex(gas.estimatedGas),
         'gasPrice': web3.utils.toHex(gas.gasPrice)
     };
-    const txHash = await window.ethereum.request({
+    const txHash = await params.provider.request({
         method: 'eth_sendTransaction',
         params: [tx],
     }).then(async result => {

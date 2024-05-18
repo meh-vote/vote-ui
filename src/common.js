@@ -1,6 +1,5 @@
 import { params } from "./main.js";
 import { MEHToken, MEH_VOTE, MEH_TOKEN, etherscan, web3 } from "./addr.js";
-import { calcGas } from "./wallet.js";
 
 export function cleanBigInt(_bigInt, _divisor = 1) {
     return Math.round(Number(_bigInt) / _divisor);
@@ -62,9 +61,9 @@ export function helpProvider() {
 };
 
 export async function helpChain(_chainId = defaultChainId) { // for now we assume Base
-    if (window.ethereum) {
+    if (params.provider) {
         try {
-            await window.ethereum.request({
+            await params.provider.request({
                 method: 'wallet_addEthereumChain',
                 params: [{
                     chainId: _chainId, // A hexadecimal string representing the chain ID. For example, Ethereum Mainnet is 0x1
@@ -153,4 +152,20 @@ export async function checkRemainingApproval(_wallet) {
     let approval = await MEHToken.methods.allowance(_wallet, MEH_VOTE).call().then((_meh) => { return cleanBigInt(_meh, params.tokenScale); });
     return approval;
 };
+
+export async function calcGas({account, context, func, args = null}) {
+    let gasPrice = await getGasPrice();
+    gasPrice = Math.trunc(Number(gasPrice) * 1.5);
+  
+    let estimatedGas = await context[func].apply(null,args?args:null).estimateGas({from: account})
+      .catch((error) => {throw new Error(error.message);});
+  
+    return {gasPrice,estimatedGas};
+}
+
+async function getGasPrice() {
+    const price = await web3.eth.getGasPrice();
+//    console.log(`Checking gas:`,price);
+    return price;
+}
 

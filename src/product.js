@@ -1,6 +1,6 @@
 import { shortenNumber } from './common.js';
-import { vote, params, claim } from './vote.js';
-import { currWallet } from './wallet.js';
+import { vote, claim } from './vote.js';
+import { params } from './main.js';
 import { web3, MEHVote } from './addr.js';
 
 export class product {
@@ -99,6 +99,6 @@ export class product {
     }
 
     async checkForOwnedContracts() {
-        this.contractsOwned = Number(await MEHVote.methods.deposits(currWallet,web3.utils.padLeft(web3.utils.numberToHex(this.id),40)).call());
+        this.contractsOwned = Number(await MEHVote.methods.deposits(params.wallet,web3.utils.padLeft(web3.utils.numberToHex(this.id),40)).call());
     }
 };
