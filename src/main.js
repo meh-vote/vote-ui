@@ -47,7 +47,7 @@ export const params = {
     transactionQueue: [],
     updatesOnChain: false,
     provider: null,
-    wallet: null
+    account: null
 };
 
 export let sharedData = {
@@ -58,9 +58,9 @@ export let sharedData = {
 await loadGameData();
 await loadProductData();
 await setGameStatus();
-prepConnectBtn();
+await prepConnectBtn();
 await walletInit();
-if (params.wallet) {
+if (params.account) {
     showConencted();
 }
 
@@ -68,14 +68,15 @@ if (params.wallet) {
 // * monitor tx queue
    // updateTransactionQueue();
 
-function prepConnectBtn() {
+export function prepConnectBtn() {
     document.body.classList.add("disconnected");
     document.body.classList.remove("connected");
     params.walletDiv.innerText = 'Connect';
     params.walletDiv.addEventListener("click",connect);
+    params.account = null;
 }
 
-function showConencted() {
+export function showConencted() {
     document.body.classList.add("connected");
     document.body.classList.remove("disconnected");
     params.walletDiv.innerText = 'Connected';

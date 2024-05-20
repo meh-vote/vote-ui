@@ -1,6 +1,6 @@
 import detectEthereumProvider from '@metamask/detect-provider';
 import { init as addrInit, chainInfo } from './addr.js';
-import { params } from "./main.js";
+import { params, prepConnectBtn, showConencted } from "./main.js";
 import { showErrors } from './common.js';
 
 export async function init() {
@@ -64,14 +64,16 @@ function handleAccounts(accounts) {
     if (accounts.length === 0) {
         // MetaMask is locked or the user has not connected any accounts
 console.log(`in read mode`);
+        prepConnectBtn();
         // in read-mode at this point
         // update connection status
         // provide 'connect' option
         // there is an experimental ethereum._metamask.isUnlocked() that we may use to validate
-    } else if (accounts[0] !== params.wallet) {
-        params.wallet = accounts[0];
+    } else if (accounts[0] !== params.account) {
+        params.account = accounts[0];
 
 console.log(`can send txs`);
+        showConencted();
         // update connection status
         // At this point we should be able to send txs
         // --- no longer stuck in read-mode
@@ -116,8 +118,16 @@ function showConnectionInfo() {
     infoDiv.id = "connection_info";
     let _network= chainInfo.find(({ chainId }) => chainId === params.currNetwork);
     // Layer in logic for known but unsupported networks
-    infoDiv.innerHTML = `${(_network) ? _network.chainName : 'unknown'} ${params.wallet}`;
+    infoDiv.innerHTML = `${(_network) ? _network.chainName : 'unknown'} ${(params.account) ? `(${truncAddr(params.account)})` : ''}`;
     let existingInfoDiv = document.getElementById("connection_info");
     (existingInfoDiv) ? existingInfoDiv.replaceWith(infoDiv) : 
         document.getElementById("wallet").insertAdjacentElement('beforeend', infoDiv);
 }
+
+function truncAddr(addr, limit = 4) {
+    if (addr.length <= (limit * 2)) {
+        return addr;
+    }
+    var shortAddr = `${addr.substr(0, limit)}...${addr.substr(limit * -1)}`
+    return shortAddr;
+};

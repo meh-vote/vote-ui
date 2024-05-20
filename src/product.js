@@ -99,6 +99,6 @@ export class product {
     }
 
     async checkForOwnedContracts() {
-        this.contractsOwned = Number(await MEHVote.methods.deposits(params.wallet,web3.utils.padLeft(web3.utils.numberToHex(this.id),40)).call());
+        this.contractsOwned = Number(await MEHVote.methods.deposits(params.account,web3.utils.padLeft(web3.utils.numberToHex(this.id),40)).call());
     }
 };

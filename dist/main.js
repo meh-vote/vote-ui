@@ -8,7 +8,9 @@ __webpack_require__.a(module, async (__webpack_handle_async_dependencies__, __we
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   params: () => (/* binding */ params),
-/* harmony export */   sharedData: () => (/* binding */ sharedData)
+/* harmony export */   prepConnectBtn: () => (/* binding */ prepConnectBtn),
+/* harmony export */   sharedData: () => (/* binding */ sharedData),
+/* harmony export */   showConencted: () => (/* binding */ showConencted)
 /* harmony export */ });
 /* harmony import */ var _fortawesome_fontawesome_free_css_all_min_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
 /* harmony import */ var _fortawesome_fontawesome_svg_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(20);
@@ -67,7 +69,7 @@ const params = {
     transactionQueue: [],
     updatesOnChain: false,
     provider: null,
-    wallet: null
+    account: null
 };
 
 let sharedData = {
@@ -78,9 +80,9 @@ let sharedData = {
 await (0,_vote_js__WEBPACK_IMPORTED_MODULE_2__.loadGameData)();
 await (0,_vote_js__WEBPACK_IMPORTED_MODULE_2__.loadProductData)();
 await (0,_vote_js__WEBPACK_IMPORTED_MODULE_2__.setGameStatus)();
-prepConnectBtn();
+await prepConnectBtn();
 await (0,_wallet_js__WEBPACK_IMPORTED_MODULE_3__.init)();
-if (params.wallet) {
+if (params.account) {
     showConencted();
 }
 
@@ -93,6 +95,7 @@ function prepConnectBtn() {
     document.body.classList.remove("connected");
     params.walletDiv.innerText = 'Connect';
     params.walletDiv.addEventListener("click",_wallet_js__WEBPACK_IMPORTED_MODULE_3__.connect);
+    params.account = null;
 }
 
 function showConencted() {
@@ -62426,14 +62429,16 @@ function handleAccounts(accounts) {
     if (accounts.length === 0) {
         // MetaMask is locked or the user has not connected any accounts
 console.log(`in read mode`);
+        (0,_main_js__WEBPACK_IMPORTED_MODULE_2__.prepConnectBtn)();
         // in read-mode at this point
         // update connection status
         // provide 'connect' option
         // there is an experimental ethereum._metamask.isUnlocked() that we may use to validate
-    } else if (accounts[0] !== _main_js__WEBPACK_IMPORTED_MODULE_2__.params.wallet) {
-        _main_js__WEBPACK_IMPORTED_MODULE_2__.params.wallet = accounts[0];
+    } else if (accounts[0] !== _main_js__WEBPACK_IMPORTED_MODULE_2__.params.account) {
+        _main_js__WEBPACK_IMPORTED_MODULE_2__.params.account = accounts[0];
 
 console.log(`can send txs`);
+        (0,_main_js__WEBPACK_IMPORTED_MODULE_2__.showConencted)();
         // update connection status
         // At this point we should be able to send txs
         // --- no longer stuck in read-mode
@@ -62478,11 +62483,19 @@ function showConnectionInfo() {
     infoDiv.id = "connection_info";
     let _network= _addr_js__WEBPACK_IMPORTED_MODULE_1__.chainInfo.find(({ chainId }) => chainId === _main_js__WEBPACK_IMPORTED_MODULE_2__.params.currNetwork);
     // Layer in logic for known but unsupported networks
-    infoDiv.innerHTML = `${(_network) ? _network.chainName : 'unknown'} ${_main_js__WEBPACK_IMPORTED_MODULE_2__.params.wallet}`;
+    infoDiv.innerHTML = `${(_network) ? _network.chainName : 'unknown'} ${(_main_js__WEBPACK_IMPORTED_MODULE_2__.params.account) ? `(${truncAddr(_main_js__WEBPACK_IMPORTED_MODULE_2__.params.account)})` : ''}`;
     let existingInfoDiv = document.getElementById("connection_info");
     (existingInfoDiv) ? existingInfoDiv.replaceWith(infoDiv) : 
         document.getElementById("wallet").insertAdjacentElement('beforeend', infoDiv);
 }
+
+function truncAddr(addr, limit = 4) {
+    if (addr.length <= (limit * 2)) {
+        return addr;
+    }
+    var shortAddr = `${addr.substr(0, limit)}...${addr.substr(limit * -1)}`
+    return shortAddr;
+};
 __webpack_async_result__();
 } catch(e) { __webpack_async_result__(e); } });
 
