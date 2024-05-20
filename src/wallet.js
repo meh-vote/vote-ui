@@ -63,7 +63,8 @@ function handleChainChanged(_chainId) {
 function handleAccounts(accounts) {
     if (accounts.length === 0) {
         // MetaMask is locked or the user has not connected any accounts
-console.log(`in read mode`);
+        params.connection = 'read';
+console.log(`params.connection: ${params.connection}`);
         prepConnectBtn();
         // in read-mode at this point
         // update connection status
@@ -71,8 +72,8 @@ console.log(`in read mode`);
         // there is an experimental ethereum._metamask.isUnlocked() that we may use to validate
     } else if (accounts[0] !== params.account) {
         params.account = accounts[0];
-
-console.log(`can send txs`);
+        params.connection = 'write';
+console.log(`params.connection: ${params.connection}`);
         showConencted();
         // update connection status
         // At this point we should be able to send txs

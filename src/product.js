@@ -35,6 +35,8 @@ export class product {
         this.activeStatus = 2; // 0: not yet open, 1: active, 2: product has closed
         this.setActiveState();
         this.contractsOwned = null;
+// Need to hold on displaying the remaining contracts until we have a read connection and check the live data
+//        console.log(`contractsDeposited ${this.contractsDeposited}`)
     };
 
     genHtml() {
@@ -51,7 +53,10 @@ export class product {
             </div>
             <div class="action">
                 <div>${shortenNumber(this.contractPrice,0)} Meh</div>
-                <div>Contracts Remaining ${this.remainingContracts}/${this.mehContracts}</div>
+                ${(params.provider)
+                    ?`<div>Contracts Remaining ${this.remainingContracts}/${this.mehContracts}</div>`
+                    :`<div>Provider required to check Contracts Remaining</div>`
+                }
             </div>
         </div>`;
 
@@ -88,6 +93,7 @@ export class product {
             };
         })
         .catch((err) => {console.info(err)});
+//        await this.getAvailableContracts();
 //        await this.checkForOwnedContracts();
         this.genHtml();
     }

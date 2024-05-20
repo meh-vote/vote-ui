@@ -69,7 +69,8 @@ const params = {
     transactionQueue: [],
     updatesOnChain: false,
     provider: null,
-    account: null
+    account: null,
+    connection: 'static'  // 'static' or 'read' or 'write'
 };
 
 let sharedData = {
@@ -62274,6 +62275,8 @@ class product {
         this.activeStatus = 2; // 0: not yet open, 1: active, 2: product has closed
         this.setActiveState();
         this.contractsOwned = null;
+// Need to hold on displaying the remaining contracts until we have a read connection and check the live data
+//        console.log(`contractsDeposited ${this.contractsDeposited}`)
     };
 
     genHtml() {
@@ -62290,7 +62293,10 @@ class product {
             </div>
             <div class="action">
                 <div>${(0,_common_js__WEBPACK_IMPORTED_MODULE_0__.shortenNumber)(this.contractPrice,0)} Meh</div>
-                <div>Contracts Remaining ${this.remainingContracts}/${this.mehContracts}</div>
+                ${(_main_js__WEBPACK_IMPORTED_MODULE_2__.params.provider)
+                    ?`<div>Contracts Remaining ${this.remainingContracts}/${this.mehContracts}</div>`
+                    :`<div>Provider required to check Contracts Remaining</div>`
+                }
             </div>
         </div>`;
 
@@ -62327,6 +62333,7 @@ class product {
             };
         })
         .catch((err) => {console.info(err)});
+//        await this.getAvailableContracts();
 //        await this.checkForOwnedContracts();
         this.genHtml();
     }
@@ -62338,7 +62345,7 @@ class product {
     }
 
     async checkForOwnedContracts() {
-        this.contractsOwned = Number(await _addr_js__WEBPACK_IMPORTED_MODULE_3__.MEHVote.methods.deposits(_main_js__WEBPACK_IMPORTED_MODULE_2__.params.wallet,_addr_js__WEBPACK_IMPORTED_MODULE_3__.web3.utils.padLeft(_addr_js__WEBPACK_IMPORTED_MODULE_3__.web3.utils.numberToHex(this.id),40)).call());
+        this.contractsOwned = Number(await _addr_js__WEBPACK_IMPORTED_MODULE_3__.MEHVote.methods.deposits(_main_js__WEBPACK_IMPORTED_MODULE_2__.params.account,_addr_js__WEBPACK_IMPORTED_MODULE_3__.web3.utils.padLeft(_addr_js__WEBPACK_IMPORTED_MODULE_3__.web3.utils.numberToHex(this.id),40)).call());
     }
 };
 
@@ -62428,7 +62435,8 @@ function handleChainChanged(_chainId) {
 function handleAccounts(accounts) {
     if (accounts.length === 0) {
         // MetaMask is locked or the user has not connected any accounts
-console.log(`in read mode`);
+        _main_js__WEBPACK_IMPORTED_MODULE_2__.params.connection = 'read';
+console.log(`params.connection: ${_main_js__WEBPACK_IMPORTED_MODULE_2__.params.connection}`);
         (0,_main_js__WEBPACK_IMPORTED_MODULE_2__.prepConnectBtn)();
         // in read-mode at this point
         // update connection status
@@ -62436,8 +62444,8 @@ console.log(`in read mode`);
         // there is an experimental ethereum._metamask.isUnlocked() that we may use to validate
     } else if (accounts[0] !== _main_js__WEBPACK_IMPORTED_MODULE_2__.params.account) {
         _main_js__WEBPACK_IMPORTED_MODULE_2__.params.account = accounts[0];
-
-console.log(`can send txs`);
+        _main_js__WEBPACK_IMPORTED_MODULE_2__.params.connection = 'write';
+console.log(`params.connection: ${_main_js__WEBPACK_IMPORTED_MODULE_2__.params.connection}`);
         (0,_main_js__WEBPACK_IMPORTED_MODULE_2__.showConencted)();
         // update connection status
         // At this point we should be able to send txs

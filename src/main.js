@@ -47,7 +47,8 @@ export const params = {
     transactionQueue: [],
     updatesOnChain: false,
     provider: null,
-    account: null
+    account: null,
+    connection: 'static'  // 'static' or 'read' or 'write'
 };
 
 export let sharedData = {
@@ -56,7 +57,7 @@ export let sharedData = {
 
 // SHOW WHAT WE CAN WITHOUT A PROVIDER / WALLET
 await loadGameData();
-await loadProductData();
+await loadProductData(); // Currently, race condition...need to make sure this always finished priot to setting clock
 await setGameStatus();
 await prepConnectBtn();
 await walletInit();
