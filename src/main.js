@@ -3,7 +3,8 @@ import { library, dom } from '@fortawesome/fontawesome-svg-core';
 import { faCirclePlus } from '@fortawesome/free-solid-svg-icons';
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
 
-import { loadGameData,loadProductData, setGameStatus, updateTransactionQueue } from './vote.js';
+import { loadGameData, loadProductData, setGameStatus, displayProducts, updateTransactionQueue } from './vote.js';
+import { reloadClient } from './common.js';
 import { init as walletInit, connect } from './wallet.js';
 
 library.add(faCirclePlus, faTrashCan);
@@ -48,7 +49,10 @@ export const params = {
     updatesOnChain: false,
     provider: null,
     account: null,
-    connection: 'static'  // 'static' or 'read' or 'write'
+    connection: 'static'  // oneOf('static', 'read', 'write')
+    // static :: only what is provided on-load of webapp
+    // read :: requires a provider and the correct chain
+    // write :: additionally, requires an address
 };
 
 export let sharedData = {
@@ -57,29 +61,51 @@ export let sharedData = {
 
 // SHOW WHAT WE CAN WITHOUT A PROVIDER / WALLET
 await loadGameData();
-await loadProductData(); // Currently, race condition...need to make sure this always finished priot to setting clock
+await loadProductData();
 await setGameStatus();
 await prepConnectBtn();
 await walletInit();
-if (params.account) {
-    showConencted();
-}
 
 // NEXT STEPS
 // * monitor tx queue
-   // updateTransactionQueue();
+// updateTransactionQueue();
 
 export function prepConnectBtn() {
     document.body.classList.add("disconnected");
     document.body.classList.remove("connected");
     params.walletDiv.innerText = 'Connect';
-    params.walletDiv.addEventListener("click",connect);
+    params.walletDiv.addEventListener("click", connect);
     params.account = null;
 }
 
-export function showConencted() {
+function showConnected() {
     document.body.classList.add("connected");
     document.body.classList.remove("disconnected");
     params.walletDiv.innerText = 'Connected';
-    params.walletDiv.removeEventListener("click",connect);
+    params.walletDiv.removeEventListener("click", connect);
+    console.info(`output meh token balance and approval amount`);
+}
+
+export function updateConnectionStatus(_status = 'static') {
+    if (_status == 'read' && params.connection != 'read') { // we've just switched to read
+        displayProducts(true);
+        if (params.connection != 'write') {
+            console.log(`do anything requiring a provider HERE; contract balances`);
+        } else {
+            reloadClient()
+        }
+        params.connection = 'read';
+    } else if (_status == 'write' && params.connection != 'write') { // we've just switched to write
+        displayProducts(true);
+        if (params.connection != 'read') {
+            console.log(`do anything requiring a provider HERE; contract balances`);
+        }
+        console.log(`do anything requiring a address HERE; owned contracts (yet to be claimed)`);
+        showConnected()
+        params.connection = 'write';
+    } else if (_status == 'static' && params.connection != 'static') {  // we've just switched to static
+        reloadClient()
+    } else {
+        throw new Error(`Trying to switch to/from an unknown connection type: ${params.connection} ... ${_status}`);
+    }
 }

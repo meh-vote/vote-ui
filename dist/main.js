@@ -10,16 +10,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   params: () => (/* binding */ params),
 /* harmony export */   prepConnectBtn: () => (/* binding */ prepConnectBtn),
 /* harmony export */   sharedData: () => (/* binding */ sharedData),
-/* harmony export */   showConencted: () => (/* binding */ showConencted)
+/* harmony export */   updateConnectionStatus: () => (/* binding */ updateConnectionStatus)
 /* harmony export */ });
 /* harmony import */ var _fortawesome_fontawesome_free_css_all_min_css__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
 /* harmony import */ var _fortawesome_fontawesome_svg_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(20);
-/* harmony import */ var _fortawesome_free_solid_svg_icons__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(21);
-/* harmony import */ var _fortawesome_free_regular_svg_icons__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(22);
+/* harmony import */ var _fortawesome_free_solid_svg_icons__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(21);
+/* harmony import */ var _fortawesome_free_regular_svg_icons__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(22);
 /* harmony import */ var _vote_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(23);
-/* harmony import */ var _wallet_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(298);
-var __webpack_async_dependencies__ = __webpack_handle_async_dependencies__([_vote_js__WEBPACK_IMPORTED_MODULE_2__, _wallet_js__WEBPACK_IMPORTED_MODULE_3__]);
-([_vote_js__WEBPACK_IMPORTED_MODULE_2__, _wallet_js__WEBPACK_IMPORTED_MODULE_3__] = __webpack_async_dependencies__.then ? (await __webpack_async_dependencies__)() : __webpack_async_dependencies__);
+/* harmony import */ var _common_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(24);
+/* harmony import */ var _wallet_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(298);
+var __webpack_async_dependencies__ = __webpack_handle_async_dependencies__([_vote_js__WEBPACK_IMPORTED_MODULE_2__, _common_js__WEBPACK_IMPORTED_MODULE_3__, _wallet_js__WEBPACK_IMPORTED_MODULE_4__]);
+([_vote_js__WEBPACK_IMPORTED_MODULE_2__, _common_js__WEBPACK_IMPORTED_MODULE_3__, _wallet_js__WEBPACK_IMPORTED_MODULE_4__] = __webpack_async_dependencies__.then ? (await __webpack_async_dependencies__)() : __webpack_async_dependencies__);
 
 
 
@@ -28,7 +29,8 @@ var __webpack_async_dependencies__ = __webpack_handle_async_dependencies__([_vot
 
 
 
-_fortawesome_fontawesome_svg_core__WEBPACK_IMPORTED_MODULE_1__.library.add(_fortawesome_free_solid_svg_icons__WEBPACK_IMPORTED_MODULE_4__.faCirclePlus, _fortawesome_free_regular_svg_icons__WEBPACK_IMPORTED_MODULE_5__.faTrashCan);
+
+_fortawesome_fontawesome_svg_core__WEBPACK_IMPORTED_MODULE_1__.library.add(_fortawesome_free_solid_svg_icons__WEBPACK_IMPORTED_MODULE_5__.faCirclePlus, _fortawesome_free_regular_svg_icons__WEBPACK_IMPORTED_MODULE_6__.faTrashCan);
 _fortawesome_fontawesome_svg_core__WEBPACK_IMPORTED_MODULE_1__.dom.watch();
 
 // ****************************
@@ -70,7 +72,10 @@ const params = {
     updatesOnChain: false,
     provider: null,
     account: null,
-    connection: 'static'  // 'static' or 'read' or 'write'
+    connection: 'static'  // oneOf('static', 'read', 'write')
+    // static :: only what is provided on-load of webapp
+    // read :: requires a provider and the correct chain
+    // write :: additionally, requires an address
 };
 
 let sharedData = {
@@ -82,28 +87,50 @@ await (0,_vote_js__WEBPACK_IMPORTED_MODULE_2__.loadGameData)();
 await (0,_vote_js__WEBPACK_IMPORTED_MODULE_2__.loadProductData)();
 await (0,_vote_js__WEBPACK_IMPORTED_MODULE_2__.setGameStatus)();
 await prepConnectBtn();
-await (0,_wallet_js__WEBPACK_IMPORTED_MODULE_3__.init)();
-if (params.account) {
-    showConencted();
-}
+await (0,_wallet_js__WEBPACK_IMPORTED_MODULE_4__.init)();
 
 // NEXT STEPS
 // * monitor tx queue
-   // updateTransactionQueue();
+// updateTransactionQueue();
 
 function prepConnectBtn() {
     document.body.classList.add("disconnected");
     document.body.classList.remove("connected");
     params.walletDiv.innerText = 'Connect';
-    params.walletDiv.addEventListener("click",_wallet_js__WEBPACK_IMPORTED_MODULE_3__.connect);
+    params.walletDiv.addEventListener("click", _wallet_js__WEBPACK_IMPORTED_MODULE_4__.connect);
     params.account = null;
 }
 
-function showConencted() {
+function showConnected() {
     document.body.classList.add("connected");
     document.body.classList.remove("disconnected");
     params.walletDiv.innerText = 'Connected';
-    params.walletDiv.removeEventListener("click",_wallet_js__WEBPACK_IMPORTED_MODULE_3__.connect);
+    params.walletDiv.removeEventListener("click", _wallet_js__WEBPACK_IMPORTED_MODULE_4__.connect);
+    console.info(`output meh token balance and approval amount`);
+}
+
+function updateConnectionStatus(_status = 'static') {
+    if (_status == 'read' && params.connection != 'read') { // we've just switched to read
+        (0,_vote_js__WEBPACK_IMPORTED_MODULE_2__.displayProducts)(true);
+        if (params.connection != 'write') {
+            console.log(`do anything requiring a provider HERE; contract balances`);
+        } else {
+            (0,_common_js__WEBPACK_IMPORTED_MODULE_3__.reloadClient)()
+        }
+        params.connection = 'read';
+    } else if (_status == 'write' && params.connection != 'write') { // we've just switched to write
+        (0,_vote_js__WEBPACK_IMPORTED_MODULE_2__.displayProducts)(true);
+        if (params.connection != 'read') {
+            console.log(`do anything requiring a provider HERE; contract balances`);
+        }
+        console.log(`do anything requiring a address HERE; owned contracts (yet to be claimed)`);
+        showConnected()
+        params.connection = 'write';
+    } else if (_status == 'static' && params.connection != 'static') {  // we've just switched to static
+        (0,_common_js__WEBPACK_IMPORTED_MODULE_3__.reloadClient)()
+    } else {
+        throw new Error(`Trying to switch to/from an unknown connection type: ${params.connection} ... ${_status}`);
+    }
 }
 __webpack_async_result__();
 } catch(e) { __webpack_async_result__(e); } }, 1);
@@ -16652,6 +16679,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   approveMeh: () => (/* binding */ approveMeh),
 /* harmony export */   checkGameStatus: () => (/* binding */ checkGameStatus),
 /* harmony export */   claim: () => (/* binding */ claim),
+/* harmony export */   displayProducts: () => (/* binding */ displayProducts),
 /* harmony export */   initTimer: () => (/* binding */ initTimer),
 /* harmony export */   loadGameData: () => (/* binding */ loadGameData),
 /* harmony export */   loadProductData: () => (/* binding */ loadProductData),
@@ -16671,52 +16699,17 @@ var __webpack_async_dependencies__ = __webpack_handle_async_dependencies__([_mai
 
 
 
-// ****************************
-// Todo list
-// ****************************
-//     --- HIGH ---
-// [ ] account for multi-wallet
-// [ ] update data after transaction submits
-//     ... remaining contracts, contracts owned, available Meh
-// [ ] write and use an updateMehApprovel function, for value and display, on approval and removal
-// [ ] use wallet icon and rearrage wallet-display on narrower screens/devices
-// [ ] helper to add Meh token to wallet
-// [ ] periodic (every X min) refresh of product data (reconcile with pending txs)
-// [ ] sort closed products to the end
-//     --- MEDIUM ---
-// [ ] spinner when waiting for tx to finish / indicator for pending transactions (toaster?)
-// [ ] success message when tx finishes on chain (toaster?)
-// [ ] ^^^ or ^^^ periodic check of any (new) txs on contract, then update
-// [ ] work in persistent storage, record first time through and show splash with setup instructions
-//     --- LOW ---
-// [ ] move x/y contract count to stay visible on card change
-// [ ] clean up all the code, no really, it's rough
-// [ ] prize Meh indicator / leaderboard
-
 let products = [];
-
-/*
-try {
-    if (window.ethereum) {
-        console.log(`Found provider at 'window.ethereum'`);
-    }
-} catch (error) {
-    showErrors("This d/app requires a web3 provider, like MetaMask", true);
-    throw new Error(error);
-}
-*/
 
 async function loadGameData() {
     //    let gameDetails = await MEHVote.methods.games(params.gameId).call();
-    fetch(new Request("/data/game_1.json"))
+    await fetch(new Request("/data/game_1.json"))
         .then((response) => response.json())
         .then((data) => {
             _main_js__WEBPACK_IMPORTED_MODULE_0__.params.gameStart = Number(data.begin) * 1000;
             _main_js__WEBPACK_IMPORTED_MODULE_0__.params.gameEnd = Number(data.end) * 1000;
         })
         .catch(console.error);
-
-    //  console.log(params)
 }
 
 async function loadProductData() {
@@ -16727,12 +16720,12 @@ async function loadProductData() {
 
     await fetch(new Request("/data/products_1.json"))
         .then((response) => response.json())
-        .then((data) => {
+        .then(async (data) => {
             for (const _product of data) {
                 products.push(new _product_js__WEBPACK_IMPORTED_MODULE_3__.product({
                     id: Number(_product.id),
                     name: _product.name,
-                    contractsDeposited: Number(_product.mehContractsDeposited), // meh contracts deposited
+                    contractsDeposited: _product.mehContractsDeposited ?Number(_product.mehContractsDeposited) : null, // meh contracts deposited
                     mehContracts: Number(_product.mehContracts),
                     contractPrice: (0,_common_js__WEBPACK_IMPORTED_MODULE_1__.cleanBigInt)(_product.mehContractPrice, _main_js__WEBPACK_IMPORTED_MODULE_0__.params.tokenScale),
                     prizeMeh: (0,_common_js__WEBPACK_IMPORTED_MODULE_1__.cleanBigInt)(_product.prizeMeh, _main_js__WEBPACK_IMPORTED_MODULE_0__.params.tokenScale),
@@ -16746,10 +16739,10 @@ async function loadProductData() {
             // sort by product begin
             products = products.sort(function (a, b) { return a.begin - b.begin });
 
-            let lastProductend = products.reduce((maxEnd, currProduct) => { return (currProduct.end > maxEnd.end) ? currProduct : maxEnd });
-            if (_main_js__WEBPACK_IMPORTED_MODULE_0__.params.gameEnd < lastProductend.end) {
-                _main_js__WEBPACK_IMPORTED_MODULE_0__.params.gameEnd = lastProductend.end;
-                checkGameStatus();
+            let lastProductEnd = products.reduce((maxEnd, currProduct) => { return (currProduct.end > maxEnd.end) ? currProduct : maxEnd })
+            if (_main_js__WEBPACK_IMPORTED_MODULE_0__.params.gameEnd < lastProductEnd.end) {
+                _main_js__WEBPACK_IMPORTED_MODULE_0__.params.gameEnd = lastProductEnd.end;
+                await checkGameStatus();
             }
         })
         .catch(console.error);
@@ -16758,6 +16751,14 @@ async function loadProductData() {
         await _product.asyncInit();
     }
 
+    await displayProducts();
+}
+
+async function displayProducts(regenHTML = false) {
+    if (regenHTML) {
+        for (const _product of products) {
+            _product.genHtml();        };
+    }
     _main_js__WEBPACK_IMPORTED_MODULE_0__.params.contentDiv.innerHTML = '';
     for (const _product of products) {
         _main_js__WEBPACK_IMPORTED_MODULE_0__.params.contentDiv.insertAdjacentElement('beforeend', _product.html);
@@ -16774,7 +16775,7 @@ async function checkGameStatus() {
     var now = new Date().getTime();
     if (_main_js__WEBPACK_IMPORTED_MODULE_0__.params.gameEnd < now) { // game has ended
         _main_js__WEBPACK_IMPORTED_MODULE_0__.params.gameStatus = 2;
-        _main_js__WEBPACK_IMPORTED_MODULE_0__.params.timerDiv.innerHTML = "VOTING HAS ENDED";
+        _main_js__WEBPACK_IMPORTED_MODULE_0__.params.timerDiv.innerHTML = "VOTING HAS ENDED 1";
         _main_js__WEBPACK_IMPORTED_MODULE_0__.params.timerDiv.classList.add("small_text");
     } else if (_main_js__WEBPACK_IMPORTED_MODULE_0__.params.gameStart > now) { // game hasn't started
         _main_js__WEBPACK_IMPORTED_MODULE_0__.params.gameStatus = 0;
@@ -16833,7 +16834,7 @@ function initTimer() {
 
         if (distance < 0 || _main_js__WEBPACK_IMPORTED_MODULE_0__.params.gameStatus == 2) {
             clearInterval(_main_js__WEBPACK_IMPORTED_MODULE_0__.params.timerId);
-            _main_js__WEBPACK_IMPORTED_MODULE_0__.params.timerDiv.innerHTML = "VOTING HAS ENDED";
+            _main_js__WEBPACK_IMPORTED_MODULE_0__.params.timerDiv.innerHTML = "VOTING HAS ENDED 2";
             _main_js__WEBPACK_IMPORTED_MODULE_0__.params.timerDiv.classList.add("small_text")
         }
     }, 1000); // Update the count down every second
@@ -17009,6 +17010,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   helpChain: () => (/* binding */ helpChain),
 /* harmony export */   helpProvider: () => (/* binding */ helpProvider),
 /* harmony export */   helpToken: () => (/* binding */ helpToken),
+/* harmony export */   reloadClient: () => (/* binding */ reloadClient),
 /* harmony export */   removeApproval: () => (/* binding */ removeApproval),
 /* harmony export */   shortenNumber: () => (/* binding */ shortenNumber),
 /* harmony export */   showErrors: () => (/* binding */ showErrors),
@@ -17032,6 +17034,10 @@ function shortenNumber(_longNum, _dec = 0) {
             Number(_longNum / 1000000).toFixed(_dec) + "M" :
             (_longNum >= 1000) ?
                 Number(_longNum / 1000).toFixed(_dec) + "K" : _longNum;
+}
+
+function reloadClient() {
+    window.location.reload();
 }
 
 async function getAccounts() {
@@ -62247,7 +62253,7 @@ class product {
     constructor({
         id,
         name = null,
-        contractsDeposited = 0, // meh contracts deposited
+        contractsDeposited = null, // meh contracts deposited
         mehContracts = null,
         contractPrice = null,
         prizeMeh = 0,
@@ -62259,15 +62265,15 @@ class product {
     }) {
         this.id = id;
         this.name = name;
-        this.contractsDeposited = isNaN(contractsDeposited) ? 0 : contractsDeposited; // meh contracts deposited
+        this.contractsDeposited = contractsDeposited; // meh contracts deposited
         this.mehContracts = isNaN(mehContracts) ? 0 : mehContracts;
         this.contractPrice = isNaN(contractPrice) ? null : (contractPrice < 1)? 1 : contractPrice;
         this.prizeMeh = prizeMeh;
         this.mehStore = mehStore;
         this.begin = Number(begin) * 1000;
         this.end = Number(end) * 1000;
-        this.remainingContracts = (mehContracts && (mehContracts - contractsDeposited) > 0)?mehContracts - contractsDeposited:0;
-        this.soldOut = (this.remainingContracts && this.remainingContracts >= 1)?false:true;
+        this.remainingContracts = (mehContracts && contractsDeposited)?((mehContracts && (mehContracts - contractsDeposited) > 0)?mehContracts - contractsDeposited:0):null;
+        this.soldOut = (this.remainingContracts && this.remainingContracts == 0)?true:false;
         this.limitedRun = limitedRun;
         this.html = null;
         this.image = `/images/vote/id_${this.id}.png`;
@@ -62285,7 +62291,7 @@ class product {
         this.html.style.backgroundImage = `url(${this.image})`;
         this.html.id = `product_${this.id}`;
         this.html.innerHTML =
-        `<div class="remaining">${this.remainingContracts}/${this.mehContracts}</div>
+        `<div class="remaining">${this.remainingContracts ?? '?'}/${this.mehContracts}</div>
         <div class="desc">
             <div class="title">
                 <div>${this.name}</div>
@@ -62294,7 +62300,7 @@ class product {
             <div class="action">
                 <div>${(0,_common_js__WEBPACK_IMPORTED_MODULE_0__.shortenNumber)(this.contractPrice,0)} Meh</div>
                 ${(_main_js__WEBPACK_IMPORTED_MODULE_2__.params.provider)
-                    ?`<div>Contracts Remaining ${this.remainingContracts}/${this.mehContracts}</div>`
+                    ?`<div>Contracts Remaining ${this.remainingContracts ?? '?'}/${this.mehContracts}</div>`
                     :`<div>Provider required to check Contracts Remaining</div>`
                 }
             </div>
@@ -62386,18 +62392,30 @@ async function init() {
         // call showErrors with stop
         (0,_common_js__WEBPACK_IMPORTED_MODULE_3__.showErrors)("Please install a web3 provider like MetaMask", true);
     }
+}
+
+async function startApp(_provider) {
+    if (_provider !== window.ethereum) {
+        console.error('Do you have multiple wallets installed?');
+        // If the provider returned by detectEthereumProvider is not the same as
+        // window.ethereum, something is overwriting it. There are likely multiple wallets.
+        (0,_common_js__WEBPACK_IMPORTED_MODULE_3__.showErrors)("There was an error getting your provider, do you have multiple wallets installed?", true);
+    }
+
+    ethereum.on('chainChanged', handleChainChanged);
+
+    // Note that accountsChanged is emitted on page load...
+    // --- if the array of accounts is non-empty, you're already connected.
+    ethereum.on('accountsChanged', (accounts)=>{handleAccounts(accounts)});
+    // set a 'read' flag to true, so we can start any operations that only need to read
+    // --- NOTE: may yet be wrong chain
 
     _main_js__WEBPACK_IMPORTED_MODULE_2__.params.currNetwork = await ethereum.request({ method: 'eth_chainId' });
 
     await switchNetwork(_main_js__WEBPACK_IMPORTED_MODULE_2__.params.preferredNetwork)
 
     await (0,_addr_js__WEBPACK_IMPORTED_MODULE_1__.init)();
-    
-    // Verify this is the desired chain.
-    // --- if not, try to switch to desired chain
-    // --- try/catch in case that fails due to the chain not being known...in which case try to add
-    // --- if we add the chain, may also need to (explicity) switch to it
-
+   
     await ethereum
         .request({ method: 'eth_accounts' })
         .then(handleAccounts)
@@ -62409,34 +62427,16 @@ async function init() {
         });
 }
 
-async function startApp(_provider) {
-    if (_provider !== window.ethereum) {
-        console.error('Do you have multiple wallets installed?');
-        // If the provider returned by detectEthereumProvider is not the same as
-        // window.ethereum, something is overwriting it. There are likely multiple wallets.
-        (0,_common_js__WEBPACK_IMPORTED_MODULE_3__.showErrors)("There was an error getting your provider, do you have multiple wallets installed?", true);
-    }
-    ethereum.on('chainChanged', handleChainChanged);
-
-    // Note that this event is emitted on page load...
-    // --- if the array of accounts is non-empty, you're already connected.
-    ethereum.on('accountsChanged', handleAccounts);
-
-    // set a 'read' flag to true, so we can start any operations that only need to read
-    // --- NOTE: may yet be wrong chain
-}
-
 function handleChainChanged(_chainId) {
     // When the chain changes, reload the page
-    window.location.reload();
+    (0,_common_js__WEBPACK_IMPORTED_MODULE_3__.reloadClient)();
 }
 
 // 'eth_accounts' returns an array
 function handleAccounts(accounts) {
     if (accounts.length === 0) {
         // MetaMask is locked or the user has not connected any accounts
-        _main_js__WEBPACK_IMPORTED_MODULE_2__.params.connection = 'read';
-console.log(`params.connection: ${_main_js__WEBPACK_IMPORTED_MODULE_2__.params.connection}`);
+        (0,_main_js__WEBPACK_IMPORTED_MODULE_2__.updateConnectionStatus)('read');
         (0,_main_js__WEBPACK_IMPORTED_MODULE_2__.prepConnectBtn)();
         // in read-mode at this point
         // update connection status
@@ -62444,9 +62444,7 @@ console.log(`params.connection: ${_main_js__WEBPACK_IMPORTED_MODULE_2__.params.c
         // there is an experimental ethereum._metamask.isUnlocked() that we may use to validate
     } else if (accounts[0] !== _main_js__WEBPACK_IMPORTED_MODULE_2__.params.account) {
         _main_js__WEBPACK_IMPORTED_MODULE_2__.params.account = accounts[0];
-        _main_js__WEBPACK_IMPORTED_MODULE_2__.params.connection = 'write';
-console.log(`params.connection: ${_main_js__WEBPACK_IMPORTED_MODULE_2__.params.connection}`);
-        (0,_main_js__WEBPACK_IMPORTED_MODULE_2__.showConencted)();
+        (0,_main_js__WEBPACK_IMPORTED_MODULE_2__.updateConnectionStatus)('write');
         // update connection status
         // At this point we should be able to send txs
         // --- no longer stuck in read-mode
@@ -62470,6 +62468,11 @@ function connect() {
 }
 
 async function switchNetwork(_chainId = _main_js__WEBPACK_IMPORTED_MODULE_2__.params.preferredNetwork) {
+    // Verify this is the desired chain.
+    // --- if not, try to switch to desired chain
+    // --- try/catch in case that fails due to the chain not being known...in which case try to add
+    // --- if we add the chain, may also need to (explicity) switch to it
+
     if (_chainId != _main_js__WEBPACK_IMPORTED_MODULE_2__.params.currNetwork) {
         await _main_js__WEBPACK_IMPORTED_MODULE_2__.params.provider.request({
             method: 'wallet_switchEthereumChain',
@@ -62490,7 +62493,7 @@ function showConnectionInfo() {
     let infoDiv = document.createElement("div");
     infoDiv.id = "connection_info";
     let _network= _addr_js__WEBPACK_IMPORTED_MODULE_1__.chainInfo.find(({ chainId }) => chainId === _main_js__WEBPACK_IMPORTED_MODULE_2__.params.currNetwork);
-    // Layer in logic for known but unsupported networks
+    // Layer in logic for display of known but unsupported networks, frex Ethereum
     infoDiv.innerHTML = `${(_network) ? _network.chainName : 'unknown'} ${(_main_js__WEBPACK_IMPORTED_MODULE_2__.params.account) ? `(${truncAddr(_main_js__WEBPACK_IMPORTED_MODULE_2__.params.account)})` : ''}`;
     let existingInfoDiv = document.getElementById("connection_info");
     (existingInfoDiv) ? existingInfoDiv.replaceWith(infoDiv) : 

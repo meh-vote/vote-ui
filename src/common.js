@@ -14,6 +14,10 @@ export function shortenNumber(_longNum, _dec = 0) {
                 Number(_longNum / 1000).toFixed(_dec) + "K" : _longNum;
 }
 
+export function reloadClient() {
+    window.location.reload();
+}
+
 export async function getAccounts() {
     const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
     return accounts;

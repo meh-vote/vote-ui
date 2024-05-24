@@ -7,7 +7,7 @@ export class product {
     constructor({
         id,
         name = null,
-        contractsDeposited = 0, // meh contracts deposited
+        contractsDeposited = null, // meh contracts deposited
         mehContracts = null,
         contractPrice = null,
         prizeMeh = 0,
@@ -19,15 +19,15 @@ export class product {
     }) {
         this.id = id;
         this.name = name;
-        this.contractsDeposited = isNaN(contractsDeposited) ? 0 : contractsDeposited; // meh contracts deposited
+        this.contractsDeposited = contractsDeposited; // meh contracts deposited
         this.mehContracts = isNaN(mehContracts) ? 0 : mehContracts;
         this.contractPrice = isNaN(contractPrice) ? null : (contractPrice < 1)? 1 : contractPrice;
         this.prizeMeh = prizeMeh;
         this.mehStore = mehStore;
         this.begin = Number(begin) * 1000;
         this.end = Number(end) * 1000;
-        this.remainingContracts = (mehContracts && (mehContracts - contractsDeposited) > 0)?mehContracts - contractsDeposited:0;
-        this.soldOut = (this.remainingContracts && this.remainingContracts >= 1)?false:true;
+        this.remainingContracts = (mehContracts && contractsDeposited)?((mehContracts && (mehContracts - contractsDeposited) > 0)?mehContracts - contractsDeposited:0):null;
+        this.soldOut = (this.remainingContracts && this.remainingContracts == 0)?true:false;
         this.limitedRun = limitedRun;
         this.html = null;
         this.image = `/images/vote/id_${this.id}.png`;
@@ -45,7 +45,7 @@ export class product {
         this.html.style.backgroundImage = `url(${this.image})`;
         this.html.id = `product_${this.id}`;
         this.html.innerHTML =
-        `<div class="remaining">${this.remainingContracts}/${this.mehContracts}</div>
+        `<div class="remaining">${this.remainingContracts ?? '?'}/${this.mehContracts}</div>
         <div class="desc">
             <div class="title">
                 <div>${this.name}</div>
@@ -54,7 +54,7 @@ export class product {
             <div class="action">
                 <div>${shortenNumber(this.contractPrice,0)} Meh</div>
                 ${(params.provider)
-                    ?`<div>Contracts Remaining ${this.remainingContracts}/${this.mehContracts}</div>`
+                    ?`<div>Contracts Remaining ${this.remainingContracts ?? '?'}/${this.mehContracts}</div>`
                     :`<div>Provider required to check Contracts Remaining</div>`
                 }
             </div>
