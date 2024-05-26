@@ -16775,7 +16775,7 @@ async function checkGameStatus() {
     var now = new Date().getTime();
     if (_main_js__WEBPACK_IMPORTED_MODULE_0__.params.gameEnd < now) { // game has ended
         _main_js__WEBPACK_IMPORTED_MODULE_0__.params.gameStatus = 2;
-        _main_js__WEBPACK_IMPORTED_MODULE_0__.params.timerDiv.innerHTML = "VOTING HAS ENDED 1";
+        _main_js__WEBPACK_IMPORTED_MODULE_0__.params.timerDiv.innerHTML = "VOTING HAS ENDED";
         _main_js__WEBPACK_IMPORTED_MODULE_0__.params.timerDiv.classList.add("small_text");
     } else if (_main_js__WEBPACK_IMPORTED_MODULE_0__.params.gameStart > now) { // game hasn't started
         _main_js__WEBPACK_IMPORTED_MODULE_0__.params.gameStatus = 0;
@@ -16834,7 +16834,7 @@ function initTimer() {
 
         if (distance < 0 || _main_js__WEBPACK_IMPORTED_MODULE_0__.params.gameStatus == 2) {
             clearInterval(_main_js__WEBPACK_IMPORTED_MODULE_0__.params.timerId);
-            _main_js__WEBPACK_IMPORTED_MODULE_0__.params.timerDiv.innerHTML = "VOTING HAS ENDED 2";
+            _main_js__WEBPACK_IMPORTED_MODULE_0__.params.timerDiv.innerHTML = "VOTING HAS ENDED";
             _main_js__WEBPACK_IMPORTED_MODULE_0__.params.timerDiv.classList.add("small_text")
         }
     }, 1000); // Update the count down every second
