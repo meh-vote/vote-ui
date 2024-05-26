@@ -107,4 +107,12 @@ export class product {
     async checkForOwnedContracts() {
         this.contractsOwned = Number(await MEHVote.methods.deposits(params.account,web3.utils.padLeft(web3.utils.numberToHex(this.id),40)).call());
     }
+
+    updateContracts({_deposited = null, _owned = null}) {
+        if (_deposited) {
+            this.contractsDeposited = _deposited
+            this.remainingContracts = this.mehContracts - this.contractsDeposited;
+        };
+        _owned && (this.contractsOwned = _owned);
+    }
 };

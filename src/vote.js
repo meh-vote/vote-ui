@@ -12,9 +12,9 @@ import { cleanBigInt, getAccounts, showErrors, showSuccess } from './common.js';
 
 let products = [];
 
-export async function loadGameData() {
+export async function loadStaticGameData() {
     //    let gameDetails = await MEHVote.methods.games(params.gameId).call();
-    await fetch(new Request("/data/game_1.json"))
+    await fetch(new Request(`/data/game_${params.gameId}.json`))
         .then((response) => response.json())
         .then((data) => {
             params.gameStart = Number(data.begin) * 1000;
@@ -23,13 +23,13 @@ export async function loadGameData() {
         .catch(console.error);
 }
 
-export async function loadProductData() {
+export async function loadStaticProductData() {
     // When switching to static date, to allow showing w/o provider, will need to assume that contractsDeposited is unkown
     //    let gameProducts = await MEHVote.methods.getProductsByGameId(params.gameId).call();
 
     products = [];
 
-    await fetch(new Request("/data/products_1.json"))
+    await fetch(new Request(`/data/products_${params.gameId}.json`))
         .then((response) => response.json())
         .then(async (data) => {
             for (const _product of data) {
@@ -68,7 +68,8 @@ export async function loadProductData() {
 export async function displayProducts(regenHTML = false) {
     if (regenHTML) {
         for (const _product of products) {
-            _product.genHtml();        };
+            _product.genHtml();
+        };
     }
     params.contentDiv.innerHTML = '';
     for (const _product of products) {
@@ -118,7 +119,7 @@ async function checkTransactionQueue() {
             });
         };
         if (params.updatesOnChain && params.transactionQueue.length == 0) {
-            loadProductData();
+            loadStaticProductData();
             params.updatesOnChain = false;
             console.log("loaded new updates from chain");
         }
@@ -292,6 +293,16 @@ export async function claim(_productId) {
     return txHash;
 };
 
+export function updateLiveProductData() {
+    let gameProducts = MEHVote.methods.getProductsByGameId(params.gameId).call()
+    .then((data) => {
+        for (const [index, _product] of data.entries()) {
+            products[index].updateContracts({_deposited: Number(_product.mehContractsDeposited)})
+        }
+        displayProducts(true);
+    });
+}
+
 // ****************************
 // SAMPLE / TEST CODE BELOW
 // ****************************
@@ -299,5 +310,5 @@ export async function claim(_productId) {
 window.MEHToken = MEHToken;
 window.MEHVote = MEHVote;
 window.vote = vote;
-window.loadProductData = loadProductData;
+window.loadStaticProductData = loadStaticProductData;
 

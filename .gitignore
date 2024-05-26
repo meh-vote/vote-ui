@@ -2,5 +2,3 @@
 node_modules/
 .next/
 dist/
-dist/main.js
-dist/data/products_1.json

@@ -3,7 +3,7 @@ import { library, dom } from '@fortawesome/fontawesome-svg-core';
 import { faCirclePlus } from '@fortawesome/free-solid-svg-icons';
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
 
-import { loadGameData, loadProductData, setGameStatus, displayProducts, updateTransactionQueue } from './vote.js';
+import { loadStaticGameData, loadStaticProductData, setGameStatus, displayProducts, updateLiveProductData, updateTransactionQueue } from './vote.js';
 import { reloadClient } from './common.js';
 import { init as walletInit, connect } from './wallet.js';
 
@@ -60,8 +60,8 @@ export let sharedData = {
 }
 
 // SHOW WHAT WE CAN WITHOUT A PROVIDER / WALLET
-await loadGameData();
-await loadProductData();
+await loadStaticGameData();
+await loadStaticProductData();
 await setGameStatus();
 await prepConnectBtn();
 await walletInit();
@@ -91,6 +91,7 @@ export function updateConnectionStatus(_status = 'static') {
         displayProducts(true);
         if (params.connection != 'write') {
             console.log(`do anything requiring a provider HERE; contract balances`);
+            updateLiveProductData();
         } else {
             reloadClient()
         }
@@ -98,6 +99,7 @@ export function updateConnectionStatus(_status = 'static') {
     } else if (_status == 'write' && params.connection != 'write') { // we've just switched to write
         displayProducts(true);
         if (params.connection != 'read') {
+            updateLiveProductData();
             console.log(`do anything requiring a provider HERE; contract balances`);
         }
         console.log(`do anything requiring a address HERE; owned contracts (yet to be claimed)`);
