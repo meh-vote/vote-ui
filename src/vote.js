@@ -86,7 +86,7 @@ export async function checkGameStatus() {
     var now = new Date().getTime();
     if (params.gameEnd < now) { // game has ended
         params.gameStatus = 2;
-        params.timerDiv.innerHTML = "VOTING HAS ENDED 1";
+        params.timerDiv.innerHTML = "VOTING HAS ENDED";
         params.timerDiv.classList.add("small_text");
     } else if (params.gameStart > now) { // game hasn't started
         params.gameStatus = 0;
@@ -145,7 +145,7 @@ export function initTimer() {
 
         if (distance < 0 || params.gameStatus == 2) {
             clearInterval(params.timerId);
-            params.timerDiv.innerHTML = "VOTING HAS ENDED 2";
+            params.timerDiv.innerHTML = "VOTING HAS ENDED";
             params.timerDiv.classList.add("small_text")
         }
     }, 1000); // Update the count down every second
