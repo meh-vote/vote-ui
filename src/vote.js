@@ -296,8 +296,10 @@ export async function claim(_productId) {
 export function updateLiveProductData() {
     let gameProducts = MEHVote.methods.getProductsByGameId(params.gameId).call()
     .then((data) => {
-        for (const [index, _product] of data.entries()) {
-            products[index].updateContracts({_deposited: Number(_product.mehContractsDeposited)})
+        for (const _product of data) {
+//            products[index].updateContracts({_deposited: Number(_product.mehContractsDeposited)})
+            products.find(product => product.id == _product.id).updateContracts({_deposited: Number(_product.mehContractsDeposited)})
+
         }
         displayProducts(true);
     });
