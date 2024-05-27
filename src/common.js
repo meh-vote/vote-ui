@@ -157,6 +157,11 @@ export async function checkRemainingApproval(_wallet) {
     return approval;
 };
 
+export async function checkMehBalance(_wallet) {
+    let balance = await MEHToken.methods.balanceOf(_wallet).call().then((result) => {return cleanBigInt(result,params.tokenScale)});
+    return balance;
+};
+
 export async function calcGas({account, context, func, args = null}) {
     let gasPrice = await getGasPrice();
     gasPrice = Math.trunc(Number(gasPrice) * 1.5);

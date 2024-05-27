@@ -1,7 +1,8 @@
 import detectEthereumProvider from '@metamask/detect-provider';
 import { init as addrInit, chainInfo } from './addr.js';
 import { params, prepConnectBtn, updateConnectionStatus } from "./main.js";
-import { showErrors, reloadClient } from './common.js';
+import { showErrors, reloadClient, checkRemainingApproval, checkMehBalance, shortenNumber, removeApproval } from './common.js';
+import { approveMeh } from './vote.js';
 
 export async function init() {
     // this returns the provider, or null if it wasn't detected
@@ -28,7 +29,7 @@ async function startApp(_provider) {
 
     // Note that accountsChanged is emitted on page load...
     // --- if the array of accounts is non-empty, you're already connected.
-    ethereum.on('accountsChanged', (accounts)=>{handleAccounts(accounts)});
+    ethereum.on('accountsChanged', (accounts) => { handleAccounts(accounts) });
     // set a 'read' flag to true, so we can start any operations that only need to read
     // --- NOTE: may yet be wrong chain
 
@@ -37,7 +38,7 @@ async function startApp(_provider) {
     await switchNetwork(params.preferredNetwork)
 
     await addrInit();
-   
+
     await ethereum
         .request({ method: 'eth_accounts' })
         .then(handleAccounts)
@@ -103,8 +104,8 @@ async function switchNetwork(_chainId = params.preferredNetwork) {
             handleChainChanged(null);
         }).catch((e) => {
             if (e.code === 4902) {
-//                helpChain(_chainId);
-console.log(`need to add chain ${_chainId}`);
+                //                helpChain(_chainId);
+                console.log(`need to add chain ${_chainId}`);
             }
             throw new Error("Could not connect to a supported network");
         });
@@ -114,11 +115,11 @@ console.log(`need to add chain ${_chainId}`);
 function showConnectionInfo() {
     let infoDiv = document.createElement("div");
     infoDiv.id = "connection_info";
-    let _network= chainInfo.find(({ chainId }) => chainId === params.currNetwork);
+    let _network = chainInfo.find(({ chainId }) => chainId === params.currNetwork);
     // Layer in logic for display of known but unsupported networks, frex Ethereum
     infoDiv.innerHTML = `${(_network) ? _network.chainName : 'unknown'} ${(params.account) ? `(${truncAddr(params.account)})` : ''}`;
     let existingInfoDiv = document.getElementById("connection_info");
-    (existingInfoDiv) ? existingInfoDiv.replaceWith(infoDiv) : 
+    (existingInfoDiv) ? existingInfoDiv.replaceWith(infoDiv) :
         document.getElementById("wallet").insertAdjacentElement('beforeend', infoDiv);
 }
 
@@ -129,3 +130,21 @@ function truncAddr(addr, limit = 4) {
     var shortAddr = `${addr.substr(0, limit)}...${addr.substr(limit * -1)}`
     return shortAddr;
 };
+
+export async function tokenDisplay() {
+    const displayDiv = document.getElementById('wallet');
+    params.currApproval = await checkRemainingApproval(params.account);
+//    params.currMehBalance = await MEHToken.methods.balanceOf(currWallet).call().then((result) => {return cleanBigInt(result,params.tokenScale)});
+    params.currMehBalance = await checkMehBalance(params.account);
+
+    displayDiv.insertAdjacentHTML('beforeend',
+        `<div id="token_status">
+                ${shortenNumber(params.currMehBalance, 2)} Meh
+                <a href="https://app.uniswap.org/explore/tokens/base/0xa999542c71febba77602fbc2f784ba9ba0c850f6" target="_blank"><i class="fa-solid fa-circle-plus"></i></a> |
+                <span id="meh_approval" class="meh_approval ${(params.currApproval < 25000) && 'low_approval'}">${shortenNumber(params.currApproval)} Approved</span>
+                <span id="del_approval"><i class="fa-regular fa-trash-can"></i></span>
+            </div>`
+    );
+    document.getElementById('meh_approval').addEventListener('click', () => { approveMeh(100000000); });
+    document.getElementById('del_approval').addEventListener('click', () => { removeApproval() });
+}

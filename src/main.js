@@ -5,7 +5,7 @@ import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
 
 import { loadStaticGameData, loadStaticProductData, setGameStatus, displayProducts, updateLiveProductData, updateTransactionQueue } from './vote.js';
 import { reloadClient } from './common.js';
-import { init as walletInit, connect } from './wallet.js';
+import { init as walletInit, connect, tokenDisplay } from './wallet.js';
 
 library.add(faCirclePlus, faTrashCan);
 dom.watch();
@@ -22,6 +22,7 @@ dom.watch();
 // [ ] helper to add Meh token to wallet
 // [ ] periodic (every X min) refresh of product data (reconcile with pending txs)
 // [ ] sort closed products to the end
+// [ ] refine product class to store its own pointer to the display div/html
 //     --- MEDIUM ---
 // [ ] spinner when waiting for tx to finish / indicator for pending transactions (toaster?)
 // [ ] success message when tx finishes on chain (toaster?)
@@ -83,14 +84,15 @@ function showConnected() {
     document.body.classList.remove("disconnected");
     params.walletDiv.innerText = 'Connected';
     params.walletDiv.removeEventListener("click", connect);
-    console.info(`output meh token balance and approval amount`);
+//    console.info(`output meh token balance and approval amount`);
+    tokenDisplay();
 }
 
 export function updateConnectionStatus(_status = 'static') {
     if (_status == 'read' && params.connection != 'read') { // we've just switched to read
         displayProducts(true);
         if (params.connection != 'write') {
-            console.log(`do anything requiring a provider HERE; contract balances`);
+//            console.log(`do anything requiring a provider HERE; contract balances`);
             updateLiveProductData();
         } else {
             reloadClient()
@@ -99,10 +101,13 @@ export function updateConnectionStatus(_status = 'static') {
     } else if (_status == 'write' && params.connection != 'write') { // we've just switched to write
         displayProducts(true);
         if (params.connection != 'read') {
+//            console.log(`do anything requiring a provider HERE; contract balances`);
             updateLiveProductData();
-            console.log(`do anything requiring a provider HERE; contract balances`);
         }
         console.log(`do anything requiring a address HERE; owned contracts (yet to be claimed)`);
+        // show token balance
+        // show balance
+        // show contract ownership
         showConnected()
         params.connection = 'write';
     } else if (_status == 'static' && params.connection != 'static') {  // we've just switched to static
