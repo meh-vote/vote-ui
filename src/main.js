@@ -92,7 +92,6 @@ export function updateConnectionStatus(_status = 'static') {
     if (_status == 'read' && params.connection != 'read') { // we've just switched to read
         displayProducts(true);
         if (params.connection != 'write') {
-//            console.log(`do anything requiring a provider HERE; contract balances`);
             updateLiveProductData();
         } else {
             reloadClient()
@@ -101,12 +100,9 @@ export function updateConnectionStatus(_status = 'static') {
     } else if (_status == 'write' && params.connection != 'write') { // we've just switched to write
         displayProducts(true);
         if (params.connection != 'read') {
-//            console.log(`do anything requiring a provider HERE; contract balances`);
             updateLiveProductData();
         }
         console.log(`do anything requiring a address HERE; owned contracts (yet to be claimed)`);
-        // show token balance
-        // show balance
         // show contract ownership
         showConnected()
         params.connection = 'write';
