@@ -3,7 +3,14 @@ import { library, dom } from '@fortawesome/fontawesome-svg-core';
 import { faCirclePlus } from '@fortawesome/free-solid-svg-icons';
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
 
-import { loadStaticGameData, loadStaticProductData, setGameStatus, displayProducts, updateLiveProductData, updateTransactionQueue } from './vote.js';
+import {
+    loadStaticGameData,
+    loadStaticProductData,
+    setGameStatus,
+    displayProducts,
+    updateLiveProductData,
+    checkForContracts
+} from './vote.js';
 import { reloadClient } from './common.js';
 import { init as walletInit, connect, tokenDisplay } from './wallet.js';
 
@@ -102,8 +109,7 @@ export function updateConnectionStatus(_status = 'static') {
         if (params.connection != 'read') {
             updateLiveProductData();
         }
-        console.log(`do anything requiring a address HERE; owned contracts (yet to be claimed)`);
-        // show contract ownership
+        checkForContracts()
         showConnected()
         params.connection = 'write';
     } else if (_status == 'static' && params.connection != 'static') {  // we've just switched to static

@@ -73,7 +73,7 @@ export class product {
         if (this.contractsOwned && this.contractsOwned > 0) {
             if (this.soldOut) {
                 this.html.insertAdjacentHTML('afterbegin', `<span id="contract_count_${this.id}" class="contract_count fa-layers-counter fa-4x">CLAIM ${this.contractsOwned}</span>`);
-                this.html.getElementsByClassName(`contract_count`)[0].addEventListener('click', () => {
+                this.html.getElementsByClassName(`contract_count`)[0].addEventListener('click', (evt) => {
                     claim(this.id);
                     evt.stopImmediatePropagation();
                     console.log(`Claiming ${this.contractsOwned} contracts...`)
@@ -112,7 +112,10 @@ export class product {
         if (_deposited) {
             this.contractsDeposited = _deposited
             this.remainingContracts = this.mehContracts - this.contractsDeposited;
+            this.soldOut = (this.remainingContracts == 0);
         };
-        _owned && (this.contractsOwned = _owned);
+        if (_owned) {
+            this.contractsOwned = _owned;
+        }
     }
 };

@@ -33,6 +33,8 @@ async function startApp(_provider) {
     // set a 'read' flag to true, so we can start any operations that only need to read
     // --- NOTE: may yet be wrong chain
 
+    ethereum.on('disconnect', reloadClient);
+
     params.currNetwork = await ethereum.request({ method: 'eth_chainId' });
 
     await switchNetwork(params.preferredNetwork)

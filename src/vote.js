@@ -36,7 +36,7 @@ export async function loadStaticProductData() {
                 products.push(new product({
                     id: Number(_product.id),
                     name: _product.name,
-                    contractsDeposited: _product.mehContractsDeposited ?Number(_product.mehContractsDeposited) : null, // meh contracts deposited
+                    contractsDeposited: _product.mehContractsDeposited ? Number(_product.mehContractsDeposited) : null, // meh contracts deposited
                     mehContracts: Number(_product.mehContracts),
                     contractPrice: cleanBigInt(_product.mehContractPrice, params.tokenScale),
                     prizeMeh: cleanBigInt(_product.prizeMeh, params.tokenScale),
@@ -66,13 +66,9 @@ export async function loadStaticProductData() {
 }
 
 export async function displayProducts(regenHTML = false) {
-    if (regenHTML) {
-        for (const _product of products) {
-            _product.genHtml();
-        };
-    }
     params.contentDiv.innerHTML = '';
     for (const _product of products) {
+        if (regenHTML) { _product.genHtml(); }
         params.contentDiv.insertAdjacentElement('beforeend', _product.html);
     };
 }
@@ -295,14 +291,20 @@ export async function claim(_productId) {
 
 export function updateLiveProductData() {
     let gameProducts = MEHVote.methods.getProductsByGameId(params.gameId).call()
-    .then((data) => {
-        for (const _product of data) {
-//            products[index].updateContracts({_deposited: Number(_product.mehContractsDeposited)})
-            products.find(product => product.id == _product.id).updateContracts({_deposited: Number(_product.mehContractsDeposited)})
+        .then((data) => {
+            for (const _product of data) {
+                //            products[index].updateContracts({_deposited: Number(_product.mehContractsDeposited)})
+                products.find(product => product.id == _product.id).updateContracts({ _deposited: Number(_product.mehContractsDeposited) })
 
-        }
-        displayProducts(true);
-    });
+            }
+            displayProducts(true);
+        });
+}
+
+export function checkForContracts() {
+    for (const _product of products) {
+        _product.checkForOwnedContracts();
+    };
 }
 
 // ****************************
