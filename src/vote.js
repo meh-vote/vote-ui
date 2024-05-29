@@ -14,7 +14,7 @@ let products = [];
 
 export async function loadStaticGameData() {
     //    let gameDetails = await MEHVote.methods.games(params.gameId).call();
-    await fetch(new Request(`/data/game_${params.gameId}.json`))
+    await fetch(new Request(`./data/game_${params.gameId}.json`))
         .then((response) => response.json())
         .then((data) => {
             params.gameStart = Number(data.begin) * 1000;
@@ -29,7 +29,7 @@ export async function loadStaticProductData() {
 
     products = [];
 
-    await fetch(new Request(`/data/products_${params.gameId}.json`))
+    await fetch(new Request(`./data/products_${params.gameId}.json`))
         .then((response) => response.json())
         .then(async (data) => {
             for (const _product of data) {
